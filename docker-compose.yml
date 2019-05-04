@@ -1,0 +1,32 @@
+version: "3.4"
+
+services:
+  ipfs-replicator.dnp.dappnode.eth:
+    build: ./build
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql/data
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  ipfs:
+    image: ipfs/go-ipfs
+    container_name: ipfs
+    restart: always
+    volumes:
+      - "ipfsdnpdappnodeeth_export:/export"
+      - "ipfsdnpdappnodeeth_data:/data/ipfs"
+    ports:
+      - "5001:5001"
+      - "4001:4001"
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+
+volumes:
+  db-data: {}
+  ipfsdnpdappnodeeth_export: {}
+  ipfsdnpdappnodeeth_data: {}

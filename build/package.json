@@ -1,0 +1,44 @@
+{
+  "name": "dappnode-ipfs-replicator",
+  "version": "1.0.0",
+  "description": "Simple IPFS replicator to mantain DAppNode's content",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "DB_PATH=./test-db mocha './{,!(node_modules)/**}/*.test.js'",
+    "test:file": "DB_PATH=./test-db mocha",
+    "lint": "./node_modules/.bin/eslint . --ext .js --fix",
+    "pre-commit": "npm run lint && npm run test",
+    "bundle": "npx webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dapplion/DAppNode_IPFS_Replicator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dapplion/DAppNode_IPFS_Replicator/issues"
+  },
+  "homepage": "https://github.com/dapplion/DAppNode_IPFS_Replicator#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^5.16.0",
+    "mocha": "^6.1.4",
+    "prettier": "^1.17.0",
+    "proxyquire": "^2.1.0"
+  },
+  "dependencies": {
+    "async": "^2.6.2",
+    "ethjs": "^0.4.0",
+    "ethjs-ens": "^2.0.1",
+    "ipfs-http-client": "^30.1.4",
+    "level": "^5.0.1",
+    "pretty-bytes": "^5.2.0",
+    "request": "^2.88.0",
+    "timestring": "^5.0.1",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.1"
+  }
+}

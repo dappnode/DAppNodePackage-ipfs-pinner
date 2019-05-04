@@ -1,0 +1,30 @@
+{
+  "name": "ipfs-replicator.dnp.dappnode.eth",
+  "version": "0.1.0",
+  "description": "Simple IPFS replicator to mantain DAppNode's content",
+  "avatar": "",
+  "type": "service",
+  "image": {
+    "path": "",
+    "hash": "",
+    "size": "",
+    "volumes": ["db-data:/var/lib/mysql/data"],
+    "restart": "always"
+  },
+  "author": "DAppNode Association <admin@dappnode.io> (https://github.com/dappnode)",
+  "contributors": [
+    "dappLion <dapplion@dappnode.io> (https://github.com/dapplion)"
+  ],
+  "keywords": ["IPFS", "Replicator", "Pinner"],
+  "links": {
+    "homepage": "https://github.com/dapplion/DAppNode_IPFS_Replicator#readme"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dapplion/DAppNode_IPFS_Replicator"
+  },
+  "bugs": {
+    "url": "https://github.com/dapplion/DAppNode_IPFS_Replicator/issues"
+  },
+  "license": "GPL-3.0"
+}
