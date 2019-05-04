@@ -5,7 +5,7 @@ require("../utils/arrayPrototype");
 
 async function triggerPublicGateways() {
   // gateways = ["https://gateway.ipfs.io/ipfs/", ... ]
-  const ipfsHashes = await db.getIpfsHashes();
+  const ipfsHashes = db.getIpfsHashes();
   const gateways = await getPublicGateways();
 
   await ipfsHashes.mapAsyncParallel(({ name, version, asset, hash }) =>
@@ -23,4 +23,4 @@ async function triggerPublicGateways() {
   );
 }
 
-triggerPublicGateways();
+module.exports = triggerPublicGateways;

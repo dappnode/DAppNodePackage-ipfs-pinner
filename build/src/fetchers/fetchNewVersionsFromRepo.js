@@ -16,7 +16,7 @@ async function fetchNewVersionsFromRepo(repoAddress) {
   const latestIndex = await repo.getVersionsCount();
 
   // Cache the lastIndex to avoid repeating fetches for known versions
-  let cachedLatestIndex = await db.repoLatestIndexCache.get(repoAddress);
+  let cachedLatestIndex = db.repoLatestIndexCache.get(repoAddress);
   if (cachedLatestIndex) cachedLatestIndex = parseInt(cachedLatestIndex);
   if (latestIndex === cachedLatestIndex) return [];
 
@@ -58,14 +58,10 @@ async function fetchNewVersionsFromRepo(repoAddress) {
     })
   );
 
-  await db.repoLatestIndexCache.set(repoAddress, latestIndex);
+  db.repoLatestIndexCache.set(repoAddress, latestIndex);
 
   // Filter out versions that returned an error
   return versions.filter(version => version);
 }
-
-fetchNewVersionsFromRepo("0xee66c4765696c922078e8670aa9e6d4f6ffcc455").then(
-  console.log
-);
 
 module.exports = fetchNewVersionsFromRepo;

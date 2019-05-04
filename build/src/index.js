@@ -21,9 +21,9 @@ async function start() {
   await parseCsv(
     process.env.REGISTRY_CSV || "dnp.dappnode.eth"
   ).mapAsyncParallel(async name => {
-    const address = await ens.resolve(name);
+    const address = await ens.lookup(name);
     console.log(`Adding registry: ${name} ${address}`);
-    await db.addRegistry({ name, address });
+    db.addRegistry({ name, address });
   });
 
   /**

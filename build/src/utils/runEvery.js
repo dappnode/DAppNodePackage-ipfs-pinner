@@ -52,12 +52,12 @@ function parseInterval(interval) {
 /**
  * Warp errors
  */
-async function wrapErrors(fn) {
+const wrapErrors = fn => async () => {
   try {
     return await fn();
   } catch (e) {
-    console.log(e.stack);
+    console.error(e.stack);
   }
-}
+};
 
 module.exports = runEvery;

@@ -3,7 +3,4 @@ const eth = require("./eth");
 
 const ens = new ENS({ provider: eth.currentProvider, network: "1" });
 
-module.exports = {
-  ...ens,
-  resolve: ens.lookup
-};
+module.exports = ens;

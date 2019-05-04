@@ -1,6 +1,6 @@
 const db = require("../db");
 const ipfs = require("../ipfs");
-const prettyBytes = require("pretty-bytes");
+
 require("../utils/arrayPrototype");
 
 /**
@@ -12,8 +12,11 @@ require("../utils/arrayPrototype");
  * }, ... ]
  */
 async function pinCollectedHashes() {
-  const alreadyPinned = await getPinnedHashes();
-  const ipfsHashes = await db.getIpfsHashes();
+  const alreadyPinned = await ipfs.pinList({ type: "recursive" }).catch(e => {
+    console.error(`Error fetching already pinned content: ${e.stack}`);
+    return {};
+  });
+  const ipfsHashes = db.getIpfsHashes();
   const isAlreadyPinned = hash => alreadyPinned[hash.replace("/ipfs/", "")];
 
   /**
@@ -32,19 +35,15 @@ async function pinCollectedHashes() {
       totalCount ? ((100 * count) / totalCount).toFixed(2) + "%" : "-";
 
     /**
-     * ipfs.repo.stat returns
-     * { numObjects: 16516,
-     *   repoSize: 4149644056,
-     *   repoPath: '/data/ipfs',
-     *   version: 'fs-repo@7',
-     *   storageMax: 50000000000 }
+     * ipfs.repoStats returns {
+     *   size: 4223045026,
+     *   maxSize: 50000000000
+     * }
      */
-    const res = await ipfs.raw.repo.stat({ human: true });
-    const repoSize = prettyBytes(res.repoSize.toNumber());
-    const storageMax = prettyBytes(res.storageMax.toNumber());
+    const repo = await ipfs.repoStats({ human: true });
 
     console.log(`
-  Current repo size: ${repoSize} (max: ${storageMax})
+  Current repo size: ${repo.size} (max: ${repo.maxSize})
   Current assets stats:`);
     console.table(
       [
@@ -70,7 +69,7 @@ async function pinCollectedHashes() {
         await ipfs.pinAdd(hash);
         console.log(`Pinned hash ${hash}`);
       }
-      await db.updatePinStatus.justPinned(hash);
+      db.updatePinStatus.justPinned(hash);
     } catch (e) {
       // If the error is a timeout, the stack is useless
       const message = e.message || "";
@@ -78,23 +77,9 @@ async function pinCollectedHashes() {
         message.includes("Timeout") || message.includes("not available")
           ? e.message
           : e.stack;
-      console.log(`Error pinning ${id}: ${error}`);
+      console.error(`Error pinning ${id}: ${error}`);
     }
   });
-}
-
-// Get pinned content
-
-async function getPinnedHashes() {
-  try {
-    const pinList = await ipfs.pinList({ type: "recursive" });
-    return pinList.reduce((obj, { hash }) => {
-      return { ...obj, [hash]: true };
-    }, {});
-  } catch (e) {
-    console.error(`Error fetching already pinned content: ${e.stack}`);
-    return {};
-  }
 }
 
 module.exports = pinCollectedHashes;

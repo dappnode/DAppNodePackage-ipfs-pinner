@@ -9,7 +9,7 @@ const ipfs = require("../ipfs");
  * - If Github replies with 404, it will NOT try to fetch the fail again
  */
 async function portMissingAssetsFromGithubToIpfs() {
-  const assets = await db.getReposUnpinnedAssets();
+  const assets = db.getReposUnpinnedAssets();
 
   console.log(
     `Collected ${assets.length} unavailable assets that maybe on Github`
@@ -34,10 +34,11 @@ async function portMissingAssetsFromGithubToIpfs() {
       try {
         // returns hash without prefix, uploadedHash = "Qm..."
         uploadedHash = await ipfs.addFromUrl(url);
+        console.log({ uploadedHash });
       } catch (e) {
         // If file is not found on github flag it as so
         if (e.message.includes("404")) {
-          await db.updatePinStatus.notInGithub(hash);
+          db.updatePinStatus.notInGithub(hash);
           console.log(`Error 404 asset not found on Github ${url}`);
           continue;
         }
@@ -50,9 +51,9 @@ async function portMissingAssetsFromGithubToIpfs() {
         throw Error(`Incorrect resulting hash: ${uploadedHash}`);
 
       console.log(`Uploaded ${name} ${version} ${asset} from Github`);
-      await db.updatePinStatus.justPinned(hash);
+      db.updatePinStatus.justPinned(hash);
     } catch (e) {
-      console.log(`Error adding asset from github ${id}: ${e.stack}`);
+      console.error(`Error adding asset from github ${id}: ${e.stack}`);
     }
   }
 }

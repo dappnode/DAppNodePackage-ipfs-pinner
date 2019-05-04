@@ -1,22 +1,17 @@
 const wrapMethodsWithQueue = require("../utils/wrapMethodsWithQueue");
 const isIpfsHash = require("../utils/isIpfsHash");
 const parseJson = require("./parseJson");
-const { timeoutError } = require("./timeoutParams");
-const ipfs = require("./ipfsSetup");
+const Ipfs = require("./Ipfs");
 
-// Methods
-const methods = {
-  cat: require("./methods/cat"),
-  catStreamToFs: require("./methods/catStreamToFs"),
-  objectSize: require("./methods/objectSize"),
-  pinAdd: require("./methods/pinAdd"),
-  addFromUrl: require("./methods/addFromUrl")
-};
-// Params
+const ipfs = Ipfs("http://my.ipfs.dnp.dappnode.eth:5001");
+
 const params = {
+  // For the async queue
   times: 3,
   concurrency: 10,
-  intervalBase: 225
+  intervalBase: 225,
+  // For the request timeout
+  timeout: 30 * 1000
 };
 
 /**
@@ -24,7 +19,7 @@ const params = {
  * This wrap ensures that many concurrent calls will not overload the
  * node, increasing the chances of failure.
  */
-const wrappedMethods = wrapMethodsWithQueue(methods, params);
+const ipfsWithQueue = wrapMethodsWithQueue(ipfs, params);
 
 /**
  * Second, wrap the wrapped methods with a check to verify if the
@@ -47,11 +42,13 @@ async function isAvailable(hash) {
   hash = hash.split("ipfs/")[1] || hash;
 
   try {
-    await wrappedMethods.objectSize(hash);
+    await ipfsWithQueue.objectStats(hash, params.timeout);
   } catch (e) {
-    if (e.message === timeoutError)
+    // This is the timeout error code of the `request` library
+    if (e.code === "ESOCKETTIMEDOUT")
       throw Error(`Ipfs hash not available: ${hash}`);
-    else throw Error(`Ipfs hash ${hash} not available error: ${e.message}`);
+    else
+      throw Error(`Error checking ipfs hash ${hash} availability: ${e.stack}`);
   }
 }
 
@@ -59,19 +56,14 @@ async function isAvailable(hash) {
  * Wrap with `isAvailable` only the methods that involve
  * pulling content of yet unknown availability
  */
-const cat = wrapMethodWithIsAvailable(wrappedMethods.cat);
-const catStreamToFs = wrapMethodWithIsAvailable(wrappedMethods.catStreamToFs);
+
+const cat = wrapMethodWithIsAvailable(ipfsWithQueue.cat);
+const pinAdd = wrapMethodWithIsAvailable(ipfsWithQueue.pinAdd);
 const catObj = (...args) => cat(...args).then(parseJson);
-const pinAdd = wrapMethodWithIsAvailable(wrappedMethods.pinAdd);
 
 module.exports = {
-  ...wrappedMethods,
+  ...ipfsWithQueue,
   cat,
-  catStreamToFs,
   catObj,
-  pinAdd,
-  // Provide shortcuts to certain methods
-  pinList: ipfs.pin.ls,
-  // Export the library not wrapped to test out methods
-  raw: ipfs
+  pinAdd
 };

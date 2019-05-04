@@ -11,7 +11,7 @@ require("../utils/arrayPrototype");
  * 2. Fetch new repos for each registry
  */
 async function fetchFromRegistries() {
-  const registries = await db.getRegistries();
+  const registries = db.getRegistries();
   console.log(`Fetching new repos from ${registries.length} registries...`);
 
   await registries.mapAsyncParallel(async registry => {
@@ -20,7 +20,7 @@ async function fetchFromRegistries() {
       // repos = [{ name: 'livepeer', address: '0x1234abcd', }, ... ]
       for (const { name, address } of repos) {
         console.log(`Fetched new repo ${name}`);
-        await db.addRepo({ name: [name, registry.name].join("."), address });
+        db.addRepo({ name: [name, registry.name].join("."), address });
       }
     } catch (e) {
       console.error(

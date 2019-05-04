@@ -7,10 +7,10 @@ RUN apk update && \
     apk add git python make g++ curl && \
     rm -rf /var/cache/apk/*
 
-COPY src .
+COPY . .
 
-RUN npm install --production --unsafe-perm
-RUN npm build
+RUN yarn install --production
+RUN yarn bundle
 
 # This results in a single layer image
 FROM alpine

@@ -47,11 +47,8 @@ function wrapMethodsWithQueue(methods, params) {
   const wrappedMethods = {};
   for (const [key, method] of Object.entries(methods)) {
     // Make sure the method is an async function
-    if (
-      typeof method !== "function" ||
-      method.constructor.name === "AsyncFunction"
-    )
-      throw Error(`Method ${key} must be a regular async function`);
+    if (typeof method !== "function")
+      throw Error(`Method ${key} must be a function`);
 
     // Wrap method with the queue via push task
     wrappedMethods[key] = (...args) =>

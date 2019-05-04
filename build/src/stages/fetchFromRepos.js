@@ -12,8 +12,8 @@ require("../utils/arrayPrototype");
  * }, ... ]
  */
 async function fetchFromRepos() {
-  const repos = await db.getRepos();
-  console.log(`Fetching new version from ${repos.length} repos...`);
+  const repos = db.getRepos();
+  console.log(`Fetching new versions from ${repos.length} repos...`);
 
   await repos.mapAsyncParallel(async repo => {
     try {
@@ -23,7 +23,7 @@ async function fetchFromRepos() {
         try {
           if (isIpfsHash(contentUri)) {
             const hashes = await fetchManifestHashes(contentUri);
-            await db.addRepoVersion({
+            db.addRepoVersion({
               name: repo.name,
               version,
               contentUris: hashes

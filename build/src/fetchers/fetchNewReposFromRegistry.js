@@ -14,7 +14,7 @@ const firstRegistryDeployBlock = 5254891;
  * }, ... ]
  */
 async function fetchNewReposFromRegistry(registryAddress) {
-  const fromBlock = await db.registryLatestBlockCache.get(registryAddress);
+  const fromBlock = db.registryLatestBlockCache.get(registryAddress);
   const events = await web3
     .getNewReposFromRegistry(registryAddress, {
       fromBlock: fromBlock || firstRegistryDeployBlock
@@ -22,7 +22,7 @@ async function fetchNewReposFromRegistry(registryAddress) {
     .then(filterOutDuplicatedRepos);
 
   const latestBlock = await web3.getBlockNumber();
-  await db.registryLatestBlockCache.set(registryAddress, latestBlock);
+  db.registryLatestBlockCache.set(registryAddress, latestBlock);
 
   return events.map(event => {
     const { id, name, repo: address } = event.returnValues;

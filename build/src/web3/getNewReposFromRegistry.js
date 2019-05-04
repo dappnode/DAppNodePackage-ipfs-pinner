@@ -61,7 +61,6 @@ async function getNewReposFromRegistry(address, options = {}) {
     address,
     topics: [newRepoEventTopic]
   });
-  console.log(result);
   return result.map(event => ({
     ...event,
     blockNumber: event.blockNumber.toNumber(),

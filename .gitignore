@@ -1,3 +1,9 @@
+# db 
+pin-data-db.json
+**/pin-data-db.json
+build/node_modules/
+build/bundle.js
+
 # Logs
 logs
 *.log
