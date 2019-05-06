@@ -4,6 +4,8 @@ const fetchFromRegistries = require("./stages/fetchFromRegistries");
 const fetchFromRepos = require("./stages/fetchFromRepos");
 const pinCollectedHashes = require("./stages/pinCollectedHashes");
 const portMissingAssetsFromGithubToIpfs = require("./stages/portMissingAssetsFromGithubToIpfs");
+const triggerPublicGateways = require("./stages/triggerPublicGateways");
+const portLatestGithubRelease = require("./stages/portLatestGithubRelease");
 // DB
 const db = require("./db");
 // Utils
@@ -65,13 +67,42 @@ async function start() {
   // Run every day after the first run of the previous block
   await runEvery("1 day", async () => {
     /**
-     * 4. portMissingAssetsFromGithubToIpfs
-     * - Collects all fetched repo's asstes for each version
+     * 4. Port missing assets from Github to IPFS
+     * - Collects all fetched repo's assets for each version
      * - Collects pinned hashes and checks which assets are not pinned
      * - Checks if those assets are available in a github release
      * - If so, it add the file to IPFS with a stream
      * - If Github replies with 404, it will NOT try to fetch the fail again
      */
     await portMissingAssetsFromGithubToIpfs();
+
+    /**
+     * 5. Trigger public gateways
+     * - Collects all fetched repo's assets but only for:
+     *   - Already pinned and available hashes
+     *   - The latest available version
+     * - Collects a list of available and active gateways
+     * - Queries every single gateway to download each asset
+     */
+    await triggerPublicGateways();
+  });
+
+  /**
+   * Github's unauthenticated rate limiting is 60 req / hour.
+   * Right now there are only 19 repos, so this stage can be run
+   * every 19 minutes, the quickest
+   *
+   * [NOTE] no need to wait for the previous block
+   */
+  await runEvery("30 minutes", async () => {
+    /**
+     * 6. Port latest Github release
+     * - Fetch the latest release from Github
+     * - Check if it matches the current latest from APM
+     * - Check if it matches the current latest from Github
+     * - If it matches any, clean or remove,
+     * - Else, pin it and cache the result
+     */
+    await portLatestGithubRelease();
   });
 }

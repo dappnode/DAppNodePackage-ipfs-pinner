@@ -7,9 +7,11 @@ RUN apk update && \
     apk add git python make g++ curl && \
     rm -rf /var/cache/apk/*
 
-COPY . .
-
+COPY package.json .
+COPY yarn.lock .
 RUN yarn install --production
+RUN yarn add -D webpack webpack-cli
+COPY . .
 RUN yarn bundle
 
 # This results in a single layer image

@@ -3,6 +3,8 @@ const { promisify } = require("util");
 const requestAsync = promisify(request);
 const prettyBytes = require("pretty-bytes");
 
+const defaultTimeout = 15 * 60 * 1000;
+
 /**
  * Initialize IPFS library
  *
@@ -11,7 +13,16 @@ const prettyBytes = require("pretty-bytes");
  * - "https://ipfs.infura.io:5001"
  */
 function Ipfs(apiUrl) {
+  console.log(`IPFS connection to ${apiUrl}`);
   const baseUrl = `${apiUrl}/api/v0`;
+
+  function call(subUrl, timeout = defaultTimeout) {
+    const url = `${baseUrl}${subUrl}`;
+    return requestAsync(url, { timeout }).then(res => {
+      if (res.statusCode === 200) return res.body;
+      else throw Error(`${res.body} - url: ${url}`);
+    });
+  }
 
   /**
    * Streams file from url to IPFS
@@ -27,8 +38,20 @@ function Ipfs(apiUrl) {
   const addFromUrl = url =>
     new Promise((resolve, reject) => {
       const req = request(`${baseUrl}/add`, (err, res, body) => {
+        /**
+         * - If the url does not resolve, request will return this object
+         *   { Message: 'multipart: NextPart: EOF', Code: 0, Type: 'error' }
+         * - If the IPFS API is not available, the promise will reject
+         */
         if (err) reject(err);
-        else resolve(JSON.parse(body));
+        else {
+          const bodyJson = JSON.parse(body);
+          if (bodyJson.Hash) resolve(bodyJson.Hash);
+          else if (bodyJson.Type === "error")
+            if ((bodyJson.Message || "").includes("EOF")) reject(Error("404"));
+            else reject(Error(bodyJson.Message));
+          else reject(Error(`Unknown body format: ${body}`));
+        }
       });
       const form = req.form();
       form.append("file", request(url));
@@ -39,8 +62,7 @@ function Ipfs(apiUrl) {
    * @param {string} hash
    * @returns {string} contents
    */
-  const cat = hash =>
-    requestAsync(`${baseUrl}/cat?arg=${hash}`).then(res => res.body);
+  const cat = hash => call(`/cat?arg=${hash}`);
 
   /**
    * Returns list of all pinned hashes
@@ -49,10 +71,7 @@ function Ipfs(apiUrl) {
    * @returns {string} hash "QmNMCAWCc1EAfQ7BdVfpH9HnV1W9FiP9ztdAasdfghjksd"
    * If the upload was successful, the returned hash is the same
    */
-  const pinAdd = hash =>
-    requestAsync(`${baseUrl}/pin/add?arg=${hash}`).then(res =>
-      parseJson(res.body)
-    );
+  const pinAdd = hash => call(`/pin/add?arg=${hash}`).then(parseJson);
 
   /**
    * Returns list of all pinned hashes
@@ -62,9 +81,15 @@ function Ipfs(apiUrl) {
    *   QmNNcdkFZuS17hdAWNWFbsCe3QHLpVJ5cCdAasdfghjksd: true,
    */
   const pinList = () =>
-    requestAsync(`${baseUrl}/pin/ls?type=recursive`)
-      .then(res => parseJson(res.body))
+    call(`/pin/ls?type=recursive`)
+      .then(parseJson)
       .then(body => body.Keys);
+
+  /**
+   * Remove pinned objects from local storage
+   * @param {string} hash "QmNMCAWCc1EAfQ7BdVfpH9HnV1W9FiP9ztdAasdfghjksd"
+   */
+  const pinRemove = hash => call(`/pin/rm?arg=${hash}`).then(parseJson);
 
   /**
    * Returns IPFS object stats
@@ -82,9 +107,7 @@ function Ipfs(apiUrl) {
    * }
    */
   const objectStats = (hash, timeout = 30 * 1000) =>
-    requestAsync(`${baseUrl}/object/stat?arg=${hash}`, { timeout }).then(res =>
-      parseJson(res.body)
-    );
+    call(`/object/stat?arg=${hash}`, timeout).then(parseJson);
 
   /**
    * Returns current stats of the IPFS node
@@ -94,9 +117,9 @@ function Ipfs(apiUrl) {
    *   maxSize: 50000000000
    * }
    */
-  const repoStats = async ({ human }) =>
-    requestAsync(`${baseUrl}/stats/repo?size-only=true`)
-      .then(res => parseJson(res.body))
+  const repoStats = ({ human }) =>
+    call(`/stats/repo?size-only=true`)
+      .then(parseJson)
       .then(({ RepoSize, StorageMax }) => {
         if (human)
           return {
@@ -117,8 +140,7 @@ function Ipfs(apiUrl) {
    *   "ProtocolVersion": "<string>"
    * }
    */
-  const id = async () =>
-    requestAsync(`${baseUrl}/id`).then(res => parseJson(res.body));
+  const id = () => call(`/id`).then(parseJson);
 
   /**
    * [PARSER]
@@ -132,6 +154,7 @@ function Ipfs(apiUrl) {
     cat,
     pinAdd,
     pinList,
+    pinRemove,
     objectStats,
     repoStats,
     id

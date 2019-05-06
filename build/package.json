@@ -31,6 +31,7 @@
     "lowdb": "^1.0.0",
     "pretty-bytes": "^5.2.0",
     "request": "^2.88.0",
+    "semver": "^6.0.0",
     "timestring": "^5.0.1"
   },
   "devDependencies": {

@@ -1,4 +1,8 @@
-const fetch = require("fetch");
+const request = require("request");
+const { promisify } = require("util");
+const requestAsync = promisify(request);
+
+const timeout = 15 * 1000;
 
 const gatewaysListUrl =
   "https://raw.githubusercontent.com/ipfs/public-gateway-checker/master/gateways.json";
@@ -51,8 +55,8 @@ const gatewayListFallback = [
  */
 async function getPublicGateways() {
   // gateways have the format "https://gateway.ipfs.io/ipfs/:hash",
-  const gateways = await fetch(gatewaysListUrl)
-    .then(res => JSON.parse(res).map(url => url.replace(":hash", "")))
+  const gateways = await requestAsync(gatewaysListUrl)
+    .then(res => JSON.parse(res.body).map(url => url.replace(":hash", "")))
     .catch(e => {
       console.error(`Error fetching gatewaysList: ${e.stack}`);
       return gatewayListFallback;
@@ -65,8 +69,8 @@ async function getPublicGateways() {
   );
   await gateways.mapAsyncParallel(async gateway => {
     try {
-      const res = await fetch(gateway + hashToTest, { timeout: 15 * 1000 });
-      if (res.includes(expectedContent)) activeGateways.push(gateway);
+      const res = await requestAsync(gateway + hashToTest, { timeout });
+      if (res.body.includes(expectedContent)) activeGateways.push(gateway);
     } catch (e) {
       errors.push(e.message);
     }

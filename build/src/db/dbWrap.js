@@ -7,6 +7,7 @@ function wrapDb(db) {
   /**
    * Returns value at key
    * @param {String} key
+   * @param {*} data
    */
   function get(key) {
     return db.get(key).value();
@@ -15,10 +16,17 @@ function wrapDb(db) {
   /**
    * Set value at key
    * @param {String} key
-   * @param {object} data
    */
   function set(key, data) {
     return db.set(key, data).write();
+  }
+
+  /**
+   * Deletes a key
+   * @param {String} key
+   */
+  function del(key) {
+    return db.unset(key).write();
   }
 
   function merge(key, data) {
@@ -34,6 +42,7 @@ function wrapDb(db) {
   return {
     get,
     set,
+    del,
     merge
   };
 }

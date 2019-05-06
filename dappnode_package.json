@@ -8,7 +8,7 @@
     "path": "",
     "hash": "",
     "size": "",
-    "volumes": ["db-data:/var/lib/mysql/data"],
+    "volumes": ["pin-data:/usr/src/app/data"],
     "restart": "always"
   },
   "author": "DAppNode Association <admin@dappnode.io> (https://github.com/dappnode)",

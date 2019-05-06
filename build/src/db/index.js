@@ -1,5 +1,6 @@
 // User defined DB_PATH
-const dbPath = process.env.DB_PATH || "./pin-data-db.json";
+const dbPath = process.env.DB_PATH || "./data/pin-data-db.json";
+require("../utils/ensureDir")(dbPath);
 // ////////////////////
 
 const low = require("lowdb");
@@ -9,6 +10,10 @@ const adapter = new FileSync(dbPath);
 const wrapDb = require("./dbWrap");
 const db = wrapDb(low(adapter));
 
+// Deps
+const semver = require("semver");
+
+// DB keys
 const reposId = "repos";
 const registriesId = "registries";
 const repoVersionsId = "repoVersions";
@@ -97,8 +102,10 @@ function addRepoVersion({ name, version, contentUris }) {
  *   address: "0x1234abcd..."
  * }, ... ]
  */
-function getRepoVersions() {
-  return getValues(repoVersionsId);
+function getRepoVersions(name) {
+  return name
+    ? getValues(joinIds(repoVersionsId, name))
+    : getValues(repoVersionsId);
 }
 
 function getIpfsHashes() {
@@ -117,6 +124,10 @@ const updatePinStatus = {
   data: (hash, data) => db.merge(getIpfsHashId(hash), data)
 };
 
+function removePinnedHash(hash) {
+  db.del(getIpfsHashId(hash));
+}
+
 /**
  * [CACHES]
  * Store data about what was the last fetch of a specific piece of data
@@ -131,6 +142,7 @@ function cacheFactory(id) {
 
 const registryLatestBlockCache = cacheFactory("registryLatestBlock");
 const repoLatestIndexCache = cacheFactory("repoLatestIndex");
+const latestGithubVersionCache = cacheFactory("latestGithubVersion");
 
 /**
  * [COMPUTED-DATA]
@@ -164,10 +176,61 @@ function getReposUnpinnedAssets() {
 }
 
 /**
- * ##### TODO, are out
- * getObj
- * setObj
+ * @returns {array} assets = [{
+ *   name: "admin.dnp.dappnode.eth",
+ *   version: "0.1.11",
+ *   asset: "imageHash",
+ *   hash: "/ipfs/QmUJ9xNAhAG3iUzmFrwJ7koPckNXT7qP2eYSa361dcJWaT"
+ * }, ... ]
  */
+function getReposPinnedAssets() {
+  const repos = getRepoVersions();
+  const assets = [];
+  for (const versions of Object.values(repos)) {
+    for (const { name, version, contentUris } of Object.values(versions)) {
+      for (const [asset, hash] of Object.entries(contentUris)) {
+        const hashInfo = db.get(getIpfsHashId(hash));
+        if (!hashInfo) continue;
+        const { lastPinned, notInGithub } = hashInfo;
+        if (lastPinned && !notInGithub)
+          assets.push({ name, version, asset, hash });
+      }
+    }
+  }
+  return assets;
+}
+
+/**
+ * @returns {array} assets = [{
+ *   name: "admin.dnp.dappnode.eth",
+ *   version: "0.1.11",
+ *   asset: "imageHash",
+ *   hash: "/ipfs/QmUJ9xNAhAG3iUzmFrwJ7koPckNXT7qP2eYSa361dcJWaT"
+ * }, ... ]
+ */
+function getReposLatestVersionPinnedAssets() {
+  const assets = getReposPinnedAssets();
+  const latestVersionAssets = {};
+  for (const { name, version, asset, hash } of assets) {
+    const id = name + asset;
+    const storedVersion = (latestVersionAssets[id] || {}).version || "";
+    if (version > storedVersion)
+      latestVersionAssets[id] = { name, version, asset, hash };
+  }
+  return Object.values(latestVersionAssets);
+}
+
+/**
+ * Returns the latest version of DNP registered in the DB
+ *
+ * @param {string} name "admin.dnp.dappnode.eth"
+ * @returns {string} currentLatestVersionApm: "0.1.18",
+ */
+function getRepoLatestVersion(name) {
+  const repoVersions = getRepoVersions(name) || {};
+  const versions = Object.values(repoVersions).map(v => v.version);
+  return semver.maxSatisfying(versions, "*");
+}
 
 module.exports = {
   addRegistry,
@@ -178,9 +241,14 @@ module.exports = {
   getRepoVersions,
   getIpfsHashes,
   updatePinStatus,
+  removePinnedHash,
   // Data manipulations
   getReposUnpinnedAssets,
+  getReposPinnedAssets,
+  getReposLatestVersionPinnedAssets,
+  getRepoLatestVersion,
   // Cache
   registryLatestBlockCache,
-  repoLatestIndexCache
+  repoLatestIndexCache,
+  latestGithubVersionCache
 };

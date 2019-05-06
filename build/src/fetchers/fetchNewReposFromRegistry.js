@@ -19,7 +19,8 @@ async function fetchNewReposFromRegistry(registryAddress) {
     .getNewReposFromRegistry(registryAddress, {
       fromBlock: fromBlock || firstRegistryDeployBlock
     })
-    .then(filterOutDuplicatedRepos);
+    .then(filterOutDuplicatedRepos)
+    .then(filterKnownFaultyRepos);
 
   const latestBlock = await web3.getBlockNumber();
   db.registryLatestBlockCache.set(registryAddress, latestBlock);
@@ -64,6 +65,25 @@ function filterOutDuplicatedRepos(events) {
     }
   }
   return Object.values(uniqueIdEvents);
+}
+
+/**
+ * Filter dummy repos or known broken repos
+ */
+function filterKnownFaultyRepos(events) {
+  return events.filter(event => {
+    const name = event.returnValues.name;
+    // Dummy repos from the deploy TX
+    if (name === "apm-registry" || name === "apm-enssub" || name === "apm-repo")
+      return false;
+
+    // Broken repos specific to dnp.dappnode.eth
+    if (name === "testing" || name === "telegram-mtpproto.dnp.dappnode.eth")
+      return false;
+
+    // else
+    return true;
+  });
 }
 
 module.exports = fetchNewReposFromRegistry;

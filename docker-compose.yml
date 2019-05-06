@@ -1,11 +1,15 @@
 version: "3.4"
 
 services:
-  ipfs-replicator.dnp.dappnode.eth:
+  replicator:
     build: ./build
+    image: replicator_0.1.0
+    container_name: replicator
     restart: always
     volumes:
-      - db-data:/var/lib/mysql/data
+      - pin-data:/usr/src/app/data
+    environment:
+      - IPFS_API_URL=http://ipfs:5001
     logging:
       options:
         max-size: 10m
@@ -19,7 +23,6 @@ services:
       - "ipfsdnpdappnodeeth_export:/export"
       - "ipfsdnpdappnodeeth_data:/data/ipfs"
     ports:
-      - "5001:5001"
       - "4001:4001"
     logging:
       options:
@@ -27,6 +30,6 @@ services:
         max-file: "3"
 
 volumes:
-  db-data: {}
+  pin-data: {}
   ipfsdnpdappnodeeth_export: {}
   ipfsdnpdappnodeeth_data: {}

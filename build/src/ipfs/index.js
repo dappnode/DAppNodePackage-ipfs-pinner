@@ -3,7 +3,9 @@ const isIpfsHash = require("../utils/isIpfsHash");
 const parseJson = require("./parseJson");
 const Ipfs = require("./Ipfs");
 
-const ipfs = Ipfs("http://my.ipfs.dnp.dappnode.eth:5001");
+const apiUrl =
+  process.env.IPFS_API_URL || "http://my.ipfs.dnp.dappnode.eth:5001";
+const ipfs = Ipfs(apiUrl);
 
 const params = {
   // For the async queue

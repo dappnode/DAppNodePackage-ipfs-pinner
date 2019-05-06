@@ -3,6 +3,8 @@ const fetchNewVersionsFromRepo = require("../fetchers/fetchNewVersionsFromRepo")
 const fetchManifestHashes = require("../fetchers/fetchManifestHashes");
 const isIpfsHash = require("../utils/isIpfsHash");
 require("../utils/arrayPrototype");
+const knownReposVersionThreshold = require("../utils/knownReposVersionThreshold");
+const semver = require("semver");
 
 /**
  * Fetch new versions of repos
@@ -21,6 +23,15 @@ async function fetchFromRepos() {
       const versions = await fetchNewVersionsFromRepo(repo.address);
       await versions.mapAsyncParallel(async ({ version, contentUri }) => {
         try {
+          // Ignore known broken versions
+          if (
+            knownReposVersionThreshold[repo.name] &&
+            !semver.gt(version, knownReposVersionThreshold[repo.name])
+          )
+            return console.warn(
+              `Ignoring known broken version: ${repo.name} ${version}`
+            );
+
           if (isIpfsHash(contentUri)) {
             const hashes = await fetchManifestHashes(contentUri);
             db.addRepoVersion({
