@@ -1,5 +1,5 @@
 const db = require("../db");
-const ipfs = require("../ipfs");
+const ipfs = require("../ipfs")();
 const isIpfsHash = require("../utils/isIpfsHash");
 require("../utils/arrayPrototype");
 

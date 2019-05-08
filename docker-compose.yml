@@ -10,6 +10,8 @@ services:
       - pin-data:/usr/src/app/data
     environment:
       - IPFS_API_URL=http://ipfs:5001
+      - REGISTRY_CSV=dnp.dappnode.eth
+      - EXTERNAL_IPFS_API_CSV=infura
     logging:
       options:
         max-size: 10m

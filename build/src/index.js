@@ -3,6 +3,7 @@ require("./utils/arrayPrototype");
 const fetchFromRegistries = require("./stages/fetchFromRegistries");
 const fetchFromRepos = require("./stages/fetchFromRepos");
 const pinCollectedHashes = require("./stages/pinCollectedHashes");
+const pinCollectedHashesToExternalNode = require("./stages/pinCollectedHashesToExternalNode");
 const portMissingAssetsFromGithubToIpfs = require("./stages/portMissingAssetsFromGithubToIpfs");
 const triggerPublicGateways = require("./stages/triggerPublicGateways");
 const portLatestGithubRelease = require("./stages/portLatestGithubRelease");
@@ -12,6 +13,12 @@ const db = require("./db");
 const runEvery = require("./utils/runEvery");
 const { ens } = require("./web3");
 const parseCsv = require("./utils/parseCsv");
+const resolveWhenIpfsIsReady = require("./utils/resolveWhenIpfsIsReady");
+
+const registriesToAdd = parseCsv(
+  process.env.REGISTRY_CSV || "dnp.dappnode.eth"
+);
+const externalIpfsApis = parseCsv(process.env.EXTERNAL_IPFS_API_CSV || "");
 
 start();
 
@@ -20,9 +27,7 @@ async function start() {
    * Initialize database entries with CSV passed through ENVs
    * - REGISTRY_CSV="dnp.dappnode.eth, public.dappnode.eth"
    */
-  await parseCsv(
-    process.env.REGISTRY_CSV || "dnp.dappnode.eth"
-  ).mapAsyncParallel(async name => {
+  await registriesToAdd.mapAsyncParallel(async name => {
     const address = await ens.lookup(name);
     console.log(`Adding registry: ${name} ${address}`);
     db.addRegistry({ name, address });
@@ -34,8 +39,7 @@ async function start() {
    */
 
   await runEvery("5 minutes", async () => {
-    // #### If the connection to the node is lost, this stages will
-    // output an insane amount of errors. Abort them if connection is lost
+    await resolveWhenIpfsIsReady();
 
     /**
      * 1. Fetch new repos
@@ -60,12 +64,17 @@ async function start() {
      *   - Pin the not yet pinned hashes
      */
     await pinCollectedHashes();
+    await externalIpfsApis.mapAsyncParallel(apiUrl =>
+      pinCollectedHashesToExternalNode(apiUrl)
+    );
 
     console.log(`Finished run`);
   });
 
   // Run every day after the first run of the previous block
   await runEvery("1 day", async () => {
+    await resolveWhenIpfsIsReady();
+
     /**
      * 4. Port missing assets from Github to IPFS
      * - Collects all fetched repo's assets for each version
@@ -95,6 +104,8 @@ async function start() {
    * [NOTE] no need to wait for the previous block
    */
   await runEvery("30 minutes", async () => {
+    await resolveWhenIpfsIsReady();
+
     /**
      * 6. Port latest Github release
      * - Fetch the latest release from Github

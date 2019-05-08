@@ -1,5 +1,5 @@
 const db = require("../db");
-const ipfs = require("../ipfs");
+const ipfs = require("../ipfs")();
 const request = require("request");
 const { promisify } = require("util");
 const requestAsync = promisify(request);

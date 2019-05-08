@@ -10,6 +10,7 @@ RUN apk update && \
 COPY package.json .
 COPY yarn.lock .
 RUN yarn install --production
+
 RUN yarn add -D webpack webpack-cli
 COPY . .
 RUN yarn bundle

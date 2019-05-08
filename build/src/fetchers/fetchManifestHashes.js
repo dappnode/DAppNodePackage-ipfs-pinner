@@ -1,4 +1,4 @@
-const ipfs = require("../ipfs");
+const ipfs = require("../ipfs")();
 const isIpfsHash = require("../utils/isIpfsHash");
 
 /**
