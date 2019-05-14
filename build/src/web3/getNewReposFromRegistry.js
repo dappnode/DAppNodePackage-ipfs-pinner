@@ -1,5 +1,6 @@
 const eth = require("./eth");
 const getTopic = require("./utils/getTopic");
+const ensureAncientBlocks = require("./ensureAncientBlocks");
 const abi = require("ethjs-abi");
 
 const registryAbi = {
@@ -55,6 +56,9 @@ const newRepoEventTopic = getTopic(registryAbi.newRepoEvent);
  * }, ... ]
  */
 async function getNewReposFromRegistry(address, options = {}) {
+  // Change this method if the web3 library is not ethjs
+  await ensureAncientBlocks();
+
   const result = await eth.getLogs({
     fromBlock: options.fromBlock || "0",
     toBlock: options.toBlock || "latest",
