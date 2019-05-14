@@ -2,13 +2,15 @@
   "name": "ipfs-replicator.dnp.dappnode.eth",
   "version": "0.1.0",
   "description": "Simple IPFS replicator to mantain DAppNode's content",
-  "avatar": "",
+  "avatar": "/ipfs/QmRFfqN93JN5hDfqWhxaY6M16dafS6t9qzRCAKzzNT9ved",
   "type": "service",
   "image": {
     "path": "ipfs-replicator.dnp.dappnode.eth_0.1.0.tar.xz",
-    "hash": "/ipfs/QmNuwgptZBRw5EbztFfVw3nyDSinUcuvhL9ix5do2cJqVa",
-    "size": 10092312,
-    "volumes": ["pin-data:/usr/src/app/data"],
+    "hash": "/ipfs/QmNftJbRrBeoUDjso5i9kiyA3AEqtXM22fNCnZu9tSxA6D",
+    "size": 10088840,
+    "volumes": [
+      "pin-data:/usr/src/app/data"
+    ],
     "environment": [
       "NUM_OF_VERSIONS_TO_PIN=3",
       "REGISTRY_CSV=dnp.dappnode.eth",
@@ -21,7 +23,11 @@
   "contributors": [
     "dappLion <dapplion@dappnode.io> (https://github.com/dapplion)"
   ],
-  "keywords": ["IPFS", "Replicator", "Pinner"],
+  "keywords": [
+    "IPFS",
+    "Replicator",
+    "Pinner"
+  ],
   "links": {
     "homepage": "https://github.com/dapplion/DAppNode_IPFS_Replicator#readme"
   },
