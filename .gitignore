@@ -5,6 +5,9 @@ build/data/pin-data-db.json
 build/node_modules/
 build/bundle.js
 
+# DNP data
+build_*/
+
 # Logs
 logs
 *.log

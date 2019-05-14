@@ -1,5 +1,5 @@
-const web3Utils = require("web3-utils");
+const crypto = require("crypto");
 
-const getRandAddr = () => web3Utils.randomHex(20);
+const getRandAddr = () => "0x" + crypto.randomBytes(20).toString("hex");
 
 module.exports = getRandAddr;

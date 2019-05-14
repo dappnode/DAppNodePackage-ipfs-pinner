@@ -111,6 +111,9 @@ function getRepoVersions(name) {
 function getIpfsHashes() {
   return getValues(ipfsHashesId);
 }
+function getIpfsHash(hash) {
+  return db.get(getIpfsHashId(hash)) || db.get(getIpfsHashId("/ipfs" + hash));
+}
 
 /**
  *
@@ -153,7 +156,7 @@ const latestGithubVersionCache = cacheFactory("latestGithubVersion");
  * @returns {array} assets = [{
  *   name: "admin.dnp.dappnode.eth",
  *   version: "0.1.11",
- *   asset: "imageHash",
+ *   asset: "image",
  *   hash: "/ipfs/QmUJ9xNAhAG3iUzmFrwJ7koPckNXT7qP2eYSa361dcJWaT"
  * }, ... ]
  */
@@ -240,6 +243,7 @@ module.exports = {
   addRepoVersion,
   getRepoVersions,
   getIpfsHashes,
+  getIpfsHash,
   updatePinStatus,
   removePinnedHash,
   // Data manipulations

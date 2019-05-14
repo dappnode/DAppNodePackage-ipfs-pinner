@@ -1,4 +1,4 @@
-const ipfs = require("../ipfs")();
+const ipfs = require("../ipfs");
 
 const pause = ms => new Promise(r => setTimeout(r, ms));
 

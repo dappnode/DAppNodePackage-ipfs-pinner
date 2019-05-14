@@ -14,8 +14,8 @@ describe("fetcher > fetchNewReposFromRegistry", () => {
 
   it("Should return all repos for dnp.dappnode.eth", async () => {
     const repos = await fetchNewReposFromRegistry(registryAddress);
-    // By April 2019 there were 31 repos released
-    expect(repos).to.have.length.above(30);
+    // By April 2019 there were 25 valid repos released
+    expect(repos).to.have.length.above(25);
     /**
      * Assert a specific version
      */
@@ -25,7 +25,7 @@ describe("fetcher > fetchNewReposFromRegistry", () => {
         id:
           "0x7b7d7491331e736fd597441c99888477186663492ab03d120b4556f27c6ce41f",
         name: "admin",
-        address: "0xEe66C4765696C922078e8670aA9E6d4F6fFcc455"
+        address: "0xee66c4765696c922078e8670aa9e6d4f6ffcc455"
       },
       "adminRepo did not match expected values"
     );

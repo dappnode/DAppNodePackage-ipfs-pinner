@@ -4,36 +4,6 @@ const parseJson = require("./parseJson");
 const Ipfs = require("./Ipfs");
 
 /**
- * - This file returns a factory function. To import it and use the default API:
- *   `require("./ipfs")()`
- * - To use a different API
- *   `require("./ipfs")("infura")`
- *
- * The instances will be cached and only created once
- */
-
-const defaultpiUrl =
-  process.env.IPFS_API_URL || "http://my.ipfs.dnp.dappnode.eth:5001";
-
-/**
- * Factory singleton of IPFS instances
- * @param {string} urlOrId
- */
-const ipfsInstances = {};
-function ipfsFactory(urlOrId, options) {
-  const apiUrl = parseUrlOrId(urlOrId);
-  if (!ipfsInstances[apiUrl])
-    ipfsInstances[apiUrl] = getIpfsInstance(apiUrl, options);
-  return ipfsInstances[apiUrl];
-}
-function parseUrlOrId(urlOrId) {
-  if (!urlOrId) return defaultpiUrl;
-  if (urlOrId.startsWith("http")) return urlOrId;
-  if (urlOrId === "infura") return "https://ipfs.infura.io:5001";
-  else throw Error(`Unknown IPFS API url or ID: ${urlOrId}`);
-}
-
-/**
  * Creates an IPFS instance
  *
  * @param {string} apiUrl "http://my.ipfs.dnp.dappnode.eth:5001"
@@ -107,4 +77,6 @@ function getIpfsInstance(apiUrl, options = {}) {
   };
 }
 
-module.exports = ipfsFactory;
+module.exports = getIpfsInstance(
+  process.env.IPFS_API_URL || "http://my.ipfs.dnp.dappnode.eth:5001"
+);

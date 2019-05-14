@@ -3,7 +3,7 @@ version: "3.4"
 services:
   replicator:
     build: ./build
-    image: replicator_0.1.0
+    image: ipfs-replicator.dnp.dappnode.eth:0.1.0
     container_name: replicator
     restart: always
     volumes:
@@ -11,7 +11,6 @@ services:
     environment:
       - IPFS_API_URL=http://ipfs:5001
       - REGISTRY_CSV=dnp.dappnode.eth
-      - EXTERNAL_IPFS_API_CSV=infura
     logging:
       options:
         max-size: 10m

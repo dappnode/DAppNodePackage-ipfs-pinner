@@ -1,4 +1,4 @@
-const ipfs = require("../ipfs")();
+const ipfs = require("../ipfs");
 const isIpfsHash = require("../utils/isIpfsHash");
 
 /**
@@ -22,10 +22,10 @@ async function fetchManifestHashes(hash) {
     );
 
   return {
-    manifestHash: hash,
-    imageHash,
+    manifest: hash,
+    image: imageHash,
     // Only add avatarHash if it's valid
-    ...(isIpfsHash(avatarHash) ? { avatarHash } : {})
+    ...(isIpfsHash(avatarHash) ? { avatar: avatarHash } : {})
   };
 }
 

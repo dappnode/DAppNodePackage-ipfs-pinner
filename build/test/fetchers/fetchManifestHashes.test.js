@@ -24,8 +24,8 @@ describe("fetcher > fetchManifestHashes", () => {
 
     const hashes = await fetchManifestHashes(manifestHash);
     expect(hashes).to.deep.equal({
-      manifestHash,
-      imageHash: ipfsHash1
+      manifest: manifestHash,
+      image: ipfsHash1
     });
   });
 });

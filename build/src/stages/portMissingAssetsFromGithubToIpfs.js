@@ -1,5 +1,6 @@
+const getRepoVersionAssetsMissing = require("../db/methods/getRepoVersionAssetsMissing");
 const db = require("../db");
-const ipfs = require("../ipfs")();
+const ipfs = require("../ipfs");
 const knownGithubRepos = require("../utils/knownGithubRepos");
 
 /**
@@ -10,19 +11,22 @@ const knownGithubRepos = require("../utils/knownGithubRepos");
  * - If Github replies with 404, it will NOT try to fetch the fail again
  */
 async function portMissingAssetsFromGithubToIpfs() {
-  const assets = db
-    .getReposUnpinnedAssets()
-    // Only try to port releases from known repos
-    .map(repo => ({ ...repo, slug: knownGithubRepos[repo.name] }))
-    .filter(({ slug }) => slug);
+  const assetsToPinMissing = getRepoVersionAssetsMissing();
 
-  console.log(
-    `Collected ${assets.length} unavailable assets that maybe on Github`
-  );
+  if (assetsToPinMissing.length)
+    console.log(
+      `Collected ${
+        assetsToPinMissing.length
+      } unavailable assets that maybe on Github`
+    );
 
-  await assets.mapAsyncParallel(
-    async ({ name, version, asset, hash, slug }) => {
-      const id = [name, version, asset.replace("Hash", ""), hash].join(" ");
+  await assetsToPinMissing.mapAsyncParallel(
+    async ({ name, version, asset, hash }) => {
+      // Only attempt to fetch known DNPs, ignore otherwise
+      const slug = knownGithubRepos[name];
+      if (!slug) return;
+
+      const id = [name, version, asset, hash].join(" ");
       try {
         console.log(`Uploading ${id} from Github...`);
         const tag = `v${version}`;

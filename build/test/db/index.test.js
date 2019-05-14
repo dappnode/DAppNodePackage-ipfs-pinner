@@ -46,13 +46,15 @@ describe("db > dbWrap", () => {
   /**
    * IPFS hashes
    */
-  it("should a version and retrieve their hashes", async () => {
+  it("should add a version and retrieve their hashes", async () => {
     const ipfsHash1 = "/ipfs/QmYjtig7VJQ6XsnUjqqJvj7QaMcCAwtrgNdahSiFofrE7o";
     const ipfsHash2 = "/ipfs/zdj7WWeQ43G6JJvLWQWZpyHuAMq6uYWRjkBXFad11vE2LHhQ7";
+    const name = "admin.dnp.dappnode.eth";
+    const version = "0.2.0";
 
     db.addRepoVersion({
-      name: "admin.dnp.dappnode.eth",
-      version: "0.2.0",
+      name,
+      version,
       contentUris: {
         manifestHash: ipfsHash1,
         imageHash: ipfsHash2
@@ -61,8 +63,8 @@ describe("db > dbWrap", () => {
 
     const ipfsHashes = db.getIpfsHashes();
     expect(ipfsHashes).to.deep.equal([
-      { hash: ipfsHash1, lastPinned: 0 },
-      { hash: ipfsHash2, lastPinned: 0 }
+      { asset: "manifest", name, version, hash: ipfsHash1, lastPinned: 0 },
+      { asset: "image", name, version, hash: ipfsHash2, lastPinned: 0 }
     ]);
   });
 
