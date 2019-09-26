@@ -14,7 +14,7 @@ Please,
  - or, use an external web3 provider
  `;
 
-async function ensureAncientBlocks() {
+export default async function ensureAncientBlocks() {
   try {
     await eth.getBlockByNumber(blockToTest, false);
   } catch (e) {
@@ -23,5 +23,3 @@ async function ensureAncientBlocks() {
     else throw Error(`Error: ${e.message} \n${errorMessage}`);
   }
 }
-
-module.exports = ensureAncientBlocks;

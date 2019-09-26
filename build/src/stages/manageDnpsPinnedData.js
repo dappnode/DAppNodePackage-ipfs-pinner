@@ -23,9 +23,6 @@ async function manageDnpsPinnedData() {
   });
   const isAlreadyPinned = hash => alreadyPinned[hash.replace("/ipfs/", "")];
 
-  // Log current pinData. Will not log if data is the same. Wrapped in try / catch
-  await logPinData({ assetsToPin, assetsToUnpin, isAlreadyPinned });
-
   // Pin assets
   for (const [action, assets] of [
     ["pin", assetsToPin],
@@ -57,63 +54,6 @@ async function manageDnpsPinnedData() {
         console.error(`Error ${action}ning ${id}: ${error}`);
       }
     });
-  }
-}
-
-let cacheInfoId = "";
-async function logPinData({ assetsToPin, assetsToUnpin, isAlreadyPinned }) {
-  /**
-   * Informative data
-   * Wrap non-essential logging in try / catch for safety
-   */
-  try {
-    const assetsToPinPinned = assetsToPin.filter(({ hash }) =>
-      isAlreadyPinned(hash)
-    );
-    const assetsToUnpinUnpinned = assetsToUnpin.filter(
-      ({ hash }) => !isAlreadyPinned(hash)
-    );
-    const percent = (a, b) => (b ? ((100 * a) / b).toFixed(2) + "%" : "-");
-
-    /**
-     * ipfs.repoStats returns {
-     *   size: 4223045026,
-     *   maxSize: 50000000000
-     * }
-     */
-    const repo = await ipfs.repoStats({ human: true });
-
-    /**
-     * Cache this data to prevent repetitive logging
-     * If the variables don't change, don't log stats
-     */
-    const infoId = JSON.stringify({
-      assetsToPin,
-      assetsToUnpin,
-      assetsToPinPinned,
-      assetsToUnpinUnpinned,
-      repo
-    });
-    if (cacheInfoId === infoId) return;
-    else cacheInfoId = infoId;
-
-    console.log(`
-  Current repo size: ${repo.size} (max: ${repo.maxSize})
-  Current assets stats:`);
-    console.table({
-      "to pin": {
-        total: assetsToPin.length,
-        done: assetsToPinPinned.length,
-        percent: percent(assetsToPinPinned.length, assetsToPin.length)
-      },
-      "to unpin": {
-        total: assetsToUnpin.length,
-        done: assetsToUnpinUnpinned.length,
-        percent: percent(assetsToUnpinUnpinned.length, assetsToUnpin.length)
-      }
-    });
-  } catch (e) {
-    console.error(`Error reporting pin stats: ${e.stack}`);
   }
 }
 

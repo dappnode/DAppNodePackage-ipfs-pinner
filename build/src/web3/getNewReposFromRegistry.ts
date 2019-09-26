@@ -1,34 +1,47 @@
 const eth = require("./eth");
-const getTopic = require("./utils/getTopic");
-const ensureAncientBlocks = require("./ensureAncientBlocks");
+import getTopic from "./utils/getTopic";
+import ensureAncientBlocks from "./ensureAncientBlocks";
 const abi = require("ethjs-abi");
 
-const registryAbi = {
-  newRepoEvent: {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        name: "id",
-        type: "bytes32"
-      },
-      {
-        indexed: false,
-        name: "name",
-        type: "string"
-      },
-      {
-        indexed: false,
-        name: "repo",
-        type: "address"
-      }
-    ],
-    name: "NewRepo",
-    type: "event"
-  }
+const registryNewRepoEventAbi = {
+  anonymous: false,
+  inputs: [
+    {
+      indexed: false,
+      name: "id",
+      type: "bytes32"
+    },
+    {
+      indexed: false,
+      name: "name",
+      type: "string"
+    },
+    {
+      indexed: false,
+      name: "repo",
+      type: "address"
+    }
+  ],
+  name: "NewRepo",
+  type: "event"
 };
 
-const newRepoEventTopic = getTopic(registryAbi.newRepoEvent);
+const newRepoEventTopic = getTopic(registryNewRepoEventAbi);
+
+type BNjs = any;
+interface RawEvent {
+  blockNumber: BNjs;
+  data: string;
+}
+
+interface NewRepoEvent {
+  blockNumber: number;
+  returnValues: {
+    id: string;
+    name: string;
+    repo: string;
+  };
+}
 
 /**
  * Fetches the new repos logs from a registry
@@ -55,20 +68,23 @@ const newRepoEventTopic = getTopic(registryAbi.newRepoEvent);
  *   }
  * }, ... ]
  */
-async function getNewReposFromRegistry(address, options = {}) {
+export default async function getNewReposFromRegistry(
+  address: string,
+  fromBlock?: number
+): Promise<NewRepoEvent[]> {
   // Change this method if the web3 library is not ethjs
   await ensureAncientBlocks();
 
   const result = await eth.getLogs({
-    fromBlock: options.fromBlock || "0",
-    toBlock: options.toBlock || "latest",
+    fromBlock: fromBlock || 0,
+    toBlock: "latest",
     address,
     topics: [newRepoEventTopic]
   });
-  return result.map(event => ({
+  return result.map((event: RawEvent) => ({
     ...event,
     blockNumber: event.blockNumber.toNumber(),
-    returnValues: abi.decodeEvent(registryAbi.newRepoEvent, event.data)
+    returnValues: abi.decodeEvent(registryNewRepoEventAbi, event.data)
   }));
 }
 

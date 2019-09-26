@@ -1,9 +1,5 @@
 const isIPFS = require("is-ipfs");
 
-function isMultihash(hash) {
-  return isIPFS.cid(hash);
-}
-
 /**
  * Checks if the given string is a valid IPFS CID or path
  *
@@ -14,7 +10,7 @@ function isMultihash(hash) {
  * @param {string} hash
  * @returns {bool}
  */
-function isIpfsHash(hash) {
+export default function isIpfsHash(hash: string): boolean {
   if (!hash || typeof hash !== "string") return false;
   // Correct hash prefix
   if (hash.includes("ipfs/")) {
@@ -22,7 +18,5 @@ function isIpfsHash(hash) {
   }
   hash.replace("/", "");
   // Make sure hash if valid
-  return isMultihash(hash);
+  return isIPFS.cid(hash);
 }
-
-module.exports = isIpfsHash;

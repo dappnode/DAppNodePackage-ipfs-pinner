@@ -1,7 +1,7 @@
 /**
  * Map repo's ENS domain to their github slug
  */
-module.exports = {
+export default {
   // Core DNPs
   "admin.dnp.dappnode.eth": "dappnode/DNP_ADMIN",
   "bind.dnp.dappnode.eth": "dappnode/DNP_BIND",

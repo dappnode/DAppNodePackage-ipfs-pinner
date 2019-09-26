@@ -30,3 +30,6 @@ typings/
 
 # dotenv environment variables file
 .env
+
+# DBs
+build/*db.json

@@ -2,5 +2,4 @@ const ENS = require("ethjs-ens");
 const eth = require("./eth");
 
 const ens = new ENS({ provider: eth.currentProvider, network: "1" });
-
-module.exports = ens;
+export default ens;

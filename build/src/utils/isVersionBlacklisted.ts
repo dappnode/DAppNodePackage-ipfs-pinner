@@ -1,10 +1,7 @@
-/**
- * Specify the LAST BROKEN version of a specific repo
- * This app will ignore all versions EQUAL or LESS than the specified semver
- *
- * [WARNING] be very careful when changing this numbers. The App may ingore all versions
- */
-module.exports = {
+import semver from "semver";
+import { ApmVersion } from "../types";
+
+const knownReposVersionThreshold: { [name: string]: string } = {
   // Wrongly deployed manifests
   "bind.dnp.dappnode.eth": "0.1.3",
   "livepeer.dnp.dappnode.eth": "0.0.1",
@@ -19,3 +16,13 @@ module.exports = {
   "nginx-proxy.dnp.dappnode.eth": "0.0.2",
   "ropsten.dnp.dappnode.eth": "0.1.0"
 };
+
+export default function isVersionBlacklisted(version: ApmVersion): boolean {
+  const thresholdVersion: string = knownReposVersionThreshold[version.name];
+  return Boolean(
+    thresholdVersion &&
+      semver.valid(version.version) &&
+      semver.valid(thresholdVersion) &&
+      !semver.gt(version.version, thresholdVersion)
+  );
+}
