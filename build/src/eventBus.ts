@@ -99,8 +99,8 @@ export const apmVersion = busFactoryAsync<ApmVersion>(
   "APM_VERSION",
   version => `on version ${version.name} ${version.version}`
 );
-export const file = busFactoryAsync<DistributedFile>(
-  "DISTRIBUTED_FILE",
-  file => `on file ${file.source.name}`
+export const pinFile = busFactoryAsync<DistributedFile>(
+  "PIN_FILE",
+  file => `on file ${file.id}`
 );
 export const pin = busFactoryNoArg("PIN");

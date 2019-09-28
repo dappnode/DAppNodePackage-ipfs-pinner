@@ -17,21 +17,14 @@ export interface ApmVersion {
   contentUri: string;
 }
 
-export type DistributedFileSource = {
-  from: "apm";
-  name: string;
-  version: string;
-  fileId: string;
-};
-export interface DistributedFileBasic {
+export interface DistributedFile {
   dir: boolean;
   hash: string;
-  size: number;
+  id: string;
 }
-export interface DistributedFile extends DistributedFileBasic {
-  source: DistributedFileSource;
-}
-export interface DistributedFilePin extends DistributedFileBasic {
+
+export interface DistributedFilePin extends DistributedFile {
+  pinned: boolean;
   added: number;
 }
 
@@ -43,4 +36,9 @@ export interface ManifestWithImage {
     hash: string;
     size: number;
   };
+}
+
+export type PinType = "direct" | "indirect" | "recursive";
+export interface PinList {
+  [hash: string]: PinType;
 }

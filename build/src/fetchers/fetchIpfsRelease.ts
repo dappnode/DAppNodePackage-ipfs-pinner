@@ -1,6 +1,7 @@
 import * as ipfs from "../ipfs";
 import { DistributedFile, ManifestWithImage, ApmVersion } from "../types";
 import isIpfsHash from "../utils/isIpfsHash";
+import { getApmFileId } from "../utils/fileId";
 
 /**
  * Should resolve a name/version into the manifest and all relevant hashes
@@ -24,20 +25,16 @@ export default async function fetchIpfsRelease({
     const manifest: ManifestWithImage = JSON.parse(manifestString);
     if (!manifest.image) throw Error(`Manifest has no image field`);
 
-    const commonSource = { from: "apm" as "apm", name, version };
-
-    const files = [
+    const files: DistributedFile[] = [
       {
         dir: false,
         hash,
-        size: 0,
-        source: { ...commonSource, fileId: "manifest" }
+        id: getApmFileId({ name, version, file: "manifest" })
       },
       {
         dir: false,
         hash: manifest.image.hash,
-        size: manifest.image.size,
-        source: { ...commonSource, fileId: "image" }
+        id: getApmFileId({ name, version, file: "image" })
       }
     ];
     // Only add avatar file if exists
@@ -45,28 +42,17 @@ export default async function fetchIpfsRelease({
       files.push({
         dir: false,
         hash: manifest.avatar,
-        size: 0,
-        source: { ...commonSource, fileId: "avatar" }
+        id: getApmFileId({ name, version, file: "avatar" })
       });
 
     return files;
   } catch (e) {
     if (e.message.includes("is a directory")) {
-      const files = await ipfs.ls(hash);
-      const manifestEntry = files.find(file => file.name.endsWith(".json"));
-      const imageEntry = files.find(file => file.name.endsWith(".tar.xz"));
-      if (!manifestEntry) throw Error("Release must contain a manifest");
-      if (!imageEntry) throw Error("Release must contain an image");
-
-      // Just for reporting purposes, not critical
-      const size = files.reduce((total, file) => total + (file.size || 0), 0);
-
       return [
         {
           dir: true,
           hash,
-          source: { from: "apm", name, version, fileId: "directory" },
-          size
+          id: getApmFileId({ name, version, file: "directory" })
         }
       ];
     } else {
