@@ -1,0 +1,28 @@
+body {
+  margin: 0;
+  font-family: "Roboto";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  background-color: #f9fafb;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+a {
+  color: #a5acb2;
+  transition: color ease 150ms;
+  text-decoration: none;
+}
+a:hover {
+  color: white;
+}
+a.active {
+  color: white;
+}

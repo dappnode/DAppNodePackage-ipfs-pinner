@@ -33,3 +33,4 @@ typings/
 
 # DBs
 build/*db.json
+build/server/*db.json
