@@ -1,6 +1,6 @@
 import request from "request-promise-native";
 import { pick, omit, mapKeys, mapValues } from "lodash";
-import { PinStatus, Asset, AssetWithMetadata } from "./types";
+import { PinStatus, Asset, AssetWithMetadata, ClusterPeer } from "./types";
 
 const {
   IPFS_CLUSTER_HOST,
@@ -78,6 +78,23 @@ interface RequestError {
     code: number; // 400;
     message: string; // "error decoding Cid: selected encoding not supported";
   };
+}
+
+interface PeerInfo {
+  id: string; // "12D3KooWP4tLaHzhUDnZqpWsNANkeTWjj3kqazPcFeYUFzeFctYm",
+  addresses: string[]; // ["/ip4/172.21.0.3/tcp/9096/p2p/12D3KooWP4tLaHzhUDnZqpWsNANkeTWjj3kqazPcFeYUFzeFctYm"],
+  cluster_peers: string[]; // ["12D3KooWHyfM68hUWdd9H3jSLpsFBF4eazknbdSg5Huwyi4yMats", "12D3KooWJMHfFbE9PGcoaaLwHPzsEsPu9tbFKTQBGLhfhUQLBpYg"],
+  cluster_peers_addresses: string[]; // ["/ip4/127.0.0.1/tcp/9096/p2p/12D3KooWJMHfFbE9PGcoaaLwHPzsEsPu9tbFKTQBGLhfhUQLBpYg", "/ip4/172.21.0.7/tcp/9096/p2p/12D3KooWJMHfFbE9PGcoaaLwHPzsEsPu9tbFKTQBGLhfhUQLBpYg", "/ip4/127.0.0.1/tcp/9096/p2p/12D3KooWHyfM68hUWdd9H3jSLpsFBF4eazknbdSg5Huwyi4yMats", "/ip4/172.21.0.6/tcp/9096/p2p/12D3KooWHyfM68hUWdd9H3jSLpsFBF4eazknbdSg5Huwyi4yMats"]
+  version: string; // "0.11.0+git3abf764de8023e3ade6029724628fcb2ef6758ff",
+  commit: string; // "",
+  rpc_protocol_version: string; // "/ipfscluster/0.11/rpc",
+  error: string; // "",
+  ipfs: {
+    id: string; // "QmRWCUjjyfjsUqdmzDQZxnkPTsBy5MV2YuAMUymHGiaEEE";
+    addresses: string[]; // ["/ip4/127.0.0.1/tcp/4001/p2p/QmRWCUjjyfjsUqdmzDQZxnkPTsBy5MV2YuAMUymHGiaEEE", "/ip4/172.21.0.2/tcp/4001/p2p/QmRWCUjjyfjsUqdmzDQZxnkPTsBy5MV2YuAMUymHGiaEEE"];
+    error: string; // "";
+  };
+  peername: string; // "cluster0";
 }
 
 /**
@@ -244,6 +261,28 @@ export function pinRm(hash: string): Promise<ClusterPinItem> {
 }
 
 /**
+ * Gets the info of the cluster peer currently connected to.
+ *
+ * GET /id Cluster peer information
+ */
+async function idRaw(): Promise<PeerInfo> {
+  return await request
+    .get(`${clusterApiUrl}/id`, jsonOptions)
+    .catch(handleErrors);
+}
+
+/**
+ * Gets the info of all the cluster peer currently connected to.
+ *
+ * GET /peers Cluster peers
+ */
+async function peersRaw(): Promise<PeerInfo[]> {
+  return await request
+    .get(`${clusterApiUrl}/peers`, jsonOptions)
+    .catch(handleErrors);
+}
+
+/**
  * High level methods
  */
 
@@ -275,5 +314,21 @@ export async function getAssetsWithStatus(): Promise<AssetWithMetadata[]> {
   return assets.map(asset => ({
     ...asset,
     peerMap: statusObj[asset.hash] ? statusObj[asset.hash].peer_map : {}
+  }));
+}
+
+export async function getPeers(): Promise<ClusterPeer[]> {
+  const thisPeer = await idRaw();
+  const thisPeerId = thisPeer.id;
+  const peers = await peersRaw();
+
+  return peers.map(peer => ({
+    you: peer.id === thisPeerId,
+    id: peer.id,
+    peername: peer.peername,
+    clusterError: peer.error,
+    clusterAddresses: peer.addresses,
+    ipfsError: (peer.ipfs || {}).error || "",
+    ipfsAddresses: (peer.ipfs || {}).addresses || []
   }));
 }

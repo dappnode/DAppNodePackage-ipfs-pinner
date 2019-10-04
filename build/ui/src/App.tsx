@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Switch, Route, Link } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 // Material UI components
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
@@ -8,9 +8,10 @@ import Header from "./Header";
 import Home from "./Home";
 import Assets, { assetsPath } from "./Assets";
 import Sources, { sourcesPath } from "./Sources";
+import Peers, { peersPath } from "./Peers";
 // Api
-import socket from "./socket";
-import { AssetWithMetadata, SourceWithMetadata } from "./types";
+import socket, { getPeers } from "./socket";
+import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
 // Style
 import "./App.css";
 
@@ -42,6 +43,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const App: React.FC = () => {
   const [assets, setAssets] = useState([] as AssetWithMetadata[]);
   const [sources, setSources] = useState([] as SourceWithMetadata[]);
+  const [peers, setPeers] = useState([] as ClusterPeer[]);
 
   useEffect(() => {
     socket.on("assets", setAssets);
@@ -65,6 +67,12 @@ const App: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    getPeers(undefined)
+      .then(setPeers)
+      .catch(e => console.error(`Error getting peers: ${e.stack}`));
+  }, []);
+
   const classes = useStyles();
 
   return (
@@ -77,11 +85,14 @@ const App: React.FC = () => {
 
       <Container fixed className={classes.mainContainer}>
         <Switch>
+          <Route path={sourcesPath}>
+            <Sources sources={sources} />
+          </Route>
           <Route path={assetsPath}>
             <Assets assets={assets} />
           </Route>
-          <Route path={sourcesPath}>
-            <Sources sources={sources} />
+          <Route path={peersPath}>
+            <Peers peers={peers} />
           </Route>
           <Route path="/">
             <Home assets={assets} sources={sources} />

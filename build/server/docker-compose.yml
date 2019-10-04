@@ -35,12 +35,12 @@ services:
   ipfs0:
     container_name: ipfs0
     image: ipfs/go-ipfs:release
-    ports:
-      - "4001:4001" # ipfs swarm - expose if needed/wanted
+#   ports:
+#     - "4001:4001" # ipfs swarm - expose if needed/wanted
 #     - "5001:5001" # ipfs api - expose if needed/wanted
 #     - "8080:8080" # ipfs gateway - expose if needed/wanted
     volumes:
-      - ipfs_data:/data/ipfs
+      - ipfs0_data:/data/ipfs
       
   cluster0:
     container_name: cluster0
@@ -62,8 +62,66 @@ services:
           # But this is just a testing cluster.
           # - "9096:9096" # Cluster IPFS Proxy endpoint
     volumes:
-      - cluster_data:/data/ipfs-cluster
+      - cluster0_data:/data/ipfs-cluster
+
+##################################################################################
+## Cluster PEER 1 ################################################################
+##################################################################################
+
+# See Cluster PEER 0 for comments (all removed here and below)
+  ipfs1:
+    container_name: ipfs1
+    image: ipfs/go-ipfs:release
+    volumes:
+      - ipfs1_data:/data/ipfs
+
+  cluster1:
+    container_name: cluster1
+    image: ipfs/ipfs-cluster:latest
+    depends_on:
+      - ipfs1
+    environment:
+      CLUSTER_PEERNAME: cluster1
+      CLUSTER_SECRET: ${CLUSTER_SECRET}
+      CLUSTER_IPFSHTTP_NODEMULTIADDRESS: /dns4/ipfs1/tcp/5001
+      CLUSTER_CRDT_TRUSTEDPEERS: '*'
+      CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
+    volumes:
+      - cluster1_data:/data/ipfs-cluster
+
+##################################################################################
+## Cluster PEER 2 ################################################################
+##################################################################################
+
+# See Cluster PEER 0 for comments (all removed here and below)
+  ipfs2:
+    container_name: ipfs2
+    image: ipfs/go-ipfs:release
+    volumes:
+      - ipfs2_data:/data/ipfs
+
+  cluster2:
+    container_name: cluster2
+    image: ipfs/ipfs-cluster:latest
+    depends_on:
+      - ipfs2
+    environment:
+      CLUSTER_PEERNAME: cluster2
+      CLUSTER_SECRET: ${CLUSTER_SECRET}
+      CLUSTER_IPFSHTTP_NODEMULTIADDRESS: /dns4/ipfs2/tcp/5001
+      CLUSTER_CRDT_TRUSTEDPEERS: '*'
+      CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
+    volumes:
+      - cluster2_data:/data/ipfs-cluster
+
+# For adding more peers, copy PEER 1 and rename things to ipfs2, cluster2.
+# Keep bootstrapping to cluster0.
+
 
 volumes:
-  ipfs_data: {}
-  cluster_data: {}
+  cluster0_data: {}
+  cluster1_data: {}
+  cluster2_data: {}
+  ipfs0_data: {}
+  ipfs1_data: {}
+  ipfs2_data: {}

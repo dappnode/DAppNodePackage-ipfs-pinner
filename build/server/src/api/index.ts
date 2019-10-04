@@ -12,6 +12,7 @@ const logs = Logs(module);
 import { getSources, addSource, deleteSource } from "./sources";
 import { getAssets } from "./assets";
 import { getOptions } from "./options";
+import { getPeers } from "./peers";
 import { SocketRouter } from "./utils";
 
 const port = 3030;
@@ -33,6 +34,7 @@ app.get("/", (_0, res) => res.send("Welcome to the pinner api"));
 const sourcesRoute = "sources";
 const optionsRoute = "options";
 const assetsRoute = "assets";
+const peersRoute = "peers";
 const addSourceRoute = "addSource";
 const delSourceRoute = "delSource";
 const refreshRoute = "refresh";
@@ -46,6 +48,7 @@ io.on("connection", socket => {
   const route = SocketRouter(socket);
 
   route(optionsRoute, async () => getOptions());
+  route(peersRoute, getPeers);
   route(addSourceRoute, addSource);
   route(delSourceRoute, deleteSource);
   route(refreshRoute, refresh);

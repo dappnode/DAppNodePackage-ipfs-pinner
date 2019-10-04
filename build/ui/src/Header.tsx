@@ -6,6 +6,7 @@ import Typography from "@material-ui/core/Typography";
 import { NavLink } from "react-router-dom";
 import { assetsPath } from "./Assets";
 import { sourcesPath } from "./Sources";
+import { peersPath } from "./Peers";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -46,6 +47,9 @@ export default function Header() {
         </NavLink>
         <NavLink to={sourcesPath}>
           <Typography>Sources</Typography>
+        </NavLink>
+        <NavLink to={peersPath}>
+          <Typography>Peers</Typography>
         </NavLink>
       </Grid>
 

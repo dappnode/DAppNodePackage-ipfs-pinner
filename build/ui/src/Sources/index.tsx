@@ -1,5 +1,5 @@
 import React from "react";
-import SourcesTableBig from "./SourcesTableBig";
+import SourcesTable from "./SourcesTable";
 import AddSourceForm from "./AddSourceForm";
 import { SourceWithMetadata } from "../types";
 
@@ -13,7 +13,7 @@ export default function Sources({
   return (
     <>
       <AddSourceForm />
-      <SourcesTableBig sources={sources} />
+      <SourcesTable sources={sources} />
     </>
   );
 }

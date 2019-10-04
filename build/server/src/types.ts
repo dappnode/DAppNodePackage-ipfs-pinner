@@ -129,3 +129,13 @@ export interface SourceOption {
   label: string;
   placeholder: string;
 }
+
+export interface ClusterPeer {
+  you: boolean;
+  id: string;
+  peername: string;
+  clusterError: string;
+  clusterAddresses: string[];
+  ipfsError: string;
+  ipfsAddresses: string[];
+}

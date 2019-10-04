@@ -8,36 +8,36 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import { AssetWithMetadata } from "../types";
+import { ClusterPeer } from "../types";
 
-export default function AssetStatusDetail({
-  asset
-}: {
-  asset: AssetWithMetadata;
-}) {
+export default function PeerDetail({ peer }: { peer: ClusterPeer }) {
+  const addressArray: { name: string; address: string }[] = [
+    ...peer.clusterAddresses.map((address, i) => ({
+      name: `Cluster ${i}`,
+      address
+    })),
+    ...peer.ipfsAddresses.map((address, i) => ({
+      name: `IPFS ${i}`,
+      address
+    }))
+  ];
   return (
     <Card>
       <CardContent>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Cluster name</TableCell>
-              <TableCell align="right">Status</TableCell>
-              <TableCell align="right">Last updated</TableCell>
+              <TableCell></TableCell>
+              <TableCell align="right">Address</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {Object.values(asset.peerMap).map(peer => (
+            {addressArray.map(({ name, address }) => (
               <TableRow key={peer.peername}>
                 <TableCell component="th" scope="row">
-                  {peer.peername}
+                  {name}
                 </TableCell>
-                <TableCell align="right">
-                  {peer.error ? `${peer.status}: ${peer.error}` : peer.status}
-                </TableCell>
-                <TableCell align="right">
-                  {moment(peer.timestamp).fromNow()}
-                </TableCell>
+                <TableCell align="right">{address}</TableCell>
               </TableRow>
             ))}
           </TableBody>

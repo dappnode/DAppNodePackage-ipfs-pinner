@@ -17,6 +17,7 @@ interface Pins {
     pinning: number;
     unpinning: number;
     pin_queued: number;
+    unpin_queued: number;
     queued: number;
     cluster_error: number;
     pin_error: number;
@@ -57,47 +58,19 @@ export default function PinStatusChart({
 }) {
   const [onlyTotal, setOnlyTotal] = useState(true);
 
-  const pins = aggregatePins(assets);
+  const pins = aggregatePins(assets, onlyTotal);
 
   /**
    * Chart options
    */
+
   // Load theme for colors
   const theme: any = useTheme();
   const textColor = theme.palette.text.secondary;
   const textSize = theme.typography.fontSize;
 
-  /**
-   * Generate series data in the appropiate format
-   *
-   * const series = [
-   *   {
-   *     name: "Marine Sprite",
-   *     data: [44, 55, 41, 37, 22, 43, 21]
-   *   },
-   *   {
-   *     name: "Striking Calf",
-   *     data: [53, 32, 33, 52, 13, 43, 32]
-   *   }
-   * ];
-   */
-
-  const statusArray = getAllStatusFromPins(pins);
-  const statusArrayOrdered = statusOrdered.filter(status =>
-    statusArray.includes(status)
-  );
-
-  const series = statusArrayOrdered.map(status => {
-    return {
-      name: status,
-      data: (onlyTotal ? aggregateTotal(pins, statusArrayOrdered) : pins).map(
-        pinGroup => pinGroup.status[status] || 0
-      )
-    };
-  });
-
   const options = {
-    colors: statusArrayOrdered.map(status => statusColorMap(status, theme)),
+    colors: statusOrdered.map(status => statusColorMap(status, theme)),
     chart: {
       stacked: true,
       // stackType: "100%" /* Force full-width and display % */,
@@ -118,7 +91,7 @@ export default function PinStatusChart({
       }
     },
     xaxis: {
-      categories: pins.map(({ type }) => type),
+      categories: Object.keys(pins),
       labels: { show: false },
       axisBorder: { show: false },
       axisTicks: { show: false },
@@ -144,6 +117,8 @@ export default function PinStatusChart({
     },
     legend: {
       showForSingleSeries: true, // Explain green is pinned if it's the only state
+      showForNullSeries: false,
+      showForZeroSeries: false,
       fontSize: textSize,
       labels: {
         colors: textColor
@@ -151,7 +126,7 @@ export default function PinStatusChart({
       onItemClick: {
         // Disable for single series
         // Otherwise, the chart dissapears if the user clicks it
-        toggleDataSeries: statusArrayOrdered.length > 1
+        // toggleDataSeries: statusArrayOrdered.length > 1
       }
     }
     // Legend has to be on the bottom or it becames really ugly
@@ -168,11 +143,16 @@ export default function PinStatusChart({
       </Typography>
       <Chart
         options={options}
-        series={series}
+        series={statusOrdered.map(status => ({
+          name: status,
+          data: Object.values(pins).map(
+            countObj => (countObj || {})[status] || 0
+          )
+        }))}
         type="bar"
         // width={500}
         // {...(onlyTotal ? { height: 150 } : {})}
-        height={70 + 70 * pins.length}
+        height={70 + 70 * Object.keys(pins).length}
       />
 
       <div
@@ -198,34 +178,17 @@ export default function PinStatusChart({
 // Utils
 
 /**
- * Returns an array of unique status occurring in at least one pin
- * @param pins
- * @returns ["pinned", "pinning"]
- */
-function getAllStatusFromPins(pins: PinGroup[]): PinStatus[] {
-  const statusList: { [status: string]: true } = {};
-  for (const pinGroup of pins)
-    for (const status of Object.keys(pinGroup.status))
-      statusList[status] = true;
-  return Object.keys(statusList) as PinStatus[];
-}
-
-/**
  * Computes the percentage of pins with "pinned" status
  * @param pins
  * @returns 95.4%
  */
-function computePinnedPercent(pins: PinGroup[]): string {
-  const totalPins = pins.reduce((total, pin) => {
-    const localTotal = statusOrdered.reduce(
-      (t, status) => (pin.status[status] || 0) + t,
-      0
-    );
-    return total + localTotal;
-  }, 0);
-  const totalPinned = pins.reduce((total, pin) => {
-    return pin.status.pinned + total;
-  }, 0);
+function computePinnedPercent(pins: Pins): string {
+  let totalPins = 0;
+  let totalPinned = 0;
+  for (const countObj of Object.values(pins)) {
+    totalPinned += (countObj || {}).pinned || 0;
+    for (const count of Object.values(countObj || {})) totalPins += count || 0;
+  }
   return ((100 * totalPinned) / totalPins).toPrecision(3);
 }
 
@@ -234,34 +197,17 @@ function computePinnedPercent(pins: PinGroup[]): string {
  * @param pinsLsStatus
  * @returns pins
  */
-function aggregatePins(assets: AssetWithMetadata[]): Pins {
+function aggregatePins(assets: AssetWithMetadata[], total: boolean): Pins {
   const pins: Pins = {};
   for (const asset of assets) {
-    const type = parseType(asset.multiname);
+    const type = total ? "total" : parseType(asset.multiname);
     for (const peer of Object.values(asset.peerMap)) {
       const status = peer.status;
       pins[type] = {
         ...(pins[type] || {}),
-        [status]: 1 + (pins[type][status] || 0)
+        [status]: 1 + ((pins[type] || {})[status] || 0)
       };
     }
   }
   return pins;
-}
-
-/**
- * Collapses a by-type category into a grand single total by status
- */
-function aggregateTotal(pins: Pins, statusArrayOrdered: PinStatus[]): Pins {
-  return [
-    pins.reduce(
-      (totalGroup: PinGroup, pinGroup) => {
-        for (const status of statusArrayOrdered)
-          totalGroup.status[status] =
-            (totalGroup.status[status] || 0) + (pinGroup.status[status] || 0);
-        return totalGroup;
-      },
-      { type: "total", status: {} }
-    )
-  ];
 }

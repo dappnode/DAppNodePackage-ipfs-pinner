@@ -5,8 +5,8 @@ import Box from "@material-ui/core/Box";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 // Own components
-import AssetsTableSummary from "./Assets/AssetsTableSummary";
-import SourcesTableSummary from "./Sources/SourcesTableSummary";
+import AssetsTable from "./Assets/AssetsTable";
+import SourcesTable from "./Sources/SourcesTable";
 import AddSourceForm from "./Sources/AddSourceForm";
 import PinStatusChart from "./PinStatusChart";
 import { AssetWithMetadata, SourceWithMetadata } from "./types";
@@ -52,7 +52,7 @@ export default function Home({
     <>
       <Box className={classes.heroSection}>
         <Box>
-          <Typography variant="h3" align="center">
+          <Typography variant="h4" align="center">
             Pin anything.
           </Typography>
           <Typography align="center" color="textSecondary">
@@ -82,11 +82,11 @@ export default function Home({
 
       <Grid container spacing={2}>
         <Grid item xs={12} sm={12} md={12} lg={6}>
-          <AssetsTableSummary assets={assets} />
+          <AssetsTable assets={assets} summary />
         </Grid>
 
         <Grid item xs={12} sm={12} md={12} lg={6}>
-          <SourcesTableSummary sources={sources} />
+          <SourcesTable sources={sources} summary />
         </Grid>
       </Grid>
     </>

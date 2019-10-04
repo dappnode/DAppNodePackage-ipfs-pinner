@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Select from "react-select";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/styles";
@@ -6,7 +6,7 @@ import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import socket from "../socket";
+import * as socket from "../socket";
 import { SourceType, SourceOption } from "../types";
 
 const useStyles = makeStyles(theme => ({
@@ -44,10 +44,10 @@ export default function AddAssetForm() {
   const [statusText, setStatusText] = useState("");
 
   useEffect(() => {
-    socket.emit("options", null, (res: any) => {
-      if (res.error) console.error(`Error on fetchOptions: ${res.error}`);
-      else setOptions(res.data);
-    });
+    socket
+      .getOptions(undefined)
+      .then(setOptions)
+      .catch(e => console.error(`Error getting options: ${e.stack}`));
   }, []);
 
   // react-select types are impossible to comply with this handler
@@ -57,15 +57,18 @@ export default function AddAssetForm() {
   }
 
   async function addSource() {
-    setLoading(true);
-    console.log(`Adding source ${type} ${name}`);
-    const multiname = [type, name].join("/");
-    socket.emit("addSource", multiname, (res: any) => {
+    try {
+      setLoading(true);
+      setStatusText(`Adding source ${type} ${name}`);
+      const multiname = [type, name].join("/");
+      await socket.addSource(multiname);
+      setStatusText(`Successfully added ${name}`);
+    } catch (e) {
+      setStatusText(e.message);
+      console.error(e);
+    } finally {
       setLoading(false);
-      console.log("Added source", res);
-      if (res.error) setStatusText(res.error);
-      else setStatusText(`Successfully added ${name}`);
-    });
+    }
   }
 
   function getPlaceholder() {

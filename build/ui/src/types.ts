@@ -15,12 +15,16 @@ export type PinStatus =
   | "error"; //  pins in pin_error or unpin_error
 
 export const pinStatus: { [status: string]: PinStatus } = {
+  // Ok
   pinned: "pinned",
   remote: "remote",
+  // Processing
   pinning: "pinning",
   unpinning: "unpinning",
   pin_queued: "pin_queued",
+  unpin_queued: "unpin_queued",
   queued: "queued",
+  // Error
   cluster_error: "cluster_error",
   pin_error: "pin_error",
   unpin_error: "unpin_error",
@@ -128,4 +132,14 @@ export interface SourceOption {
   value: SourceType;
   label: string;
   placeholder: string;
+}
+
+export interface ClusterPeer {
+  you: boolean;
+  id: string;
+  peername: string;
+  clusterError: string;
+  clusterAddresses: string[];
+  ipfsError: string;
+  ipfsAddresses: string[];
 }

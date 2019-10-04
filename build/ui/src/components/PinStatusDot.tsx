@@ -26,11 +26,7 @@ export default function PinStatusDot({ status }: { status: PinStatus }) {
   };
 
   function statusToColor(status: PinStatus) {
-    return status === pinStatus.pinned
-      ? greenColor
-      : status === pinStatus.pinning
-      ? "#ffc826"
-      : "red";
+    return colorMap[status];
   }
 
   return (

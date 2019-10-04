@@ -2,15 +2,25 @@ import React from "react";
 import MaterialTable from "material-table";
 import { tableIcons } from "../MaterialTable";
 import moment from "moment";
-import socket from "../socket";
+import * as socket from "../socket";
+import CardHeader from "../components/CardHeader";
+import { sourcesPath } from "./index";
 import { parseTypeAndDisplayName } from "../utils/multiname";
 import { SourceWithMetadata } from "../types";
 
 export default function SourcesTableBig({
-  sources
+  sources,
+  summary
 }: {
   sources: SourceWithMetadata[];
+  summary?: boolean;
 }) {
+  async function deleteSource({ multiname }: SourceWithMetadata) {
+    console.log(`deleting source ${multiname}`);
+    await socket.delSource(multiname);
+    console.log(`Successfully deleted ${multiname}`);
+  }
+
   return (
     <div style={{ maxWidth: "100%" }}>
       <MaterialTable
@@ -35,17 +45,7 @@ export default function SourcesTableBig({
             displayName
           };
         })}
-        editable={{
-          onRowDelete: source =>
-            new Promise((resolve, reject) => {
-              console.log(`Deleting source ${source.multiname}`);
-              socket.emit("delSource", source.multiname, (res: any) => {
-                console.log("Deleted source", res);
-                if (res && res.error) reject(res.error);
-                else resolve();
-              });
-            })
-        }}
+        editable={{ onRowDelete: deleteSource }}
         parentChildData={(row, rows) => {
           // There's an error in the typings, where this function expects row[],
           // but it really need a row element (the parent)
@@ -55,8 +55,32 @@ export default function SourcesTableBig({
         }}
         options={{
           actionsColumnIndex: -1,
-          pageSize: 10
+          pageSize: summary ? 5 : 10,
+          ...(summary
+            ? {
+                search: false,
+                showTitle: false,
+                rowStyle: {
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis"
+                }
+              }
+            : {})
         }}
+        components={
+          summary
+            ? {
+                Toolbar: () => (
+                  <CardHeader
+                    title="Sources"
+                    to={sourcesPath}
+                    toText={"Manage sources"}
+                  />
+                )
+              }
+            : {}
+        }
         // @ts-ignore
         icons={tableIcons}
       />
