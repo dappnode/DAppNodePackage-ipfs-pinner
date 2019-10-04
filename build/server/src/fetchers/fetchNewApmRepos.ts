@@ -1,22 +1,16 @@
 import * as web3 from "../web3";
-import { ApmRepo, ApmRegistry } from "../types";
+import { ens } from "../web3";
 
-// #### TODO: Move this to a db
-const cacheMemoryLastestBlock: { [registryAddress: string]: number } = {};
+const shortNameBlacklist = ["apm-registry", "apm-enssub", "apm-repo"];
 
-const firstRegistryDeployBlock = 5254891;
-
-const repoBlacklist: { [name: string]: true } = {
-  "apm-registry.dnp.dappnode.eth": true,
-  "apm-enssub.dnp.dappnode.eth": true,
-  "apm-repo.dnp.dappnode.eth": true,
-  "testing.dnp.dappnode.eth": true,
-  "telegram-mtpproto.dnp.dappnode.eth.dnp.dappnode.eth": true
-};
-
+// For testing
+export interface ApmRegistryRepo {
+  shortname: string;
+  address: string;
+}
 interface ApmRepoEvent {
   id: string;
-  name: string;
+  shortname: string;
   address: string;
   blockNumber: number;
 }
@@ -32,35 +26,31 @@ interface ApmRepoEvent {
  * }, ... ]
  */
 export default async function fetchNewApmRepos(
-  registry: ApmRegistry
-): Promise<ApmRepo[]> {
-  const fromBlock = cacheMemoryLastestBlock[registry.address] || 0;
-  const rawEvents = await web3.getNewReposFromRegistry(
-    registry.address,
-    fromBlock || firstRegistryDeployBlock
-  );
+  registryName: string,
+  fromBlock: number
+): Promise<ApmRegistryRepo[]> {
+  const address = await ens.lookup(registryName);
+  const rawEvents = await web3.getNewReposFromRegistry(address, fromBlock || 0);
 
-  const repos: ApmRepoEvent[] = rawEvents.map(event => ({
-    id: event.returnValues.id,
-    name: [event.returnValues.name, registry.name].join("."),
-    address: event.returnValues.repo,
-    blockNumber: event.blockNumber
-  }));
-
-  const latestBlock = await web3.getBlockNumber();
-  cacheMemoryLastestBlock[registry.address] = latestBlock;
+  const repos: ApmRepoEvent[] = rawEvents
+    .map(event => ({
+      id: event.returnValues.id,
+      shortname: event.returnValues.name,
+      address: event.returnValues.repo,
+      blockNumber: event.blockNumber
+    }))
+    .filter(({ shortname }) => !shortNameBlacklist.includes(shortname));
 
   return cleanRepos(repos).map(repo => ({
-    name: repo.name,
-    address: repo.address,
-    fromRegistry: registry.name
+    shortname: repo.shortname,
+    address: repo.address
   }));
 }
 
 // Utils
 
 function cleanRepos(repos: ApmRepoEvent[]): ApmRepoEvent[] {
-  return filterOutDuplicatedRepos(filterBlacklistedRepos(repos));
+  return filterOutDuplicatedRepos(repos);
 }
 
 /**
@@ -81,11 +71,4 @@ function filterOutDuplicatedRepos(events: ApmRepoEvent[]): ApmRepoEvent[] {
     }
   }
   return Object.values(uniqueIdEvents);
-}
-
-/**
- * Filter dummy repos or known broken repos
- */
-function filterBlacklistedRepos(events: ApmRepoEvent[]): ApmRepoEvent[] {
-  return events.filter(({ name }) => !repoBlacklist[name]);
 }

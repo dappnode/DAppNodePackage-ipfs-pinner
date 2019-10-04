@@ -5,15 +5,19 @@ import moment from "moment";
 // Components
 import AssetStatusDetail from "./AssetStatusDetail";
 import PinStatusDot from "../components/PinStatusDot";
-import { AssetsApi } from "../types";
+import { AssetWithMetadata } from "../types";
 
-export default function AssetsTableBig({ assets }: { assets: AssetsApi }) {
+export default function AssetsTableBig({
+  assets
+}: {
+  assets: AssetWithMetadata[];
+}) {
   return (
     <div style={{ maxWidth: "100%" }}>
       <MaterialTable
         title="Assets"
         columns={[
-          { title: "Name", field: "displayName" },
+          { title: "Name", field: "multiname" },
           // { title: "", field: "assetId", sorting: false },
           {
             title: "Status",
@@ -27,7 +31,11 @@ export default function AssetsTableBig({ assets }: { assets: AssetsApi }) {
             defaultSort: "desc"
           }
         ]}
-        data={assets}
+        data={assets.map(asset => ({
+          ...asset,
+          status: Object.values(asset.peerMap)[0].status,
+          latestUpdate: Object.values(asset.peerMap)[0].timestamp
+        }))}
         // editable={{
         //   onRowDelete: oldData =>
         //     new Promise((resolve, reject) => {

@@ -1,9 +1,10 @@
-import { ApmVersion, ApmRepo } from "../types";
 import * as web3 from "../web3";
-import { maxApmVersionsToPin } from "../params";
+import { ens } from "../web3";
 
-// #### TODO: Move this to a db
-const cacheMemoryLastestIndex: { [registryAddress: string]: number } = {};
+export interface Version {
+  version: string;
+  contentUri: string;
+}
 
 /**
  * Get new versions, using the cached last index
@@ -15,22 +16,16 @@ const cacheMemoryLastestIndex: { [registryAddress: string]: number } = {};
  * }, ... ]
  */
 export default async function fetchNewApmVersions(
-  repo: ApmRepo
-): Promise<ApmVersion[]> {
-  const repoAddress = repo.address;
-  const repoContract = web3.repoContract(repoAddress);
+  repoName: string,
+  numOfVersions: number
+): Promise<Version[]> {
+  const address = await ens.lookup(repoName);
+  const repoContract = web3.repoContract(address);
 
   const latestIndex = await repoContract.getVersionsCount();
 
-  // Cache the lastIndex to avoid repeating fetches for known versions
-  const cachedLatestIndex = cacheMemoryLastestIndex[repoAddress] || 1;
-  if (latestIndex <= cachedLatestIndex) return [];
-
   // Limit the amount of releases to fetch on init
-  const firstIndex =
-    latestIndex - cachedLatestIndex > maxApmVersionsToPin
-      ? latestIndex - maxApmVersionsToPin + 1
-      : cachedLatestIndex;
+  const firstIndex = latestIndex - numOfVersions + 1;
 
   /**
    * Versions called by id are ordered in ascending order.
@@ -46,7 +41,8 @@ export default async function fetchNewApmVersions(
    *  versionIds = [1, 2, 3, 4, 5, ...]
    */
   const versionIds = [];
-  for (let i = firstIndex; i <= latestIndex; i++) versionIds.push(i);
+  for (let i = firstIndex < 1 ? 1 : firstIndex; i <= latestIndex; i++)
+    versionIds.push(i);
 
   // Paralelize requests since ethereum clients can hanlde many requests well
 
@@ -54,11 +50,7 @@ export default async function fetchNewApmVersions(
     versionIds.map(async versionId => {
       try {
         const res = await repoContract.getVersionById(versionId);
-        return {
-          name: repo.name,
-          version: res.version,
-          contentUri: res.contentUri
-        };
+        return { version: res.version, contentUri: res.contentUri };
       } catch (e) {
         // If you request an inexistent ID to the contract, web3 will throw
         // Error: couldn't decode uint16 from ABI. The try, catch block will catch that
@@ -67,16 +59,14 @@ export default async function fetchNewApmVersions(
           console.error("Attempting to fetch an inexistent version");
         else
           console.error(
-            `Error getting version ${versionId}, ${repoAddress}: ${e.stack}`
+            `Error getting version ${versionId}, ${address}: ${e.stack}`
           );
       }
     })
   );
 
-  cacheMemoryLastestIndex[repoAddress] = latestIndex;
-
   // Use push, to ignore versionId that throw, satisfy the typescript compiler
-  const cleanVersions: ApmVersion[] = [];
+  const cleanVersions: Version[] = [];
   for (const version of versions) if (version) cleanVersions.push(version);
 
   return cleanVersions;

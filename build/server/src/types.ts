@@ -1,46 +1,3 @@
-export interface ApmRegistry {
-  name: string;
-  address: string;
-}
-
-export interface ApmRepo {
-  name: string;
-  address: string;
-  fromRegistry?: string;
-}
-
-export interface ApmVersion {
-  name: string;
-  version: string;
-  contentUri: string;
-}
-
-export interface DistributedFile {
-  dir: boolean;
-  hash: string;
-  id: string;
-}
-
-export interface DistributedFilePin extends DistributedFile {
-  pinned: boolean;
-  added: number;
-}
-
-export interface ManifestWithImage {
-  name: string;
-  version: string;
-  avatar: string;
-  image: {
-    hash: string;
-    size: number;
-  };
-}
-
-export type PinType = "direct" | "indirect" | "recursive";
-export interface PinList {
-  [hash: string]: PinType;
-}
-
 export type PinStatus =
   // Ok
   | "pinned" //  pins were correctly pinned
@@ -71,56 +28,15 @@ export const pinStatus: { [status: string]: PinStatus } = {
 };
 
 /**
- * Api returns
- */
-
-export interface PinCluster {
-  name: string;
-  status: PinStatus;
-  error: string; // Can be empty
-  timestamp: number; // Unix timestamp
-}
-
-export interface AssetsApiItem {
-  type: AssetType;
-  displayName: string; // Pretty name for UI display: "Admin @ 0.2.4 manifest"
-  hash: string; // Can be used as ID if necessary
-  status: PinStatus; // Worst status among clusters
-  latestUpdate: number; // Latest update from clusters in unix format
-  clusters: PinCluster[];
-}
-
-export type AssetsApi = AssetsApiItem[];
-
-export interface SourcesApiItem {
-  type: SourceType;
-  id: string;
-  displayName: string; // Pretty name for UI display
-  added: number; // In unix format
-}
-export type SourcesApi = SourcesApiItem[];
-
-export interface SourceOption {
-  value: SourceType;
-  label: string;
-  placeholder: string;
-}
-export type SourceOptionsApi = SourceOption[];
-
-/**
  * Identifiers
  */
 
 export type AssetType =
-  /**
-   * A single file from a DNP release in an APM DNP repo
-   * /apm-dnp-repo-file/<repoEns>/<version>/<fileUniqueName>
-   */
+  // Single file from a DNP release in an APM DNP repo
+  // apm-dnp-repo-file/<repoEns>/<version>/<fileUniqueName>
   | "apm-dnp-repo-file"
-  /**
-   * The directory of a DNP release in an APM DNP repo
-   * /apm-dnp-repo-dir/<repoEns>/<version>
-   */
+  // The directory of a DNP release in an APM DNP repo
+  // apm-dnp-repo-dir/<repoEns>/<version>
   | "apm-dnp-repo-dir";
 
 export const assetTypes = {
@@ -129,17 +45,87 @@ export const assetTypes = {
 };
 
 export type SourceType =
-  /**
-   * An APM registry of DNPs
-   * /apm-registry/dnp.dappnode.eth
-   */
+  // An APM registry of DNPs
+  // apm-registry/dnp.dappnode.eth
   | "apm-registry"
-  /**
-   * An APM repo of DNPs
-   */
+  // An APM repo of DNPs
   | "apm-dnp-repo";
 
 export const sourceTypes = {
   apmRegistry: "apm-registry" as SourceType,
   apmDnpRepo: "apm-dnp-repo" as SourceType
 };
+
+/**
+ * Poll function
+ */
+
+export interface SourceOwn {
+  multiname: string;
+}
+
+export interface Source extends SourceOwn {
+  from: string;
+}
+
+export interface AssetOwn extends SourceOwn {
+  hash: string;
+}
+
+export interface Asset extends Source {
+  hash: string;
+}
+
+export interface PollSourceFunctionArg {
+  source: SourceOwn;
+  currentOwnAssets: AssetOwn[];
+  currentOwnSources: SourceOwn[];
+  internalState: string;
+}
+
+export interface PollSourceFunctionReturn {
+  assetsToAdd?: AssetOwn[];
+  assetsToRemove?: AssetOwn[];
+  sourcesToAdd?: SourceOwn[];
+  sourcesToRemove?: SourceOwn[];
+  internalState?: string;
+}
+
+export interface PollSourceFunction {
+  (arg: PollSourceFunctionArg): Promise<PollSourceFunctionReturn>;
+}
+
+export interface SourcesAndAssetsToEdit {
+  sourcesToAdd: Source[];
+  sourcesToRemove: Source[];
+  assetsToAdd: Asset[];
+  assetsToRemove: Asset[];
+}
+
+/**
+ * API
+ */
+
+export interface AssetWithMetadata extends Asset {
+  peerMap: {
+    // peerId: "12D3KooWPvPYEFApJEoS8s2hLZsCa8xfMpDaFcmLrM6Kzg2EwQPK"
+    [peerId: string]: {
+      peername: string; // "cluster0";
+      status: PinStatus;
+      timestamp: string; // "2019-09-27T13:33:17.463193207Z";
+      error: string; // "";
+    };
+  };
+  // displayName: string; // Should be handled in the UI
+}
+
+export interface SourceWithMetadata extends Source {
+  added: number;
+  // displayName: string; // Should be handled in the UI
+}
+
+export interface SourceOption {
+  value: SourceType;
+  label: string;
+  placeholder: string;
+}

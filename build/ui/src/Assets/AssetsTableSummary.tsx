@@ -3,17 +3,21 @@ import MaterialTable from "material-table";
 import moment from "moment";
 import { tableIcons } from "../MaterialTable";
 import CardHeader from "../components/CardHeader";
-import { AssetsApi } from "../types";
+import { AssetWithMetadata } from "../types";
 import PinStatusDot from "../components/PinStatusDot";
 import { assetsPath } from "./index";
 
-export default function AssetsTableSummary({ assets }: { assets: AssetsApi }) {
+export default function AssetsTableSummary({
+  assets
+}: {
+  assets: AssetWithMetadata[];
+}) {
   return (
     <div style={{ maxWidth: "100%" }}>
       <MaterialTable
         title=""
         columns={[
-          { title: "Name", field: "displayName" },
+          { title: "Name", field: "multiname" },
           {
             title: "Status",
             field: "status",
@@ -26,7 +30,11 @@ export default function AssetsTableSummary({ assets }: { assets: AssetsApi }) {
             defaultSort: "desc"
           }
         ]}
-        data={assets}
+        data={assets.map(asset => ({
+          ...asset,
+          status: Object.values(asset.peerMap)[0].status,
+          latestUpdate: Object.values(asset.peerMap)[0].timestamp
+        }))}
         options={{
           actionsColumnIndex: -1,
           search: false,

@@ -1,5 +1,3 @@
-import { PinList, PinType } from "./types";
-
 const ipfsClient = require("ipfs-http-client");
 
 const host = process.env.IPFS_HOST || "my.ipfs.dnp.dappnode.eth";

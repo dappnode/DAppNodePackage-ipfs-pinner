@@ -1,34 +1,24 @@
 import "mocha";
 import { expect } from "chai";
 
-import { getApmFileId, parseFileId } from "../../src/utils/fileId";
+import { joinMultiname, splitMultiname } from "../../src/utils/multiname";
 
-describe("Utils > fileId", () => {
-  it("Should get and parse an APM fileId", () => {
-    const apmFileIdFields = {
-      name: "admin.dnp.dappnode.eth",
-      version: "0.2.4",
-      file: "manifest"
-    };
-    const expectedFileId = "apm/admin.dnp.dappnode.eth/0.2.4/manifest";
-
-    const fileId = getApmFileId(apmFileIdFields);
-    expect(fileId).to.equal(expectedFileId, "Wrong fileId");
-    expect(parseFileId(fileId)).to.deep.equal(
-      apmFileIdFields,
-      "Wrong parsed fileId fields"
+describe("Utils > multiname", () => {
+  it("Should get and parse a multiname", () => {
+    const parts = ["admin.dnp.dappnode.eth", "0.2.4", "manifest"];
+    const expectedMultiname = "admin.dnp.dappnode.eth/0.2.4/manifest";
+    const multiname = joinMultiname(parts);
+    expect(multiname).to.equal(expectedMultiname, "Wrong multiname");
+    expect(splitMultiname(multiname)).to.deep.equal(
+      parts,
+      "Wrong parsed multiname parts"
     );
   });
 
   it("Should deal with fields with backslashes", () => {
-    const apmFileIdFields = {
-      name: "admin.dnp.dappnode///.eth//",
-      version: "0.2.4",
-      file: "/manifest/"
-    };
-    const expectedFileId = "apm/admin.dnp.dappnode.eth/0.2.4/manifest";
-
-    const fileId = getApmFileId(apmFileIdFields);
-    expect(fileId).to.equal(expectedFileId, "Wrong fileId");
+    const parts = ["admin.dnp.dappnode///.eth//", "0.2.4", "/manifest/"];
+    const expectedMultiname = "admin.dnp.dappnode.eth/0.2.4/manifest";
+    const multiname = joinMultiname(parts);
+    expect(multiname).to.equal(expectedMultiname, "Wrong multiname");
   });
 });

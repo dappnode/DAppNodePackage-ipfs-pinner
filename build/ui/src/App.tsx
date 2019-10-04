@@ -10,7 +10,7 @@ import Assets, { assetsPath } from "./Assets";
 import Sources, { sourcesPath } from "./Sources";
 // Api
 import socket from "./socket";
-import { AssetsApi, SourcesApi } from "./types";
+import { AssetWithMetadata, SourceWithMetadata } from "./types";
 // Style
 import "./App.css";
 
@@ -40,29 +40,23 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const App: React.FC = () => {
-  const [assets, setAssets] = useState([] as AssetsApi);
-  const [sources, setSources] = useState([] as SourcesApi);
+  const [assets, setAssets] = useState([] as AssetWithMetadata[]);
+  const [sources, setSources] = useState([] as SourceWithMetadata[]);
 
   useEffect(() => {
-    socket.on("assets", (_assets: AssetsApi) => {
-      console.log(`Got assets`, { assets: _assets });
-      setAssets(_assets);
-    });
-    socket.on("sources", (_sources: SourcesApi) => {
-      console.log(`Got sources`, { sources: _sources });
-      setSources(_sources);
-    });
-    socket.emit("refresh", (res: { error?: string }) => {
-      if (res && res.error) console.error(`Error loading data: ${res.error}`);
-    });
+    socket.on("assets", setAssets);
+    socket.on("sources", setSources);
   }, []);
+
+  // For debugging
+  // @ts-ignore
+  window["getState"] = () => ({ assets, sources });
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     const fetchData = () => {
-      socket.emit("refresh", (res: { error?: string }) => {
-        if (res.error) console.log(`Error fetching data: ${res.error}`);
-        else timeout = setTimeout(fetchData, 10 * 1000);
+      socket.emit("refresh", null, (res: any) => {
+        timeout = setTimeout(fetchData, 10 * 1000);
       });
     };
     fetchData();

@@ -1,6 +1,6 @@
 import request from "request-promise-native";
 import { pick, omit, mapKeys, mapValues } from "lodash";
-import { PinStatus } from "./types";
+import { PinStatus, Asset, AssetWithMetadata } from "./types";
 
 const {
   IPFS_CLUSTER_HOST,
@@ -181,25 +181,6 @@ async function pinsStatus(): Promise<PinsStatusItem[]> {
   });
 }
 
-export async function pinLsStatus(): Promise<PinLsStatus[]> {
-  const status = await pinsStatus();
-  const pinset = await allocations();
-  type PinStatusObj = { [hash: string]: PinsStatusItem };
-  const statusObj = status.reduce((obj: PinStatusObj, pin) => {
-    return { ...obj, [pin.hash]: pin };
-  }, {});
-
-  // Use a for loop and push to make sure there is a status available
-  const pinsetWithStatus: PinLsStatus[] = [];
-  for (const pin of pinset)
-    if (statusObj[pin.hash])
-      pinsetWithStatus.push({
-        ...pin,
-        ...statusObj[pin.hash]
-      });
-  return pinsetWithStatus;
-}
-
 /**
  * Adds a pin to the pinset
  *
@@ -260,4 +241,39 @@ export function pinRm(hash: string): Promise<ClusterPinItem> {
   return request
     .delete(`${clusterApiUrl}/pins/${validateHashArg(hash)}`, jsonOptions)
     .catch(handleErrors);
+}
+
+/**
+ * High level methods
+ */
+
+export async function addAsset(asset: Asset) {
+  return await pinAdd(asset.hash, {
+    name: asset.multiname,
+    metadata: { from: asset.from }
+  });
+}
+
+export async function removeAsset(asset: Asset) {
+  return await pinRm(asset.hash);
+}
+
+export async function getAssets(): Promise<Asset[]> {
+  const pins = await allocations();
+  return pins.map(pin => ({
+    hash: pin.hash,
+    multiname: pin.name,
+    from: pin.metadata.from
+  }));
+}
+
+export async function getAssetsWithStatus(): Promise<AssetWithMetadata[]> {
+  const assets = await getAssets();
+  const statuses = await pinsStatus();
+  // For faster lookup
+  const statusObj = mapKeys(statuses, pin => pin.hash);
+  return assets.map(asset => ({
+    ...asset,
+    peerMap: statusObj[asset.hash] ? statusObj[asset.hash].peer_map : {}
+  }));
 }

@@ -1,10 +1,20 @@
 import * as ipfs from "../ipfs";
-import { DistributedFile, ManifestWithImage, ApmVersion } from "../types";
 import isIpfsHash from "../utils/isIpfsHash";
-import * as multinameParser from "../utils/assetMultiname";
 
-// Shortcut alias
-const multinameGetter = multinameParser.apmDnpRepoFile.get;
+export interface ReleaseAsset {
+  hash: string;
+  filename: string;
+}
+
+interface ManifestWithImage {
+  name: string;
+  version: string;
+  avatar: string;
+  image: {
+    hash: string;
+    size: number;
+  };
+}
 
 /**
  * Should resolve a name/version into the manifest and all relevant hashes
@@ -15,11 +25,9 @@ const multinameGetter = multinameParser.apmDnpRepoFile.get;
  * - The download methods should be communicated of enought information to
  *   know where to fetch the content, hence the @DistributedFileSource
  */
-export default async function fetchIpfsRelease({
-  name,
-  version,
-  contentUri
-}: ApmVersion): Promise<DistributedFile[]> {
+export default async function fetchDnpIpfsReleaseAssets(
+  contentUri: string
+): Promise<ReleaseAsset[]> {
   const hash = contentUri;
   if (!isIpfsHash(hash)) throw Error(`Release must be an IPFS hash ${hash}`);
 
@@ -28,36 +36,18 @@ export default async function fetchIpfsRelease({
     const manifest: ManifestWithImage = JSON.parse(manifestString);
     if (!manifest.image) throw Error(`Manifest has no image field`);
 
-    const files: DistributedFile[] = [
-      {
-        dir: false,
-        hash,
-        id: multinameGetter({ name, version, filename: "manifest" })
-      },
-      {
-        dir: false,
-        hash: manifest.image.hash,
-        id: multinameGetter({ name, version, filename: "image" })
-      }
+    const files = [
+      { hash, filename: "manifest" },
+      { hash: manifest.image.hash, filename: "image" }
     ];
     // Only add avatar file if exists
     if (manifest.avatar)
-      files.push({
-        dir: false,
-        hash: manifest.avatar,
-        id: multinameGetter({ name, version, filename: "avatar" })
-      });
+      files.push({ hash: manifest.avatar, filename: "avatar" });
 
     return files;
   } catch (e) {
     if (e.message.includes("is a directory")) {
-      return [
-        {
-          dir: true,
-          hash,
-          id: multinameGetter({ name, version, filename: "directory" })
-        }
-      ];
+      return [{ hash, filename: "directory" }];
     } else {
       throw e;
     }

@@ -8,12 +8,12 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import { AssetsApiItem } from "../types";
+import { AssetWithMetadata } from "../types";
 
 export default function AssetStatusDetail({
   asset
 }: {
-  asset: AssetsApiItem | undefined;
+  asset: AssetWithMetadata | undefined;
 }) {
   if (!asset)
     return (
@@ -33,10 +33,10 @@ export default function AssetStatusDetail({
             </TableRow>
           </TableHead>
           <TableBody>
-            {Object.values(asset.clusters).map(peer => (
-              <TableRow key={peer.name}>
+            {Object.values(asset.peerMap).map(peer => (
+              <TableRow key={peer.peername}>
                 <TableCell component="th" scope="row">
-                  {peer.name}
+                  {peer.peername}
                 </TableCell>
                 <TableCell align="right">
                   {peer.error ? `${peer.status}: ${peer.error}` : peer.status}

@@ -2,15 +2,17 @@ import express from "express";
 import http from "http";
 import SockerIo from "socket.io";
 import cors from "cors";
-import createError from "http-errors";
 import path from "path";
 import logger from "morgan";
+import * as eventBus from "../eventBus";
 import Logs from "../logs";
 const logs = Logs(module);
-import { getSources, getOptions, addSource, deleteSource } from "./sources";
-import { getAssets } from "./assets";
 
-// Routes
+// Api Methods
+import { getSources, addSource, deleteSource } from "./sources";
+import { getAssets } from "./assets";
+import { getOptions } from "./options";
+import { SocketRouter } from "./utils";
 
 const port = 3030;
 
@@ -28,64 +30,39 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (_0, res) => res.send("Welcome to the pinner api"));
 
+const sourcesRoute = "sources";
+const optionsRoute = "options";
+const assetsRoute = "assets";
+const addSourceRoute = "addSource";
+const delSourceRoute = "delSource";
+const refreshRoute = "refresh";
+
+// Routes
 io.on("connection", socket => {
-  console.log(`Client connected ${socket.id}`);
+  logs.info(`Client connected ${socket.id}`);
 
-  // Forward errors to the UI to not be blind
-  socket.on("refresh", fn => {
-    wrapErrors(async () => {
-      socket.emit("sources", getSources());
-      socket.emit("assets", await getAssets());
-    }, fn);
-  });
+  refresh();
 
-  socket.on("options", fn => {
-    wrapErrors(async () => getOptions(), fn);
-  });
+  const route = SocketRouter(socket);
 
-  const refreshSources = () => socket.emit("sources", getSources());
-  socket.on("addSource", (type, name, fn) => {
-    wrapErrors(() => addSource(type, name), fn).then(refreshSources);
-  });
-  socket.on("delSource", (type, id, fn) => {
-    wrapErrors(() => deleteSource(type, id), fn).then(refreshSources);
-  });
+  route(optionsRoute, async () => getOptions());
+  route(addSourceRoute, addSource);
+  route(delSourceRoute, deleteSource);
+  route(refreshRoute, refresh);
+
+  socket.on("*", (event, data) =>
+    logs.info(`Socket event ${event}: ${JSON.stringify(data)}`)
+  );
 });
 
-async function wrapErrors<T>(
-  dataFetch: () => Promise<T>,
-  acknowledgment: (res: SocketReturn<T>) => void
-): Promise<void> {
-  if (!acknowledgment) logs.error("acknowledgment fn not defined");
-  try {
-    acknowledgment({ data: await dataFetch() });
-  } catch (e) {
-    logs.error(`Socket req error: ${e.stack}`);
-    acknowledgment({ error: e.message });
-  }
+async function refresh() {
+  eventBus.sourcesChanged.emit();
+  eventBus.assetsChanged.emit();
 }
 
-interface SocketReturn<T> {
-  data?: T;
-  error?: string;
-}
+eventBus.sourcesChanged.on(async () => io.emit(sourcesRoute, getSources()));
+eventBus.assetsChanged.on(async () => io.emit(assetsRoute, await getAssets()));
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use((err: any, req: any, res: any, next: any) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.send(err.stack);
-});
-
-export default function runHttpApi() {
-  server.listen(port, () => logs.info(`HTTP API ${port}!`));
+export default function runHttpApi(_port = port): http.Server {
+  return server.listen(_port, () => logs.info(`HTTP API ${port}!`));
 }

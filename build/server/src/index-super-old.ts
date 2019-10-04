@@ -1,4 +1,3 @@
-require("./utils/arrayPrototype");
 // Stages
 const fetchFromRegistries = require("./stages/fetchFromRegistries");
 const fetchFromRepos = require("./stages/fetchFromRepos");
@@ -23,7 +22,7 @@ async function start() {
    * Initialize database entries with CSV passed through ENVs
    * - REGISTRY_CSV="dnp.dappnode.eth, public.dappnode.eth"
    */
-  await registriesToAdd.mapAsyncParallel(async name => {
+  await registriesToAdd.mapAsyncParallel(async (name: any) => {
     const address = await ens.lookup(name);
     console.log(`Adding registry: ${name} ${address}`);
     db.addRegistry({ name, address });
@@ -79,3 +78,5 @@ async function start() {
     await portMissingAssetsFromGithubToIpfs();
   });
 }
+
+export {};

@@ -6,17 +6,24 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { useTheme } from "@material-ui/styles";
 import ClockIcon from "@material-ui/icons/Schedule";
 import { Typography, Grid } from "@material-ui/core";
-import { AssetsApi, PinStatus, pinStatus } from "./types";
+import { AssetWithMetadata, PinStatus, pinStatus } from "./types";
 import statusColorMap from "./components/statusColorMap";
+import { parseType } from "./utils/multiname";
 
-interface PinGroup {
-  type: string;
-  status: {
-    [status: string]: number;
+interface Pins {
+  [type: string]: {
+    pinned: number;
+    remote: number;
+    pinning: number;
+    unpinning: number;
+    pin_queued: number;
+    queued: number;
+    cluster_error: number;
+    pin_error: number;
+    unpin_error: number;
+    error: number;
   };
 }
-
-type Pins = PinGroup[];
 
 const statusOrdered: PinStatus[] = [
   pinStatus.pinned,
@@ -43,7 +50,11 @@ const statusOrdered: PinStatus[] = [
  *   }
  * }, ... ]
  */
-export default function PinStatusChart({ assets }: { assets: AssetsApi }) {
+export default function PinStatusChart({
+  assets
+}: {
+  assets: AssetWithMetadata[];
+}) {
   const [onlyTotal, setOnlyTotal] = useState(true);
 
   const pins = aggregatePins(assets);
@@ -223,15 +234,19 @@ function computePinnedPercent(pins: PinGroup[]): string {
  * @param pinsLsStatus
  * @returns pins
  */
-function aggregatePins(pinsLsStatus: AssetsApi): Pins {
-  const pins: { [type: string]: { [status: string]: number } } = {};
-  for (const pin of pinsLsStatus)
-    for (const cluster of pin.clusters) {
-      if (!pins[pin.type]) pins[pin.type] = {};
-      pins[pin.type][cluster.status] =
-        1 + (pins[pin.type][cluster.status] || 0);
+function aggregatePins(assets: AssetWithMetadata[]): Pins {
+  const pins: Pins = {};
+  for (const asset of assets) {
+    const type = parseType(asset.multiname);
+    for (const peer of Object.values(asset.peerMap)) {
+      const status = peer.status;
+      pins[type] = {
+        ...(pins[type] || {}),
+        [status]: 1 + (pins[type][status] || 0)
+      };
     }
-  return Object.entries(pins).map(([type, status]) => ({ type, status }));
+  }
+  return pins;
 }
 
 /**

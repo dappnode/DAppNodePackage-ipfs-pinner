@@ -9,3 +9,5 @@ console.log("Web3 connection to: " + providerUrl);
 const eth = new Eth(new Eth.HttpProvider(providerUrl));
 
 module.exports = eth;
+
+export {};

@@ -9,10 +9,9 @@ import AssetsTableSummary from "./Assets/AssetsTableSummary";
 import SourcesTableSummary from "./Sources/SourcesTableSummary";
 import AddSourceForm from "./Sources/AddSourceForm";
 import PinStatusChart from "./PinStatusChart";
+import { AssetWithMetadata, SourceWithMetadata } from "./types";
 // Style
 import "./App.css";
-
-import { AssetsApi, SourcesApi, SourceOptionsApi } from "./types";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,8 +43,8 @@ export default function Home({
   assets,
   sources
 }: {
-  assets: AssetsApi;
-  sources: SourcesApi;
+  assets: AssetWithMetadata[];
+  sources: SourceWithMetadata[];
 }) {
   const classes = useStyles();
 

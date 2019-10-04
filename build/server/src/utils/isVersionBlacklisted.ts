@@ -1,5 +1,4 @@
 import semver from "semver";
-import { ApmVersion } from "../types";
 
 const knownReposVersionThreshold: { [name: string]: string } = {
   // Wrongly deployed manifests
@@ -17,12 +16,15 @@ const knownReposVersionThreshold: { [name: string]: string } = {
   "ropsten.dnp.dappnode.eth": "0.1.0"
 };
 
-export default function isVersionBlacklisted(version: ApmVersion): boolean {
-  const thresholdVersion: string = knownReposVersionThreshold[version.name];
+export default function isVersionBlacklisted(
+  name: string,
+  version: string
+): boolean {
+  const thresholdVersion: string = knownReposVersionThreshold[name];
   return Boolean(
     thresholdVersion &&
-      semver.valid(version.version) &&
+      semver.valid(version) &&
       semver.valid(thresholdVersion) &&
-      !semver.gt(version.version, thresholdVersion)
+      !semver.gt(version, thresholdVersion)
   );
 }

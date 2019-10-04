@@ -7,7 +7,7 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import socket from "../socket";
-import { SourceType, SourceOptionsApi } from "../types";
+import { SourceType, SourceOption } from "../types";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -37,14 +37,14 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function AddAssetForm() {
-  const [options, setOptions] = useState([] as SourceOptionsApi);
+  const [options, setOptions] = useState([] as SourceOption[]);
   const [type, setType] = useState("" as SourceType);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [statusText, setStatusText] = useState("");
 
   useEffect(() => {
-    socket.emit("options", (res: any) => {
+    socket.emit("options", null, (res: any) => {
       if (res.error) console.error(`Error on fetchOptions: ${res.error}`);
       else setOptions(res.data);
     });
@@ -59,7 +59,8 @@ export default function AddAssetForm() {
   async function addSource() {
     setLoading(true);
     console.log(`Adding source ${type} ${name}`);
-    socket.emit("addSource", type, name, (res: any) => {
+    const multiname = [type, name].join("/");
+    socket.emit("addSource", multiname, (res: any) => {
       setLoading(false);
       console.log("Added source", res);
       if (res.error) setStatusText(res.error);
