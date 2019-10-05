@@ -42,6 +42,8 @@ export default function Home({
 }) {
   const classes = useStyles();
 
+  const showTables = assets.length > 0 && sources.length > 0;
+
   return (
     <>
       <Box className={classes.heroSection}>
@@ -71,19 +73,28 @@ export default function Home({
         </Fade>
       </Box>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={12} md={12} lg={6} className={classes.summary}>
-          <Fade in={assets.length > 0}>
-            <AssetsTable assets={assets} summary />
-          </Fade>
-        </Grid>
-
-        <Grid item xs={12} sm={12} md={12} lg={6} className={classes.summary}>
-          <Fade in={sources.length > 0}>
-            <SourcesTable sources={sources} summary />
-          </Fade>
-        </Grid>
-      </Grid>
+      {showTables ? (
+        <Fade in={showTables}>
+          <Grid container spacing={3}>
+            {[
+              <AssetsTable assets={assets} summary />,
+              <SourcesTable sources={sources} summary />
+            ].map((SummaryTable, i) => (
+              <Grid
+                key={i}
+                item
+                xs={12}
+                sm={12}
+                md={12}
+                lg={6}
+                className={classes.summary}
+              >
+                {SummaryTable}
+              </Grid>
+            ))}
+          </Grid>
+        </Fade>
+      ) : null}
     </>
   );
 }
