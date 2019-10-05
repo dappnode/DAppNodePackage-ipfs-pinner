@@ -9,7 +9,7 @@ import AssetsTable from "./Assets/AssetsTable";
 import SourcesTable from "./Sources/SourcesTable";
 import AddSourceForm from "./Sources/AddSourceForm";
 import PinStatusChart from "./PinStatusChart";
-import { AssetWithMetadata, SourceWithMetadata } from "./types";
+import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
 // Style
 import "./App.css";
 
@@ -41,10 +41,12 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Home({
   assets,
-  sources
+  sources,
+  peers
 }: {
   assets: AssetWithMetadata[];
   sources: SourceWithMetadata[];
+  peers: ClusterPeer[];
 }) {
   const classes = useStyles();
 
@@ -77,17 +79,23 @@ export default function Home({
       </Box> */}
 
       <Box className={classes.boxChart}>
-        <PinStatusChart assets={assets} />
+        {assets.length ? (
+          <PinStatusChart assets={assets} peerCount={peers.length} />
+        ) : null}
       </Box>
 
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={12} md={12} lg={6}>
-          <AssetsTable assets={assets} summary />
-        </Grid>
+        {assets.length ? (
+          <Grid item xs={12} sm={12} md={12} lg={6}>
+            <AssetsTable assets={assets} summary />
+          </Grid>
+        ) : null}
 
-        <Grid item xs={12} sm={12} md={12} lg={6}>
-          <SourcesTable sources={sources} summary />
-        </Grid>
+        {sources.length ? (
+          <Grid item xs={12} sm={12} md={12} lg={6}>
+            <SourcesTable sources={sources} summary />
+          </Grid>
+        ) : null}
       </Grid>
     </>
   );

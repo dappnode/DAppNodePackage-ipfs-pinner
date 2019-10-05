@@ -5,9 +5,6 @@ const apiUrl = `http://localhost:3030`;
 
 const socket = io(apiUrl);
 
-socket.on("connect", () => console.log(`Connected ${apiUrl}`));
-socket.on("disconnect", () => console.error(`Disconected ${apiUrl}`));
-
 export default socket;
 
 function socketGetFactory<T, R>(routePath: string) {
@@ -27,3 +24,29 @@ export const getOptions = socketGetFactory<undefined, SourceOption[]>(
 export const getPeers = socketGetFactory<undefined, ClusterPeer[]>("peers");
 export const addSource = socketGetFactory<string, null>("addSource");
 export const delSource = socketGetFactory<string, null>("delSource");
+
+/**
+ * Special is alive check
+ */
+
+export async function isAlive(): Promise<{ alive: boolean; error?: string }> {
+  try {
+    const res = await fetch(apiUrl);
+    if (!res.ok)
+      return {
+        alive: false,
+        error: res.statusText
+      };
+    const data = await res.text();
+    if (data === "Welcome to the pinner api")
+      console.error(`Warning, the welcome text is not expected: ${data}`);
+    return {
+      alive: true
+    };
+  } catch (e) {
+    return {
+      alive: false,
+      error: e.message
+    };
+  }
+}

@@ -52,9 +52,11 @@ const statusOrdered: PinStatus[] = [
  * }, ... ]
  */
 export default function PinStatusChart({
-  assets
+  assets,
+  peerCount
 }: {
   assets: AssetWithMetadata[];
+  peerCount: number;
 }) {
   const [onlyTotal, setOnlyTotal] = useState(true);
 
@@ -132,6 +134,12 @@ export default function PinStatusChart({
     // Legend has to be on the bottom or it becames really ugly
   };
 
+  const percentPinned = computePinnedPercent(pins);
+  const clustersOnline = 3;
+  const stateSummary = [];
+  if (percentPinned) stateSummary.push(`${percentPinned}% pinned`);
+  if (peerCount) stateSummary.push(`${peerCount} clusters online`);
+
   return (
     <div>
       <Typography
@@ -139,7 +147,7 @@ export default function PinStatusChart({
         align="center"
         color="textSecondary"
       >
-        {computePinnedPercent(pins)}% pinned, 100% clusters online
+        {stateSummary.join(", ")}
       </Typography>
       <Chart
         options={options}
@@ -189,7 +197,7 @@ function computePinnedPercent(pins: Pins): string {
     totalPinned += (countObj || {}).pinned || 0;
     for (const count of Object.values(countObj || {})) totalPins += count || 0;
   }
-  return ((100 * totalPinned) / totalPins).toPrecision(3);
+  return totalPins ? ((100 * totalPinned) / totalPins).toPrecision(3) : "";
 }
 
 /**
