@@ -9,7 +9,8 @@ const useStyles = makeStyles(theme => ({
   appBar: {
     top: "auto",
     bottom: 0,
-    backgroundColor: "#eb5258"
+    backgroundColor: "#c53f48", // Should match the color of the chart's red
+    color: "#fff"
   },
   toolbar: {
     display: "flex"

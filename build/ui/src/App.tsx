@@ -13,9 +13,6 @@ import Peers, { peersPath } from "./Peers";
 // Api
 import socket, { getPeers, isAlive, refresh } from "./socket";
 import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
-import { Fade } from "@material-ui/core";
-
-const headerOffset = 10;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     header: {
       padding: theme.spacing(3, 0, 3),
-      marginBottom: theme.spacing(headerOffset)
+      marginBottom: theme.spacing(9)
     },
     errorMsg: {
       marginBottom: theme.spacing(6)
@@ -120,9 +117,7 @@ const App: React.FC = () => {
   return (
     <>
       <header className={classes.header}>
-        <Container fixed>
-          <Header />
-        </Container>
+        <Header />
       </header>
 
       <Container fixed className={classes.mainContainer}>

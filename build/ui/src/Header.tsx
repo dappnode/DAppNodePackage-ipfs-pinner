@@ -16,7 +16,8 @@ import {
   AppBar,
   Toolbar,
   IconButton,
-  Button
+  Button,
+  Container
 } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import RssFeedIcon from "@material-ui/icons/RssFeed";
@@ -97,30 +98,32 @@ export default function Header() {
   return (
     <div className={classes.root}>
       <AppBar position="fixed" color="secondary">
-        <Toolbar className={classes.topToolbar}>
-          {nameComponent}
+        <Container fixed>
+          <Toolbar className={classes.topToolbar} style={{ padding: 0 }}>
+            {nameComponent}
 
-          {routes.map(({ to, name }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={classes.linkButton}
-              style={{ color: "inherit" }}
+            {routes.map(({ to, name }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={classes.linkButton}
+                style={{ color: "inherit" }}
+              >
+                <Button color="inherit">{name}</Button>
+              </NavLink>
+            ))}
+
+            <IconButton
+              edge="start"
+              color="inherit"
+              className={classes.menuButton}
+              aria-label="open side"
+              onClick={() => setOpenSide(true)}
             >
-              <Button color="inherit">{name}</Button>
-            </NavLink>
-          ))}
-
-          <IconButton
-            edge="start"
-            color="inherit"
-            className={classes.menuButton}
-            aria-label="open side"
-            onClick={() => setOpenSide(true)}
-          >
-            <MenuIcon />
-          </IconButton>
-        </Toolbar>
+              <MenuIcon />
+            </IconButton>
+          </Toolbar>
+        </Container>
       </AppBar>
 
       {/* Side menu */}
