@@ -3,6 +3,8 @@ import * as ipfsCluster from "../ipfsCluster";
 import * as eventBus from "../eventBus";
 import { SourcesAndAssetsToEdit, Source, Asset } from "../types";
 import { addChildSourcesAndAssetsToRemove } from "./utils";
+import Logs from "../logs";
+const logs = Logs(module);
 
 export async function modifyState(
   stateModifierFn: (
@@ -53,23 +55,39 @@ async function applyStateChange({
   assetsToRemove
 }: SourcesAndAssetsToEdit) {
   for (const source of sourcesToAdd) {
-    console.log(`Adding source ${source.multiname}`);
-    sourcesDb.addSource(source);
+    try {
+      console.log(`Adding source ${source.multiname}`);
+      sourcesDb.addSource(source);
+    } catch (e) {
+      logs.error(`Error adding source ${JSON.stringify(source)}: ${e.stack}`);
+    }
   }
 
   for (const source of sourcesToRemove) {
-    console.log(`Removing source ${source.multiname}`);
-    sourcesDb.removeSource(source);
+    try {
+      console.log(`Removing source ${source.multiname}`);
+      sourcesDb.removeSource(source);
+    } catch (e) {
+      logs.error(`Error removing source ${JSON.stringify(source)}: ${e.stack}`);
+    }
   }
 
   for (const asset of assetsToAdd) {
-    console.log(`Pinning ${asset.multiname}...`);
-    await ipfsCluster.addAsset(asset);
+    try {
+      console.log(`Pinning ${asset.multiname}...`);
+      await ipfsCluster.addAsset(asset);
+    } catch (e) {
+      logs.error(`Error pinning ${JSON.stringify(asset)}: ${e.stack}`);
+    }
   }
 
   for (const asset of assetsToRemove) {
-    console.log(`UnPinning ${asset.multiname}...`);
-    await ipfsCluster.removeAsset(asset);
+    try {
+      console.log(`Pinning ${asset.multiname}...`);
+      await ipfsCluster.removeAsset(asset);
+    } catch (e) {
+      logs.error(`Error unpinning ${JSON.stringify(asset)}: ${e.stack}`);
+    }
   }
 }
 

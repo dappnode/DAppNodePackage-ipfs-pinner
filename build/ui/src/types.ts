@@ -48,18 +48,6 @@ export const assetTypes = {
   apmDnpRepoDir: "apm-dnp-repo-dir" as AssetType
 };
 
-export type SourceType =
-  // An APM registry of DNPs
-  // apm-registry/dnp.dappnode.eth
-  | "apm-registry"
-  // An APM repo of DNPs
-  | "apm-dnp-repo";
-
-export const sourceTypes = {
-  apmRegistry: "apm-registry" as SourceType,
-  apmDnpRepo: "apm-dnp-repo" as SourceType
-};
-
 /**
  * Poll function
  */
@@ -129,7 +117,7 @@ export interface SourceWithMetadata extends Source {
 }
 
 export interface SourceOption {
-  value: SourceType;
+  type: string;
   label: string;
   placeholder: string;
 }

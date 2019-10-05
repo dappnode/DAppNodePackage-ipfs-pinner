@@ -1,11 +1,21 @@
 import { flatten } from "lodash";
 import semver from "semver";
-import { PollSourceFunction, PollSourceFunctionArg, AssetOwn } from "../types";
+import {
+  PollSourceFunction,
+  PollSourceFunctionArg,
+  AssetOwn,
+  Source,
+  VerifySourceFunction
+} from "../types";
 import fetchNewApmVersions from "../fetchers/fetchNewApmVersions";
 import fetchDnpIpfsReleaseAssets from "../fetchers/fetchDnpIpfsReleaseAssets";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import * as apmDnpRepoReleaseFile from "../assets/apmDnpRepoReleaseFile";
 import isIpfsHash from "../utils/isIpfsHash";
+import resolveEnsDomain from "../fetchers/resolveEns";
+import { checkIfContractIsRepo } from "../web3/checkIfContractIsRepo";
+import Logs from "../logs";
+const logs = Logs(module);
 
 // Define somewhere else
 const numOfVersions = 3;
@@ -25,15 +35,29 @@ export interface ApmDnpRepo {
 }
 
 export const type = "apm-dnp-repo";
+export const label = "APM repo";
+export const placeholder = "Repo ENS";
 
 export const parseMultiname = (multiname: string): ApmDnpRepo => {
   const [_type, name] = splitMultiname(multiname);
+  if (_type !== type) throw Error(`multiname must be of type: ${type}`);
   if (!name) throw Error(`No "name" in multiname: ${multiname}`);
   return { name };
 };
 
 export const getMultiname = ({ name }: ApmDnpRepo): string => {
   return joinMultiname([type, name]);
+};
+
+export const verify: VerifySourceFunction = async function(source: Source) {
+  const { name } = parseMultiname(source.multiname);
+  const address = await resolveEnsDomain(name);
+  try {
+    await checkIfContractIsRepo(address);
+  } catch (e) {
+    logs.error(`${name} is not an APM repo: ${e.message}`);
+    throw Error(`${name} is not an APM repo`);
+  }
 };
 
 export const poll: PollSourceFunction = async function({

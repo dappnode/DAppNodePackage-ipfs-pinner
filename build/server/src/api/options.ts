@@ -1,17 +1,10 @@
-import { sourceTypes, SourceOption } from "../types";
+import { SourceOption } from "../types";
+import { sources } from "../sources";
 
 export function getOptions(): SourceOption[] {
-  const options: SourceOption[] = [
-    {
-      value: sourceTypes.apmDnpRepo,
-      label: "APM repo",
-      placeholder: "Repo ENS"
-    },
-    {
-      value: sourceTypes.apmRegistry,
-      label: "APM registry",
-      placeholder: "Registry ENS"
-    }
-  ];
-  return options;
+  return Object.values(sources).map(({ type, label, placeholder }) => ({
+    type,
+    label,
+    placeholder
+  }));
 }

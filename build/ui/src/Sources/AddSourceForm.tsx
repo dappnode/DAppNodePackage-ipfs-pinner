@@ -7,7 +7,7 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import * as socket from "../socket";
-import { SourceType, SourceOption } from "../types";
+import { SourceOption } from "../types";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function AddAssetForm() {
   const [options, setOptions] = useState([] as SourceOption[]);
-  const [type, setType] = useState("" as SourceType);
+  const [type, setType] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [statusText, setStatusText] = useState("");
@@ -53,7 +53,7 @@ export default function AddAssetForm() {
   // react-select types are impossible to comply with this handler
   // it must use any to compile
   function handleSelectChange(option: any) {
-    setType(option.value as SourceType);
+    setType(option.value);
   }
 
   async function addSource() {
@@ -73,7 +73,7 @@ export default function AddAssetForm() {
 
   function getPlaceholder() {
     if (!type) return "Select a type first";
-    const currentOption = options.find(option => option.value === type);
+    const currentOption = options.find(option => option.type === type);
     if (currentOption) return currentOption.placeholder || "Name";
     else return "Name";
   }
@@ -132,7 +132,10 @@ export default function AddAssetForm() {
                     color: textColor
                   })
                 }}
-                options={options}
+                options={options.map(({ type, label }) => ({
+                  value: type,
+                  label
+                }))}
               />
             </div>
             <Button

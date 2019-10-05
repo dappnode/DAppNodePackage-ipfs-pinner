@@ -1,15 +1,15 @@
 import runHttpApi from "./api";
-import { pollSourcesSafe } from "./sources";
+import { pollSources } from "./sources";
 import * as eventBus from "./eventBus";
 
 runHttpApi();
 
 setInterval(() => {
-  pollSourcesSafe();
+  pollSources();
 }, 5 * 60 * 1000);
 
 eventBus.pollSources.on(async () => {
-  pollSourcesSafe();
+  pollSources();
 });
 
 export {};

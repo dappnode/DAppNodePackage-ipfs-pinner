@@ -44,8 +44,8 @@ export default function AssetsTableBig({
             ...asset,
             type,
             displayName,
-            status: Object.values(asset.peerMap)[0].status,
-            latestUpdate: Object.values(asset.peerMap)[0].timestamp
+            status: (Object.values(asset.peerMap)[0] || {}).status,
+            latestUpdate: (Object.values(asset.peerMap)[0] || {}).timestamp
           };
         })}
         // editable={{
