@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import RoomOutlineIcon from "@material-ui/icons/RoomOutlined";
-import Typography from "@material-ui/core/Typography";
 import { NavLink } from "react-router-dom";
+// Own components
 import { assetsPath } from "./Assets";
 import { sourcesPath } from "./Sources";
 import { peersPath } from "./Peers";
+// Material UI components
 import {
   List,
   ListItem,
@@ -17,8 +17,11 @@ import {
   Toolbar,
   IconButton,
   Button,
-  Container
+  Container,
+  Typography
 } from "@material-ui/core";
+// Icons
+import RoomOutlineIcon from "@material-ui/icons/RoomOutlined";
 import MenuIcon from "@material-ui/icons/Menu";
 import RssFeedIcon from "@material-ui/icons/RssFeed";
 import RoomIcon from "@material-ui/icons/Room";

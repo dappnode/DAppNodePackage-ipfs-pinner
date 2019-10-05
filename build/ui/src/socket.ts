@@ -1,7 +1,7 @@
 import io from "socket.io-client";
 import { SourceOption, ClusterPeer } from "./types";
 
-const apiUrl = `http://localhost:3030`;
+const apiUrl = process.env.REACT_APP_PINNER_API_URL || `http://localhost:3030`;
 
 const socket = io(apiUrl);
 

@@ -27,6 +27,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -48,6 +49,7 @@
     "@types/lodash": "^4.14.141",
     "@types/react-router-dom": "^5.1.0",
     "@types/react-select": "^3.0.4",
-    "@types/socket.io-client": "^1.4.32"
+    "@types/socket.io-client": "^1.4.32",
+    "source-map-explorer": "^2.1.0"
   }
 }

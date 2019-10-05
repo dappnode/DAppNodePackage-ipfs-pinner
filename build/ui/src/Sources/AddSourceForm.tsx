@@ -2,10 +2,7 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/styles";
-import Grid from "@material-ui/core/Grid";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
+import { Grid, TextField, Button, Typography } from "@material-ui/core";
 import * as socket from "../socket";
 import { SourceOption } from "../types";
 

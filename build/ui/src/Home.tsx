@@ -1,16 +1,13 @@
 import React from "react";
 // Material UI components
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import Box from "@material-ui/core/Box";
-import Grid from "@material-ui/core/Grid";
-import Typography from "@material-ui/core/Typography";
 // Own components
 import AssetsTable from "./Assets/AssetsTable";
 import SourcesTable from "./Sources/SourcesTable";
 import AddSourceForm from "./Sources/AddSourceForm";
 import AssetsStatusChart from "./AssetsStatusChart";
 import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
-import { Fade } from "@material-ui/core";
+import { Box, Fade, Grid, Typography } from "@material-ui/core";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,7 +45,7 @@ export default function Home({
     <>
       <Box className={classes.heroSection}>
         <Box>
-          <Typography variant="h4" align="center">
+          <Typography variant="h4" align="center" style={{ color: "#141e27" }}>
             Pin anything.
           </Typography>
           <Typography align="center" color="textSecondary">

@@ -1,9 +1,7 @@
 import React from "react";
 // Material UI components
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
-import Button from "@material-ui/core/Button";
+import { Typography, Box, Button } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
 import RightArrowIcon from "@material-ui/icons/ChevronRight";
 

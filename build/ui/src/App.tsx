@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Switch, Route } from "react-router-dom";
 // Material UI components
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
+import { Container } from "@material-ui/core";
 // Own components
 import Header from "./Header";
 import BottomBar from "./BottomBar";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
-import Button from "@material-ui/core/Button";
+import { Button } from "@material-ui/core";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { useTheme } from "@material-ui/styles";
