@@ -3,17 +3,17 @@ import { Switch, Route } from "react-router-dom";
 // Material UI components
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import ErrorIcon from "@material-ui/icons/ErrorOutline";
 // Own components
 import Header from "./Header";
+import BottomBar from "./BottomBar";
 import Home from "./Home";
 import Assets, { assetsPath } from "./Assets";
 import Sources, { sourcesPath } from "./Sources";
 import Peers, { peersPath } from "./Peers";
 // Api
-import socket, { getPeers, isAlive } from "./socket";
+import socket, { getPeers, isAlive, refresh } from "./socket";
 import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
-import { Typography } from "@material-ui/core";
+import { Fade } from "@material-ui/core";
 
 const headerOffset = 10;
 
@@ -31,11 +31,11 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingBottom: theme.spacing(9)
     },
     header: {
-      backgroundColor: "#0b1216",
-      color: "#f8f8f8",
-      textAlign: "center",
       padding: theme.spacing(3, 0, 3),
       marginBottom: theme.spacing(headerOffset)
+    },
+    errorMsg: {
+      marginBottom: theme.spacing(6)
     }
   })
 );
@@ -44,33 +44,32 @@ const App: React.FC = () => {
   const [assets, setAssets] = useState([] as AssetWithMetadata[]);
   const [sources, setSources] = useState([] as SourceWithMetadata[]);
   const [peers, setPeers] = useState([] as ClusterPeer[]);
-  const [connexionError, setConnexionError] = useState("");
+  const [pinnerError, setPinnerError] = useState("");
+  const [clusterError, setClusterError] = useState("");
 
   useEffect(() => {
     socket.on("assets", setAssets);
     socket.on("sources", setSources);
     // Successful connection or reconnection
     socket.on("connect", () => {
-      setConnexionError("");
+      if (connexionError) setPinnerError("");
       console.log(`Connected`);
     });
     // Disconnection initiated by the server
     socket.on("disconnect", (reason: string) => {
-      setConnexionError(reason);
+      setPinnerError(reason);
       console.log(`Disconected: ${reason}`);
     });
     // Failed attempt of connecting
-    socket.on("connect_error", (error: any) => {
+    socket.on("connect_error", (e: Error) => {
       const message =
-        error.message === "xhr poll error"
-          ? "Can't reach pinner"
-          : error.message;
+        e.message === "xhr poll error" ? "Can't reach pinner" : e.message;
       isAlive().then(({ error }) => {
         if (error) {
           console.error(`HTTP API test: ${error}`);
-          setConnexionError(message);
+          setPinnerError(message);
         } else {
-          setConnexionError(`Socket.io error, HTTP is alive: ${message}`);
+          setPinnerError(`Socket.io error, HTTP is alive: ${message}`);
         }
       });
     });
@@ -83,28 +82,40 @@ const App: React.FC = () => {
   window["socket"] = () => socket;
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    const fetchData = () => {
-      socket.emit("refresh", null, (res: any) => {
-        timeout = setTimeout(fetchData, 10 * 1000);
-      });
-    };
-    fetchData();
+    const interval = setInterval(() => {
+      if (!pinnerError) refresh(undefined).catch(console.error);
+    }, 10 * 1000);
     return () => {
-      clearTimeout(timeout);
+      clearTimeout(interval);
     };
   }, []);
 
+  // Use the peers call to check if the cluster is OK
   useEffect(() => {
-    getPeers(undefined)
-      .then(setPeers)
-      .catch(e => console.error(`Error getting peers: ${e.stack}`));
+    async function getPeersAsync() {
+      try {
+        const _peers = await getPeers(undefined);
+        setClusterError("");
+        setPeers(_peers);
+      } catch (e) {
+        const message = e.message.includes("ECONNREFUSED")
+          ? "Can't reach cluster HTTP API"
+          : e.message;
+        setClusterError(message);
+        console.error(`Error getting peers: ${e.stack}`);
+        setTimeout(getPeersAsync, 10 * 1000);
+      }
+    }
+    getPeersAsync();
   }, []);
-
-  // Alive check
-  useEffect(() => {}, []);
 
   const classes = useStyles();
+
+  const connexionError = pinnerError
+    ? `Error connecting to pinner: ${pinnerError}`
+    : clusterError
+    ? `Error connecting to cluster: ${clusterError}`
+    : "";
 
   return (
     <>
@@ -114,19 +125,7 @@ const App: React.FC = () => {
         </Container>
       </header>
 
-      {connexionError ? (
-        <Typography align="center" color="textSecondary">
-          <ErrorIcon style={{ fontSize: "200%" }} />
-          <br />
-          Error connecting to pinner: {connexionError}
-        </Typography>
-      ) : null}
-
-      <Container
-        fixed
-        className={classes.mainContainer}
-        style={{ opacity: connexionError ? 0.3 : 1 }}
-      >
+      <Container fixed className={classes.mainContainer}>
         <Switch>
           <Route path={sourcesPath}>
             <Sources sources={sources} />
@@ -142,6 +141,8 @@ const App: React.FC = () => {
           </Route>
         </Switch>
       </Container>
+
+      <BottomBar connexionError={connexionError} />
     </>
   );
 };

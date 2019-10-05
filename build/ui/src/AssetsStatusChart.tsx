@@ -4,8 +4,7 @@ import Button from "@material-ui/core/Button";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { useTheme } from "@material-ui/styles";
-import ClockIcon from "@material-ui/icons/Schedule";
-import { Typography, Grid } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import { AssetWithMetadata, PinStatus, pinStatus } from "./types";
 import statusColorMap from "./components/statusColorMap";
 import { parseType } from "./utils/multiname";
@@ -51,7 +50,7 @@ const statusOrdered: PinStatus[] = [
  *   }
  * }, ... ]
  */
-export default function PinStatusChart({
+export default function AssetsStatusChart({
   assets,
   peerCount
 }: {
@@ -135,7 +134,6 @@ export default function PinStatusChart({
   };
 
   const percentPinned = computePinnedPercent(pins);
-  const clustersOnline = 3;
   const stateSummary = [];
   if (percentPinned) stateSummary.push(`${percentPinned}% pinned`);
   if (peerCount) stateSummary.push(`${peerCount} clusters online`);

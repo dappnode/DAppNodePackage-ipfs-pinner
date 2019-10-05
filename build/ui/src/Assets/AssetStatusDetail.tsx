@@ -2,7 +2,7 @@ import React from "react";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import moment from "moment";
-//
+import PinStatusDot from "./PinStatusDot";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -22,8 +22,9 @@ export default function AssetStatusDetail({
           <TableHead>
             <TableRow>
               <TableCell>Cluster name</TableCell>
-              <TableCell align="right">Status</TableCell>
-              <TableCell align="right">Last updated</TableCell>
+              <TableCell>Error</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Last updated</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -32,12 +33,11 @@ export default function AssetStatusDetail({
                 <TableCell component="th" scope="row">
                   {peer.peername}
                 </TableCell>
-                <TableCell align="right">
-                  {peer.error ? `${peer.status}: ${peer.error}` : peer.status}
+                <TableCell>{peer.error || "-"}</TableCell>
+                <TableCell>
+                  <PinStatusDot status={peer.status} />
                 </TableCell>
-                <TableCell align="right">
-                  {moment(peer.timestamp).fromNow()}
-                </TableCell>
+                <TableCell>{moment(peer.timestamp).fromNow()}</TableCell>
               </TableRow>
             ))}
           </TableBody>

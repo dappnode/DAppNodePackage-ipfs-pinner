@@ -1,29 +1,29 @@
 import React from "react";
+import { isEqual } from "lodash";
 import MaterialTable from "material-table";
 import { tableIcons } from "../MaterialTable";
 import moment from "moment";
 // Components
 import AssetStatusDetail from "./AssetStatusDetail";
-import PinStatusDot from "../components/PinStatusDot";
+import PinStatusDot from "./PinStatusDot";
 import CardHeader from "../components/CardHeader";
 import { assetsPath } from "./index";
 import { AssetWithMetadata } from "../types";
 import { parseTypeAndDisplayName } from "../utils/multiname";
 
-export default function AssetsTableBig({
-  assets,
-  summary
-}: {
+interface AssetsTableProps {
   assets: AssetWithMetadata[];
   summary?: boolean;
-}) {
+}
+
+function AssetsTable({ assets, summary }: AssetsTableProps) {
   return (
     <div style={{ maxWidth: "100%" }}>
       <MaterialTable
         title="Assets"
         columns={[
           { title: "Name", field: "displayName" },
-          { title: "Type", field: "type" },
+          { title: "Type", field: "type", hidden: summary },
           {
             title: "Status",
             field: "status",
@@ -57,7 +57,9 @@ export default function AssetsTableBig({
         //       }, 1000);
         //     })
         // }}
-        detailPanel={asset => <AssetStatusDetail asset={asset} />}
+        detailPanel={
+          !summary ? asset => <AssetStatusDetail asset={asset} /> : undefined
+        }
         components={
           summary
             ? {
@@ -92,3 +94,5 @@ export default function AssetsTableBig({
     </div>
   );
 }
+
+export default React.memo(AssetsTable, isEqual);

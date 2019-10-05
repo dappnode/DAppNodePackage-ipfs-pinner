@@ -1,8 +1,6 @@
 import React from "react";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
-import moment from "moment";
-//
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -28,7 +26,7 @@ export default function PeerDetail({ peer }: { peer: ClusterPeer }) {
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
-              <TableCell align="right">Address</TableCell>
+              <TableCell>Address</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -37,7 +35,7 @@ export default function PeerDetail({ peer }: { peer: ClusterPeer }) {
                 <TableCell component="th" scope="row">
                   {name}
                 </TableCell>
-                <TableCell align="right">{address}</TableCell>
+                <TableCell>{address}</TableCell>
               </TableRow>
             ))}
           </TableBody>

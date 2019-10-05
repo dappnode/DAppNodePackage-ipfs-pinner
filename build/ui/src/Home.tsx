@@ -8,8 +8,9 @@ import Typography from "@material-ui/core/Typography";
 import AssetsTable from "./Assets/AssetsTable";
 import SourcesTable from "./Sources/SourcesTable";
 import AddSourceForm from "./Sources/AddSourceForm";
-import PinStatusChart from "./PinStatusChart";
+import AssetsStatusChart from "./AssetsStatusChart";
 import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
+import { Fade } from "@material-ui/core";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,20 +21,13 @@ const useStyles = makeStyles((theme: Theme) =>
     boxChart: {
       width: "100%",
       marginBottom: theme.spacing(6)
-      // padding: theme.spacing(3, 3),
-      // // Correct the chart excessive margins
-      // paddingRight: "5px",
-      // paddingLeft: "5px"
     },
     heroSection: {
       margin: theme.spacing(14, 0, 5)
+    },
+    summary: {
+      marginBottom: theme.spacing(6)
     }
-    // button: {
-    //   // background: "linear-gradient(290deg, #2ad179, #4ab47c)", // Green gradient
-    //   background: "linear-gradient(290deg, #1aa059, #3d9567)", // Darker Green gradient
-    //   // background: "linear-gradient(290deg, #1880e0, #3873d8)", // blue gradient
-    //   color: "white"
-    // }
   })
 );
 
@@ -67,33 +61,28 @@ export default function Home({
         </Grid>
       </Box>
 
-      {/* <Box style={{ padding: 0 }}>
-        <Typography variant="h4" align="center" color="textSecondary">
-          {percent}% Pinned
-        </Typography>
-        <Typography align="center" color="textSecondary">
-          {pinStatusSummary}
-        </Typography>
-      </Box> */}
-
       <Box className={classes.boxChart}>
-        {assets.length ? (
-          <PinStatusChart assets={assets} peerCount={peers.length} />
-        ) : null}
+        <Fade in={assets.length > 0}>
+          {assets.length ? (
+            <AssetsStatusChart assets={assets} peerCount={peers.length} />
+          ) : (
+            <span />
+          )}
+        </Fade>
       </Box>
 
-      <Grid container spacing={2}>
-        {assets.length ? (
-          <Grid item xs={12} sm={12} md={12} lg={6}>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={12} md={12} lg={6} className={classes.summary}>
+          <Fade in={assets.length > 0}>
             <AssetsTable assets={assets} summary />
-          </Grid>
-        ) : null}
+          </Fade>
+        </Grid>
 
-        {sources.length ? (
-          <Grid item xs={12} sm={12} md={12} lg={6}>
+        <Grid item xs={12} sm={12} md={12} lg={6} className={classes.summary}>
+          <Fade in={sources.length > 0}>
             <SourcesTable sources={sources} summary />
-          </Grid>
-        ) : null}
+          </Fade>
+        </Grid>
       </Grid>
     </>
   );

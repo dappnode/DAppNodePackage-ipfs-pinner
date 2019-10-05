@@ -5,8 +5,7 @@ import { ClusterPeer } from "../types";
 import PeerDetail from "./PeerDetail";
 
 export default function PeersTable({
-  peers,
-  summary
+  peers
 }: {
   peers: ClusterPeer[];
   summary?: boolean;

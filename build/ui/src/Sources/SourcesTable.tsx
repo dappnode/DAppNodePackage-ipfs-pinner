@@ -1,4 +1,5 @@
 import React from "react";
+import { isEqual } from "lodash";
 import MaterialTable from "material-table";
 import { tableIcons } from "../MaterialTable";
 import moment from "moment";
@@ -8,7 +9,7 @@ import { sourcesPath } from "./index";
 import { parseTypeAndDisplayName } from "../utils/multiname";
 import { SourceWithMetadata } from "../types";
 
-export default function SourcesTableBig({
+function SourcesTable({
   sources,
   summary
 }: {
@@ -87,3 +88,5 @@ export default function SourcesTableBig({
     </div>
   );
 }
+
+export default React.memo(SourcesTable, isEqual);

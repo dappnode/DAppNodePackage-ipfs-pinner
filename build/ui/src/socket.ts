@@ -24,6 +24,7 @@ export const getOptions = socketGetFactory<undefined, SourceOption[]>(
 export const getPeers = socketGetFactory<undefined, ClusterPeer[]>("peers");
 export const addSource = socketGetFactory<string, null>("addSource");
 export const delSource = socketGetFactory<string, null>("delSource");
+export const refresh = socketGetFactory<undefined, null>("refresh");
 
 /**
  * Special is alive check
