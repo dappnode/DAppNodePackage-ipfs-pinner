@@ -10,8 +10,6 @@ import SourcesTable from "./Sources/SourcesTable";
 import AddSourceForm from "./Sources/AddSourceForm";
 import PinStatusChart from "./PinStatusChart";
 import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
-// Style
-import "./App.css";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

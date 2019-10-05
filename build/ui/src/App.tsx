@@ -13,8 +13,6 @@ import Peers, { peersPath } from "./Peers";
 // Api
 import socket, { getPeers, isAlive } from "./socket";
 import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
-// Style
-import "./App.css";
 import { Typography } from "@material-ui/core";
 
 const headerOffset = 10;
