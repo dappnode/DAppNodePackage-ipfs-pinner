@@ -32,8 +32,7 @@ export default async function fetchDnpIpfsReleaseAssets(
   if (!isIpfsHash(hash)) throw Error(`Release must be an IPFS hash ${hash}`);
 
   try {
-    const manifestString: string = await ipfs.cat(hash);
-    const manifest: ManifestWithImage = JSON.parse(manifestString);
+    const manifest: ManifestWithImage = await ipfs.catJson(hash);
     if (!manifest.image) throw Error(`Manifest has no image field`);
 
     const files = [
@@ -46,7 +45,7 @@ export default async function fetchDnpIpfsReleaseAssets(
 
     return files;
   } catch (e) {
-    if (e.message.includes("is a directory")) {
+    if (e.message.includes(ipfs.directoryErrorMessage)) {
       return [{ hash, filename: "directory" }];
     } else {
       throw e;

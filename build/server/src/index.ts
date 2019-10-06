@@ -22,7 +22,7 @@ setupSocketIo(io);
 
 // Configure Express
 app.use(cors()); // default options. ALL CORS
-app.use(logger("dev")); // Log requests
+app.use(logger("dev")); // Log requests in "dev" format
 app.use(compression());
 
 // Express uses "ETags" (hashes of the files requested) to know when the file changed

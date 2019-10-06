@@ -16,7 +16,7 @@
     "dev-vars": "WEB3_HOST=https://mainnet.infura.io/v3/bb15bacfcdbe45819caede241dcf8b0d IPFS_HOST=ipfs.dappnode.io",
     "lint": "./node_modules/.bin/eslint . --ext .ts --fix",
     "pre-commit": "npm run lint && npm run test",
-    "bundle": "npx webpack"
+    "analyze": "webpack --profile --json > build/stats.json && npx webpack-bundle-analyzer build/stats.json"
   },
   "repository": {
     "type": "git",
@@ -30,26 +30,19 @@
   },
   "homepage": "https://github.com/dapplion/DAppNode_IPFS_Replicator#readme",
   "dependencies": {
-    "async": "^3.1.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
-    "ethers": "^4.0.37",
     "ethjs": "^0.4.0",
     "ethjs-ens": "^2.0.1",
     "express": "^4.17.1",
-    "http-errors": "^1.7.3",
-    "ipfs-http-client": "^38.0.0",
     "is-ipfs": "^0.6.1",
-    "level": "^5.0.1",
     "lodash": "^4.17.15",
     "lowdb": "^1.0.0",
     "morgan": "^1.9.1",
-    "pretty-bytes": "^5.2.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "semver": "^6.0.0",
     "socket.io": "^2.3.0",
-    "timestring": "^5.0.1",
     "uws": "10.148.1",
     "winston": "^3.2.1"
   },
@@ -74,7 +67,6 @@
     "mocha": "^6.2.0",
     "nodemon": "^1.19.2",
     "prettier": "^1.17.0",
-    "proxyquire": "^2.1.0",
     "rewiremock": "^3.13.7",
     "ts-loader": "^6.2.0",
     "ts-node": "^8.4.1",

@@ -48,21 +48,15 @@ const App: React.FC = () => {
     socket.on("assets", setAssets);
     socket.on("sources", setSources);
     // Successful connection or reconnection
-    socket.on("connect", () => {
-      if (connexionError) setPinnerError("");
-      console.log(`Connected`);
-    });
+    socket.on("connect", () => setPinnerError(""));
     // Disconnection initiated by the server
-    socket.on("disconnect", (reason: string) => {
-      setPinnerError(reason);
-      console.log(`Disconected: ${reason}`);
-    });
+    socket.on("disconnect", (reason: string) => setPinnerError(reason));
     // Failed attempt of connecting
-    socket.on("connect_error", (e: Error) => {
-      const message =
-        e.message === "xhr poll error" ? "Can't reach pinner" : e.message;
-      setPinnerError(message);
-    });
+    socket.on("connect_error", (e: Error) =>
+      setPinnerError(
+        e.message === "xhr poll error" ? "Can't reach pinner" : e.message
+      )
+    );
   }, []);
 
   // For debugging

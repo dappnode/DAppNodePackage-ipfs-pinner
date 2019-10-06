@@ -11,13 +11,26 @@ const protocol = process.env.IPFS_CLUSTER_PROTOCOL || "http";
 
 const clusterApiUrl = `${protocol}://${host}:${port}`;
 
-interface RequestErrorWithOptions extends RequestError {
+interface StatusCodeError {
+  name: string; // 'StatusCodeError',
+  statusCode: number; // 400,
+  message: string; // '400 - {"code":400,"message":"error decoding Cid: selected encoding not supported"}',
+  error: {
+    code: number; // 400;
+    message: string; // "error decoding Cid: selected encoding not supported";
+  };
+}
+
+interface RequestError {
+  name: string; // "RequestError"
   options: {
     json: boolean; // true;
     uri: string; // "http://localhost:9094/id";
     method: string; // "GET";
   };
 }
+
+interface RequestErrorGeneral extends RequestError, StatusCodeError {}
 
 interface CidObject {
   [path: string]: string; // { "/": "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG" };
@@ -73,18 +86,6 @@ interface PinsStatusItem {
   };
 }
 
-interface PinLsStatus extends PinsStatusItem, ClusterPinItem {}
-
-interface RequestError {
-  name: string; // 'StatusCodeError',
-  statusCode: number; // 400,
-  message: string; // '400 - {"code":400,"message":"error decoding Cid: selected encoding not supported"}',
-  error: {
-    code: number; // 400;
-    message: string; // "error decoding Cid: selected encoding not supported";
-  };
-}
-
 interface PeerInfo {
   id: string; // "12D3KooWP4tLaHzhUDnZqpWsNANkeTWjj3kqazPcFeYUFzeFctYm",
   addresses: string[]; // ["/ip4/172.21.0.3/tcp/9096/p2p/12D3KooWP4tLaHzhUDnZqpWsNANkeTWjj3kqazPcFeYUFzeFctYm"],
@@ -112,22 +113,25 @@ const jsonOptions = { json: true };
  * Prettifies request errors giving as much info as possible
  * @param e
  */
-function handleErrors(e: RequestErrorWithOptions) {
-  function getReq() {
+function handleErrors(e: RequestErrorGeneral) {
+  let message: string = e.message;
+  let req: string = "";
+
+  if (typeof e.error === "object") {
+    message = `${e.error.code} ${e.error.message}`;
+  }
+
+  // Prettify original request
+  if (typeof e.options === "object") {
     const { json, uri, method } = e.options;
-    return `${method} ${uri}${json ? " - json" : ""}`;
+    req = `${method} ${uri}${json ? " - json" : ""}`;
   }
 
-  console.log(e);
+  if (e.message.includes("ECONNREFUSED"))
+    throw Error(`Can't connect to IPFS cluster at ${clusterApiUrl}`);
 
-  if (e.name === "RequestError") {
-    if (e.message.includes("ECONNREFUSED"))
-      throw Error(`Can't connect to IPFS cluster at ${clusterApiUrl}`);
-    const req = typeof e.options === "object" ? getReq() : "";
-    throw Error(`${e.message.replace("Error: ", "")} (req: ${req})`);
-  } else {
-    throw e;
-  }
+  e.message = message + (req ? ` (req: ${req})` : "");
+  throw e;
 }
 
 /**

@@ -46,7 +46,7 @@ function SourcesTable({
             displayName
           };
         })}
-        editable={{ onRowDelete: deleteSource }}
+        editable={!summary ? { onRowDelete: deleteSource } : {}}
         parentChildData={(row, rows) => {
           // There's an error in the typings, where this function expects row[],
           // but it really need a row element (the parent)

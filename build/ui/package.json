@@ -5,10 +5,6 @@
   "dependencies": {
     "@material-ui/core": "^4.4.3",
     "@material-ui/icons": "^4.4.3",
-    "@types/jest": "24.0.18",
-    "@types/node": "12.7.8",
-    "@types/react": "16.9.3",
-    "@types/react-dom": "16.9.1",
     "apexcharts": "^3.8.6",
     "lodash": "^4.17.15",
     "material-table": "^1.50.0",
@@ -19,7 +15,6 @@
     "react-router-dom": "^5.1.1",
     "react-scripts": "3.1.2",
     "react-select": "^3.0.5",
-    "react-virtualized": "^9.21.1",
     "socket.io-client": "^2.3.0",
     "typescript": "3.6.3"
   },
@@ -46,7 +41,11 @@
     ]
   },
   "devDependencies": {
+    "@types/jest": "24.0.18",
     "@types/lodash": "^4.14.141",
+    "@types/node": "12.7.8",
+    "@types/react": "16.9.3",
+    "@types/react-dom": "16.9.1",
     "@types/react-router-dom": "^5.1.0",
     "@types/react-select": "^3.0.4",
     "@types/socket.io-client": "^1.4.32",

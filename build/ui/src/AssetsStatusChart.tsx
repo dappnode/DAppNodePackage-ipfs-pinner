@@ -136,7 +136,8 @@ export default function AssetsStatusChart({
   const percentPinned = computePinnedPercent(pins);
   const stateSummary = [];
   if (percentPinned) stateSummary.push(`${percentPinned}% pinned`);
-  if (peerCount) stateSummary.push(`${peerCount} clusters online`);
+  if (peerCount)
+    stateSummary.push(`${peerCount} cluster${peerCount > 1 ? "s" : ""} online`);
 
   return (
     <div>
