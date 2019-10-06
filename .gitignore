@@ -34,3 +34,8 @@ typings/
 # DBs
 build/*db.json
 build/server/*db.json
+
+# Build
+build/ui/build
+build/server/build
+build/server/stats.json

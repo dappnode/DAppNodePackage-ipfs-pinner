@@ -59,10 +59,8 @@ const scFormat = format.printf(info => {
 /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
 function _getLabel(mod: NodeModule) {
   if (mod == undefined) mod = module;
-
-  const label = mod.id
-    ? (mod.id.replace(".js", "") || "").replace(/^.*\/src\//, "")
-    : "";
+  const modName: string = typeof mod.id === "string" ? mod.id : "";
+  const label = modName.replace(".js", "").replace(/^.*\/src\//, "");
   return format.label({ label: label });
 }
 

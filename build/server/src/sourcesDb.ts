@@ -1,4 +1,4 @@
-import { omit } from "lodash";
+import omit from "lodash/omit";
 import { dbFactory } from "./dbFactory";
 import { Source, SourceWithMetadata } from "./types";
 

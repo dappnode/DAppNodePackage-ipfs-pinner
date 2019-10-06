@@ -1,4 +1,4 @@
-import { mapKeys } from "lodash";
+import mapKeys from "lodash/mapKeys";
 import {
   PollSourceFunction,
   PollSourceFunctionArg,

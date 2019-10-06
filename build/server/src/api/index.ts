@@ -15,11 +15,11 @@ import { getOptions } from "./options";
 import { getPeers } from "./peers";
 import { SocketRouter } from "./utils";
 
-const port = 3030;
+const port = process.env.API_PORT || 3030;
 
 const app = express();
 const server = new http.Server(app);
-const io = SockerIo(server);
+const io = SockerIo(server, { serveClient: false });
 
 // default options. ALL CORS
 app.use(cors());

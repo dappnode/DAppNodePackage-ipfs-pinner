@@ -1,5 +1,8 @@
 import request from "request-promise-native";
-import { pick, omit, mapKeys, mapValues } from "lodash";
+import omit from "lodash/omit";
+import pick from "lodash/pick";
+import mapKeys from "lodash/mapKeys";
+import mapValues from "lodash/mapValues";
 import { PinStatus, Asset, AssetWithMetadata, ClusterPeer } from "./types";
 
 const {

@@ -1,14 +1,6 @@
-FROM node:10.15.3 as build-deps-adminui
-WORKDIR /usr/src/app
-# Copy first to cache dependencies
-COPY ui/package.json ./
-COPY ui/yarn.lock ./
-RUN curl https://www.google.es
-RUN npm install --production -dd
-# copy the contents of the app
-COPY ui .
-# Get this DNP version and git hash. Results in /usr/src/app/.version.json
-RUN REACT_APP_PINNER_API_URL=http://localhost:3030 yarn run build
+# FROM tutum/dnsutils as aaa
+# RUN cat /etc/resolv.conf
+# RUN dig google.es
 
 # RUN apk update && \
 #   apk add git python make g++ curl && \
@@ -23,33 +15,58 @@ RUN REACT_APP_PINNER_API_URL=http://localhost:3030 yarn run build
 # RUN yarn 
 
 ################
-# UI build layer
+# Config
+################
+
+# ENV API_PORT 3030
+
+################
+# UI build
 ################
 
 FROM node:10.15.3-alpine as ui_build
 WORKDIR /usr/src/app
-
+# Copy and install deps first to cache
 COPY ui/package.json .
 COPY ui/yarn.lock .
-RUN npm install --production
-RUN ls node_modules
+RUN yarn
+# Build UI
 COPY ui .
+RUN REACT_APP_PINNER_API_URL=http://localhost:3030 yarn build
+# Results in build/*
+
+################
+# Server build
+################
+
+FROM node:10.15.3-alpine as server_build
+WORKDIR /usr/src/app
+# Copy and install deps first to cache
+COPY server/package.json .
+COPY server/yarn.lock .
+RUN yarn
+# RUN apk update && \
+#   apk add git python make g++ curl && \
+#   rm -rf /var/cache/apk/*
+COPY server .
 RUN yarn build
-# The resulting static files to server are at ./build
-RUN ls -ltr
-RUN ls -ltr build
+# Results in build/bundle.js
 
 ################
 # Final layer
 ################
 
-# This results in a single layer image
 FROM alpine
-
 WORKDIR /usr/src/app
-
+# Lightest way to have node in alpine
 RUN apk add --update nodejs
 
-COPY --from=build /usr/src/app/bundle.js /usr/src/app
+ENV API_PORT 3030
+ENV WEBSERVER_PORT 8080
+ENV WEBSERVER_PATH dist
+
+# Copy builds
+COPY --from=ui_build /usr/src/app/build /usr/src/app/${WEBSERVER_PATH}
+COPY --from=server_build /usr/src/app/build/bundle.js /usr/src/app
 
 ENTRYPOINT node /usr/src/app/bundle.js

@@ -1,4 +1,4 @@
-import { flatten } from "lodash";
+import flatten from "lodash/flatten";
 import semver from "semver";
 import {
   PollSourceFunction,

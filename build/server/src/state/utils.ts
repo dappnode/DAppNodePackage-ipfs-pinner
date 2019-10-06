@@ -1,4 +1,6 @@
-import { mapKeys, concat, uniqBy } from "lodash";
+import mapKeys from "lodash/mapKeys";
+import concat from "lodash/concat";
+import uniqBy from "lodash/uniqBy";
 import { Source, Asset, SourcesAndAssetsToEdit } from "../types";
 
 interface Basic {

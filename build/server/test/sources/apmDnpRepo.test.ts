@@ -1,6 +1,6 @@
 import "mocha";
 import { expect } from "chai";
-import { flatten } from "lodash";
+import flatten from "lodash/flatten";
 import rewiremock from "rewiremock";
 
 import * as apmDnpRepo from "../../src/sources/apmDnpRepo";

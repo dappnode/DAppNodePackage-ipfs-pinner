@@ -1,8 +1,10 @@
 import runHttpApi from "./api";
+import runWebServer from "./webserver";
 import { pollSources } from "./sources";
 import * as eventBus from "./eventBus";
 
 runHttpApi();
+runWebServer();
 
 setInterval(() => {
   pollSources();
