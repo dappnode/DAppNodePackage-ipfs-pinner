@@ -2,7 +2,7 @@ import React from "react";
 import SourcesTable from "./SourcesTable";
 import AddSourceForm from "./AddSourceForm";
 import { SourceWithMetadata } from "../types";
-import { Typography, Box } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 
 export const sourcesPath = "/sources";
 

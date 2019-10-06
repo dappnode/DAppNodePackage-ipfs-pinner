@@ -11,7 +11,7 @@ import Assets, { assetsPath } from "./Assets";
 import Sources, { sourcesPath } from "./Sources";
 import Peers, { peersPath } from "./Peers";
 // Api
-import socket, { getPeers, isAlive, refresh } from "./socket";
+import socket, { getPeers, refresh } from "./socket";
 import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -61,14 +61,7 @@ const App: React.FC = () => {
     socket.on("connect_error", (e: Error) => {
       const message =
         e.message === "xhr poll error" ? "Can't reach pinner" : e.message;
-      isAlive().then(({ error }) => {
-        if (error) {
-          console.error(`HTTP API test: ${error}`);
-          setPinnerError(message);
-        } else {
-          setPinnerError(`Socket.io error, HTTP is alive: ${message}`);
-        }
-      });
+      setPinnerError(message);
     });
   }, []);
 

@@ -5,17 +5,19 @@ import mapKeys from "lodash/mapKeys";
 import mapValues from "lodash/mapValues";
 import { PinStatus, Asset, AssetWithMetadata, ClusterPeer } from "./types";
 
-const {
-  IPFS_CLUSTER_HOST,
-  IPFS_CLUSTER_PORT,
-  IPFS_CLUSTER_PROTOCOL
-} = process.env;
-
-const host = IPFS_CLUSTER_HOST || "localhost";
-const port = IPFS_CLUSTER_PORT || "9094";
-const protocol = IPFS_CLUSTER_PROTOCOL || "http";
+const host = process.env.IPFS_CLUSTER_HOST || "localhost";
+const port = process.env.IPFS_CLUSTER_PORT || "9094";
+const protocol = process.env.IPFS_CLUSTER_PROTOCOL || "http";
 
 const clusterApiUrl = `${protocol}://${host}:${port}`;
+
+interface RequestErrorWithOptions extends RequestError {
+  options: {
+    json: boolean; // true;
+    uri: string; // "http://localhost:9094/id";
+    method: string; // "GET";
+  };
+}
 
 interface CidObject {
   [path: string]: string; // { "/": "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG" };
@@ -106,13 +108,26 @@ interface PeerInfo {
 
 const jsonOptions = { json: true };
 
-function handleErrors(e: Error | RequestError) {
-  console.log(e);
-  if (typeof (e as RequestError).error === "object") {
-    const parsedError: RequestError = e as RequestError;
-    throw Error(`${parsedError.error.code}: ${parsedError.error.message}`);
+/**
+ * Prettifies request errors giving as much info as possible
+ * @param e
+ */
+function handleErrors(e: RequestErrorWithOptions) {
+  function getReq() {
+    const { json, uri, method } = e.options;
+    return `${method} ${uri}${json ? " - json" : ""}`;
   }
-  throw e;
+
+  console.log(e);
+
+  if (e.name === "RequestError") {
+    if (e.message.includes("ECONNREFUSED"))
+      throw Error(`Can't connect to IPFS cluster at ${clusterApiUrl}`);
+    const req = typeof e.options === "object" ? getReq() : "";
+    throw Error(`${e.message.replace("Error: ", "")} (req: ${req})`);
+  } else {
+    throw e;
+  }
 }
 
 /**
@@ -335,3 +350,5 @@ export async function getPeers(): Promise<ClusterPeer[]> {
     ipfsAddresses: (peer.ipfs || {}).addresses || []
   }));
 }
+
+getPeers();

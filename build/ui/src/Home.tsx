@@ -39,7 +39,7 @@ export default function Home({
 }) {
   const classes = useStyles();
 
-  const showTables = assets.length > 0 && sources.length > 0;
+  const showTables = assets.length > 0 || sources.length > 0;
 
   return (
     <>

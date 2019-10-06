@@ -11,9 +11,10 @@ services:
     environment:
       - IPFS_API_URL=http://ipfs:5001
       - REGISTRY_CSV=dnp.dappnode.eth
+      - IPFS_CLUSTER_HOST=127.0.0.1
+      - IPFS_CLUSTER_PORT=9094
     ports:
       - 8080:8080
-      - 3030:3030
     logging:
       options:
         max-size: 10m

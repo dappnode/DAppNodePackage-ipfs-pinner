@@ -1,7 +1,8 @@
 import io from "socket.io-client";
 import { SourceOption, ClusterPeer } from "./types";
 
-const apiUrl = process.env.REACT_APP_PINNER_API_URL || `http://localhost:3030`;
+const apiUrl = window.location.origin;
+console.log(`Connecting socket.io-client to: ${apiUrl}`);
 
 const socket = io(apiUrl);
 
@@ -25,29 +26,3 @@ export const getPeers = socketGetFactory<undefined, ClusterPeer[]>("peers");
 export const addSource = socketGetFactory<string, null>("addSource");
 export const delSource = socketGetFactory<string, null>("delSource");
 export const refresh = socketGetFactory<undefined, null>("refresh");
-
-/**
- * Special is alive check
- */
-
-export async function isAlive(): Promise<{ alive: boolean; error?: string }> {
-  try {
-    const res = await fetch(apiUrl);
-    if (!res.ok)
-      return {
-        alive: false,
-        error: res.statusText
-      };
-    const data = await res.text();
-    if (data === "Welcome to the pinner api")
-      console.error(`Warning, the welcome text is not expected: ${data}`);
-    return {
-      alive: true
-    };
-  } catch (e) {
-    return {
-      alive: false,
-      error: e.message
-    };
-  }
-}

@@ -32,7 +32,7 @@ COPY ui/yarn.lock .
 RUN yarn
 # Build UI
 COPY ui .
-RUN REACT_APP_PINNER_API_URL=http://localhost:3030 yarn build
+RUN yarn build
 # Results in build/*
 
 ################
@@ -61,12 +61,11 @@ WORKDIR /usr/src/app
 # Lightest way to have node in alpine
 RUN apk add --update nodejs
 
-ENV API_PORT 3030
-ENV WEBSERVER_PORT 8080
-ENV WEBSERVER_PATH dist
+ENV SERVER_PORT 8080
+ENV CLIENT_FILES_PATH dist
 
 # Copy builds
-COPY --from=ui_build /usr/src/app/build /usr/src/app/${WEBSERVER_PATH}
+COPY --from=ui_build /usr/src/app/build /usr/src/app/${CLIENT_FILES_PATH}
 COPY --from=server_build /usr/src/app/build/bundle.js /usr/src/app
 
 ENTRYPOINT node /usr/src/app/bundle.js
