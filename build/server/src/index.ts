@@ -42,5 +42,8 @@ eventBus.pollSources.on(async () => {
   pollSources();
 });
 
+// Print configuration out for debugging
+logs.info(JSON.stringify(process.env, null, 2));
+
 // Make this a es6 module
 export {};

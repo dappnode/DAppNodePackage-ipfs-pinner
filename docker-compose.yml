@@ -1,59 +1,17 @@
 version: "3.4"
 
 services:
-  ipfs0:
-    container_name: ipfs0
-    image: ipfs/go-ipfs:release
-    #   ports:
-    #     - "4001:4001" # ipfs swarm - expose if needed/wanted
-    #     - "5001:5001" # ipfs api - expose if needed/wanted
-    #     - "8080:8080" # ipfs gateway - expose if needed/wanted
-    volumes:
-      - ipfs-data:/data/ipfs
-
-  cluster0:
-    container_name: cluster0
-    image: ipfs/ipfs-cluster:latest
-    depends_on:
-      - ipfs0
-    environment:
-      CLUSTER_PEERNAME: cluster0
-      CLUSTER_SECRET: ${CLUSTER_SECRET} # From shell variable if set
-      CLUSTER_IPFSHTTP_NODEMULTIADDRESS: /dns4/ipfs0/tcp/5001
-      CLUSTER_CRDT_TRUSTEDPEERS: "*" # Trust all peers in Cluster
-      CLUSTER_RESTAPI_HTTPLISTENMULTIADDRESS: /ip4/0.0.0.0/tcp/9094 # Expose API
-      CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
-    ports:
-      # Open API port (allows ipfs-cluster-ctl usage on host)
-      - "127.0.0.1:9094:9094"
-      # The cluster swarm port would need  to be exposed if this container
-      # was to connect to cluster peers on other hosts.
-      # But this is just a testing cluster.
-      # - "9096:9096" # Cluster IPFS Proxy endpoint
-    volumes:
-      - cluster-data:/data/ipfs-cluster
-
-  replicator:
+  dnpinner.public.dappnode.eth:
     build: ./build
-    image: ipfs-replicator.dnp.dappnode.eth:0.1.0
-    container_name: replicator
+    image: dnpinner.public.dappnode.eth:0.1.0
     restart: always
     volumes:
-      - pin-data:/usr/src/app/data
-    depends_on:
-      - cluster0
+      - data:/usr/src/app/data
     environment:
-      - IPFS_CLUSTER_HOST=cluster0
+      - IPFS_CLUSTER_HOST=ipfs-cluster.dappnode
       - IPFS_CLUSTER_PORT=9094
-      - IPFS_API_HOST=ipfs.dappnode.io
-    ports:
-      - 8080:8080
-    logging:
-      options:
-        max-size: 10m
-        max-file: "3"
+      - IPFS_API_HOST=ipfs.dappnode
+      - LOG_LEVEL=
 
 volumes:
-  pin-data: {}
-  ipfs-data: {}
-  cluster-data: {}
+  data: {}

@@ -69,13 +69,16 @@ export const poll: PollSourceFunction = async function({
   const newRepos = await fetchNewApmRepos(name, fromBlock);
   const currentLastBlock = await fetchBlockNumber();
 
+  // Util to get the repoName full ENS domain
+  const getName = (repo: { shortname: string }) =>
+    [repo.shortname, name].join(".");
+
   const currentRepos = mapKeys(currentOwnSources, ({ multiname }) => multiname);
   return {
     sourcesToAdd: newRepos
+      .filter(repo => !repoBlacklist[getName(repo)])
       .map(repo => ({
-        multiname: apmDnpRepo.getMultiname({
-          name: [repo.shortname, name].join(".") // Repo full ENS domain
-        })
+        multiname: apmDnpRepo.getMultiname({ name: getName(repo) })
       }))
       .filter(({ multiname }) => !currentRepos[multiname]),
     internalState: String(currentLastBlock)

@@ -1,42 +1,28 @@
 {
-  "name": "ipfs-replicator.dnp.dappnode.eth",
+  "name": "dnpinner.public.dappnode.eth",
   "version": "0.1.0",
-  "description": "Simple IPFS replicator to mantain DAppNode's content",
+  "shortDescription": "Pin anything, and don't worry for persistence",
+  "description": "",
   "avatar": "/ipfs/QmRFfqN93JN5hDfqWhxaY6M16dafS6t9qzRCAKzzNT9ved",
   "type": "service",
-  "image": {
-    "path": "ipfs-replicator.dnp.dappnode.eth_0.1.0.tar.xz",
-    "hash": "/ipfs/QmNftJbRrBeoUDjso5i9kiyA3AEqtXM22fNCnZu9tSxA6D",
-    "size": 10088840,
-    "volumes": [
-      "pin-data:/usr/src/app/data"
-    ],
-    "environment": [
-      "NUM_OF_VERSIONS_TO_PIN=3",
-      "REGISTRY_CSV=dnp.dappnode.eth",
-      "WEB3_API_URL=http://my.ethchain.dnp.dappnode.eth:8545",
-      "IPFS_API_URL=http://my.ipfs.dnp.dappnode.eth:5001"
-    ],
-    "restart": "always"
-  },
   "author": "DAppNode Association <admin@dappnode.io> (https://github.com/dappnode)",
   "contributors": [
     "dappLion <dapplion@dappnode.io> (https://github.com/dapplion)"
   ],
-  "keywords": [
-    "IPFS",
-    "Replicator",
-    "Pinner"
-  ],
+  "keywords": ["IPFS", "Cluster", "Pinner"],
   "links": {
-    "homepage": "https://github.com/dapplion/DAppNode_IPFS_Replicator#readme"
+    "homepage": "https://github.com/dappnode/DAppNodePackage-dnpinner#readme",
+    "ui": "http://dnpinner.dappnode"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dapplion/DAppNode_IPFS_Replicator"
+    "url": "https://github.com/dappnode/DAppNodePackage-dnpinner"
+  },
+  "dependencies": {
+    "ipfs-cluster.public.dappnode.eth": "/ipfs/QmfLEuzsSPzk22RWGEYH8dLsT9CFTUTZZHEe9wyHr2EuVG"
   },
   "bugs": {
-    "url": "https://github.com/dapplion/DAppNode_IPFS_Replicator/issues"
+    "url": "https://github.com/dappnode/DAppNodePackage-dnpinner/issues"
   },
   "license": "GPL-3.0"
 }

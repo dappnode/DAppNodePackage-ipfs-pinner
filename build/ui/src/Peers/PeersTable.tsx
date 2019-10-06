@@ -1,15 +1,11 @@
 import React from "react";
+import isEqual from "lodash/isEqual";
 import MaterialTable from "material-table";
 import { tableIcons } from "../MaterialTable";
 import { ClusterPeer } from "../types";
 import PeerDetail from "./PeerDetail";
 
-export default function PeersTable({
-  peers
-}: {
-  peers: ClusterPeer[];
-  summary?: boolean;
-}) {
+function PeersTable({ peers }: { peers: ClusterPeer[]; summary?: boolean }) {
   return (
     <div style={{ maxWidth: "100%" }}>
       <MaterialTable
@@ -44,3 +40,5 @@ export default function PeersTable({
     </div>
   );
 }
+
+export default React.memo(PeersTable, isEqual);

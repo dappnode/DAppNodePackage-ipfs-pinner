@@ -58,8 +58,11 @@ export default function AddAssetForm() {
       setLoading(true);
       setStatusText(`Adding source ${type} ${name}`);
       const multiname = [type, name].join("/");
+      const nameOnSend = name;
       await socket.addSource(multiname);
       setStatusText(`Successfully added ${name}`);
+      // Clean only if the name has not changed
+      if (nameOnSend === name) setName("");
     } catch (e) {
       setStatusText(e.message);
       console.error(e);

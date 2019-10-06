@@ -56,7 +56,7 @@ async function applyStateChange({
 }: SourcesAndAssetsToEdit) {
   for (const source of sourcesToAdd) {
     try {
-      console.log(`Adding source ${source.multiname}`);
+      logs.info(`Adding source ${source.multiname}`);
       sourcesDb.addSource(source);
     } catch (e) {
       logs.error(`Error adding source ${JSON.stringify(source)}: ${e.stack}`);
@@ -65,7 +65,7 @@ async function applyStateChange({
 
   for (const source of sourcesToRemove) {
     try {
-      console.log(`Removing source ${source.multiname}`);
+      logs.info(`Removing source ${source.multiname}`);
       sourcesDb.removeSource(source);
     } catch (e) {
       logs.error(`Error removing source ${JSON.stringify(source)}: ${e.stack}`);
@@ -74,7 +74,7 @@ async function applyStateChange({
 
   for (const asset of assetsToAdd) {
     try {
-      console.log(`Pinning ${asset.multiname}...`);
+      logs.info(`Pinning ${asset.multiname}...`);
       await ipfsCluster.addAsset(asset);
     } catch (e) {
       logs.error(`Error pinning ${JSON.stringify(asset)}: ${e.stack}`);
@@ -83,7 +83,7 @@ async function applyStateChange({
 
   for (const asset of assetsToRemove) {
     try {
-      console.log(`Pinning ${asset.multiname}...`);
+      logs.info(`Pinning ${asset.multiname}...`);
       await ipfsCluster.removeAsset(asset);
     } catch (e) {
       logs.error(`Error unpinning ${JSON.stringify(asset)}: ${e.stack}`);

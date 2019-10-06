@@ -1,8 +1,14 @@
+import path from "path";
 import omit from "lodash/omit";
 import { dbFactory } from "./dbFactory";
 import { Source, SourceWithMetadata } from "./types";
+import Logs from "./logs";
+const logs = Logs(module);
 
-const db = dbFactory("sourcesdb.json");
+const sourcesDbPath = path.join(process.env.DATA_PATH || ".", "sourcesdb.json");
+logs.info(`Starting sources DB: ${sourcesDbPath}`);
+
+const db = dbFactory(sourcesDbPath);
 
 interface SourcesDb {
   sources: {

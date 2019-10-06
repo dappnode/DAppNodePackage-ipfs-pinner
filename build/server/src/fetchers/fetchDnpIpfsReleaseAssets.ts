@@ -33,7 +33,8 @@ export default async function fetchDnpIpfsReleaseAssets(
 
   try {
     const manifest: ManifestWithImage = await ipfs.catJson(hash);
-    if (!manifest.image) throw Error(`Manifest has no image field`);
+    if (typeof manifest !== "object") throw Error("Manifest is not an object");
+    if (!manifest.image) throw Error("Manifest has no image field");
 
     const files = [
       { hash, filename: "manifest" },

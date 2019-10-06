@@ -61,8 +61,9 @@ WORKDIR /usr/src/app
 # Lightest way to have node in alpine
 RUN apk add --update nodejs
 
-ENV SERVER_PORT 8080
+ENV SERVER_PORT 80
 ENV CLIENT_FILES_PATH dist
+ENV DATA_PATH /usr/src/app/data
 
 # Copy builds
 COPY --from=ui_build /usr/src/app/build /usr/src/app/${CLIENT_FILES_PATH}

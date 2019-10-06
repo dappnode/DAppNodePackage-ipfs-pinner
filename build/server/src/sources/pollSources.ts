@@ -46,7 +46,7 @@ export async function pollSourcesReturnStateEdit(
 
       // Ignore sources that are not supported
       if (!pollFunctions[type])
-        return console.log(`Ignoring source, unknown type: ${multiname}`);
+        return logs.debug(`Ignoring source, unknown type: ${multiname}`);
 
       // Aux methods to manipulate the from field
       function getOwn<T extends Basic>(arr: T[]) {
@@ -75,6 +75,8 @@ export async function pollSourcesReturnStateEdit(
           internalState: sourcesDb.getPollInternalState(multiname)
         });
 
+        logs.debug(`Polled ${multiname}`);
+
         sourcesDb.setPollInternalState(multiname, internalState);
         sourcesToAdd.push(...ownSourcesToAdd.map(markOwnSource));
         sourcesToRemove.push(...ownSourcesToRemove.map(markOwnSource));
@@ -84,6 +86,19 @@ export async function pollSourcesReturnStateEdit(
         logs.error(`Error polling source ${multiname}: ${e.stack}`);
       }
     })
+  );
+
+  logs.debug(
+    `Finished polling all sources ${JSON.stringify(
+      {
+        sourcesToAdd,
+        sourcesToRemove,
+        assetsToAdd,
+        assetsToRemove
+      },
+      null,
+      2
+    )}`
   );
 
   return {

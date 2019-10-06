@@ -2,7 +2,7 @@ import winston from "winston";
 
 const { createLogger, format, transports } = winston;
 
-const { LOG_LEVEL } = process.env;
+const LOG_LEVEL = process.env.LOG_LEVEL;
 
 const logLevel =
   LOG_LEVEL === "error"

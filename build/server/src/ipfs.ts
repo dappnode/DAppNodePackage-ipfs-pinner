@@ -4,9 +4,9 @@ const host = process.env.IPFS_API_HOST || "localhost";
 const port = process.env.IPFS_API_PORT || "5001";
 const protocol = process.env.IPFS_API_PROTOCOL || "http";
 
-const httpApiUrl = `${protocol}://${host}:${port}/api/v0`;
+const ipfsCatTimeout = 30 * 1000;
 
-console.log(`IPFS connection to ${httpApiUrl}`);
+const httpApiUrl = `${protocol}://${host}:${port}/api/v0`;
 
 export const directoryErrorMessage = "dag node is a directory";
 
@@ -97,7 +97,8 @@ export async function catJson(hash: string): Promise<any> {
       qs: {
         arg: hash
       },
-      json: true
+      json: true,
+      timeout: ipfsCatTimeout
     })
     .catch(handleErrors);
 }
