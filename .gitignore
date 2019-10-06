@@ -38,4 +38,5 @@ build/server/*db.json
 # Build
 build/ui/build
 build/server/build
+build/server/dist
 build/server/stats.json
