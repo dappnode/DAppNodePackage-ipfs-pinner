@@ -6,10 +6,9 @@ import path from "path";
 import logger from "morgan";
 import cors from "cors";
 import setupSocketIo from "./api";
-import Logs from "./logs";
 import { pollSources } from "./sources";
 import * as eventBus from "./eventBus";
-const logs = Logs(module);
+import logs from "./logs";
 const app = express();
 
 const port = process.env.SERVER_PORT || 8080;
@@ -41,9 +40,6 @@ setInterval(() => {
 eventBus.pollSources.on(async () => {
   pollSources();
 });
-
-// Print configuration out for debugging
-logs.info(JSON.stringify(process.env, null, 2));
 
 // Make this a es6 module
 export {};

@@ -1,5 +1,5 @@
 {
-  "name": "dnpinner.public.dappnode.eth",
+  "name": "ipfs-pinner.public.dappnode.eth",
   "version": "0.1.0",
   "shortDescription": "Pin anything, and don't worry for persistence",
   "description": "",
@@ -11,18 +11,18 @@
   ],
   "keywords": ["IPFS", "Cluster", "Pinner"],
   "links": {
-    "homepage": "https://github.com/dappnode/DAppNodePackage-dnpinner#readme",
-    "ui": "http://dnpinner.dappnode"
+    "homepage": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner#readme",
+    "ui": "http://ipfs-pinner.dappnode"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dappnode/DAppNodePackage-dnpinner"
+    "url": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner"
   },
   "dependencies": {
     "ipfs-cluster.public.dappnode.eth": "/ipfs/QmfLEuzsSPzk22RWGEYH8dLsT9CFTUTZZHEe9wyHr2EuVG"
   },
   "bugs": {
-    "url": "https://github.com/dappnode/DAppNodePackage-dnpinner/issues"
+    "url": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner/issues"
   },
   "license": "GPL-3.0"
 }

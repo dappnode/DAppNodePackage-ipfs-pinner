@@ -1,6 +1,5 @@
 import * as eventBus from "../eventBus";
-import Logs from "../logs";
-const logs = Logs(module);
+import logs from "../logs";
 
 // Api Methods
 import { getSources, addSource, deleteSource } from "./sources";
@@ -39,8 +38,10 @@ export default function setupSocketIo(io: SocketIO.Server) {
   }
 
   // Pipe changed events to all sockets
-  eventBus.sourcesChanged.on(async () => io.emit(sourcesRoute, getSources()));
-  eventBus.assetsChanged.on(async () =>
-    io.emit(assetsRoute, await getAssets())
-  );
+  eventBus.sourcesChanged.on(() => {
+    io.emit(sourcesRoute, getSources());
+  });
+  eventBus.assetsChanged.on(async () => {
+    io.emit(assetsRoute, await getAssets());
+  });
 }

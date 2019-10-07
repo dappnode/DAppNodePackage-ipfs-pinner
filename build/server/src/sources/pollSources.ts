@@ -9,8 +9,7 @@ import {
 } from "../types";
 import { parseType } from "../utils/multiname";
 import * as sourcesDb from "../sourcesDb";
-import Logs from "../logs";
-const logs = Logs(module);
+import logs from "../logs";
 
 interface Basic {
   multiname: string;
@@ -46,7 +45,7 @@ export async function pollSourcesReturnStateEdit(
 
       // Ignore sources that are not supported
       if (!pollFunctions[type])
-        return logs.debug(`Ignoring source, unknown type: ${multiname}`);
+        return logs.debug("Ignoring source of unknown type", { multiname });
 
       // Aux methods to manipulate the from field
       function getOwn<T extends Basic>(arr: T[]) {
@@ -75,7 +74,7 @@ export async function pollSourcesReturnStateEdit(
           internalState: sourcesDb.getPollInternalState(multiname)
         });
 
-        logs.debug(`Polled ${multiname}`);
+        logs.debug("Successfully polled", { multiname });
 
         sourcesDb.setPollInternalState(multiname, internalState);
         sourcesToAdd.push(...ownSourcesToAdd.map(markOwnSource));
@@ -83,28 +82,19 @@ export async function pollSourcesReturnStateEdit(
         assetsToAdd.push(...ownAssetsToAdd.map(markOwnAsset));
         assetsToRemove.push(...ownAssetsToRemove.map(markOwnAsset));
       } catch (e) {
-        logs.error(`Error polling source ${multiname}: ${e.stack}`);
+        logs.error(`Error polling source ${multiname}: `, e);
       }
     })
   );
 
-  logs.debug(
-    `Finished polling all sources ${JSON.stringify(
-      {
-        sourcesToAdd,
-        sourcesToRemove,
-        assetsToAdd,
-        assetsToRemove
-      },
-      null,
-      2
-    )}`
-  );
-
-  return {
+  const stateChange = {
     sourcesToAdd,
     sourcesToRemove,
     assetsToAdd,
     assetsToRemove
   };
+
+  logs.debug("Finished polling all sources", stateChange);
+
+  return stateChange;
 }

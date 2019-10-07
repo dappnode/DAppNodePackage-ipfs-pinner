@@ -7,8 +7,7 @@ import {
 } from "../types";
 import { modifyState } from "../state";
 import { pollSourcesReturnStateEdit } from "./pollSources";
-import Logs from "../logs";
-const logs = Logs(module);
+import logs from "../logs";
 
 // Aggregate sources
 import * as apmDnpRepo from "./apmDnpRepo";
@@ -40,6 +39,6 @@ export async function pollSources() {
       }
     );
   } catch (e) {
-    logs.error(`Error on poll source loop: ${e.stack}`);
+    logs.error("Error on poll source loop: ", e);
   }
 }

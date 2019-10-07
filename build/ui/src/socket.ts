@@ -6,9 +6,14 @@ console.log(`Connecting socket.io-client to: ${apiUrl}`);
 
 const socket = io(apiUrl);
 
-export default socket;
-
-function socketGetFactory<T, R>(routePath: string) {
+/**
+ * Factory for socket.io "routes".
+ * Each route must provide and argument and receive one return argument
+ * through a mandatory acknowledgment function
+ *
+ * @param routePath
+ */
+function socketGet<T, R>(routePath: string) {
   return function(arg: T): Promise<R> {
     return new Promise((resolve, reject) => {
       socket.emit(routePath, arg, (res: { error: string; data: R }) => {
@@ -19,10 +24,10 @@ function socketGetFactory<T, R>(routePath: string) {
   };
 }
 
-export const getOptions = socketGetFactory<undefined, SourceOption[]>(
-  "options"
-);
-export const getPeers = socketGetFactory<undefined, ClusterPeer[]>("peers");
-export const addSource = socketGetFactory<string, null>("addSource");
-export const delSource = socketGetFactory<string, null>("delSource");
-export const refresh = socketGetFactory<undefined, null>("refresh");
+export const getOptions = socketGet<undefined, SourceOption[]>("options");
+export const getPeers = socketGet<undefined, ClusterPeer[]>("peers");
+export const addSource = socketGet<string, null>("addSource");
+export const delSource = socketGet<string, null>("delSource");
+export const refresh = socketGet<undefined, null>("refresh");
+
+export default socket;

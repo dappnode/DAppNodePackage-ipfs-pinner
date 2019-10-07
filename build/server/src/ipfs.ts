@@ -1,4 +1,5 @@
 import request from "request-promise-native";
+import logs from "./logs";
 
 const host = process.env.IPFS_API_HOST || "localhost";
 const port = process.env.IPFS_API_PORT || "5001";
@@ -7,8 +8,10 @@ const protocol = process.env.IPFS_API_PROTOCOL || "http";
 const ipfsCatTimeout = 30 * 1000;
 
 const httpApiUrl = `${protocol}://${host}:${port}/api/v0`;
+logs.info("IPFS HTTP API", { httpApiUrl });
 
 export const directoryErrorMessage = "dag node is a directory";
+export const timeoutErrorMessage = "Timeout - hash not available";
 
 interface IpfsApiError {
   Message: string; // 'this dag node is a directory',
@@ -35,6 +38,9 @@ function handleErrors(e: any) {
 
   if (e.message.includes("ECONNREFUSED"))
     throw Error(`Can't connect to IPFS API at ${httpApiUrl}`);
+
+  if (e.message.includes("ESOCKETTIMEDOUT") || e.message.includes("ETIMEDOUT"))
+    throw Error(timeoutErrorMessage);
 
   e.message = message + (req ? ` (req: ${req})` : "");
   throw e;

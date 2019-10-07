@@ -87,5 +87,3 @@ export default async function getNewReposFromRegistry(
     returnValues: abi.decodeEvent(registryNewRepoEventAbi, event.data)
   }));
 }
-
-module.exports = getNewReposFromRegistry;

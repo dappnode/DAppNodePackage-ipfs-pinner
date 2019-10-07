@@ -1,9 +1,9 @@
 version: "3.4"
 
 services:
-  dnpinner.public.dappnode.eth:
+  ipfs-pinner.public.dappnode.eth:
     build: ./build
-    image: dnpinner.public.dappnode.eth:0.1.0
+    image: ipfs-pinner.public.dappnode.eth:0.1.0
     restart: always
     volumes:
       - data:/usr/src/app/data
@@ -11,6 +11,7 @@ services:
       - IPFS_CLUSTER_HOST=ipfs-cluster.dappnode
       - IPFS_CLUSTER_PORT=9094
       - IPFS_API_HOST=ipfs.dappnode
+      - WEB3_HOST=fullnode.dappnode
       - LOG_LEVEL=
 
 volumes:

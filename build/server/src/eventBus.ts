@@ -1,7 +1,6 @@
 import EventEmitter from "events";
-import Logs from "./logs";
+import logs from "./logs";
 import { Source } from "./types";
-const logs = Logs(module);
 
 /** HOW TO:
  * - ON:
@@ -32,7 +31,7 @@ function eventBusOnSafe<T>(
     try {
       listener(arg);
     } catch (e) {
-      logs.error(`Error on event '${eventName}': ${e.stack || e.message || e}`);
+      logs.error(`Error on event ${eventName}: `, e);
     }
   });
 }
@@ -45,7 +44,7 @@ function eventBusOnSafeAsync<T>(
     try {
       await listener(arg);
     } catch (e) {
-      logs.error(`Error on event '${eventName}': ${e.stack || e.message || e}`);
+      logs.error(`Error on event ${eventName}: `, e);
     }
   });
 }
@@ -73,13 +72,13 @@ const busFactoryAsync = <T>(event: string) => ({
   }
 });
 /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
-const busFactory = <T>(event: string) => ({
-  on: (listener: (arg: T) => void): void => eventBusOnSafe<T>(event, listener),
-  emit: (arg: T): void => {
-    eventBus.emit(event, arg);
-  }
-});
+// const busFactory = <T>(event: string) => ({
+//   on: (listener: (arg: T) => void): void => eventBusOnSafe<T>(event, listener),
+//   emit: (arg: T): void => {
+//     eventBus.emit(event, arg);
+//   }
+// });
 
 export const pollSources = busFactoryAsync<Source[]>("POLL_SOURCES");
 export const sourcesChanged = busFactoryNoArg("SOURCES_CHANGED");
-export const assetsChanged = busFactoryNoArg("ASSETS_CHANGED");
+export const assetsChanged = busFactoryNoArgAsync("ASSETS_CHANGED");

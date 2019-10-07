@@ -3,6 +3,7 @@ import omit from "lodash/omit";
 import pick from "lodash/pick";
 import mapKeys from "lodash/mapKeys";
 import mapValues from "lodash/mapValues";
+import logs from "./logs";
 import { PinStatus, Asset, AssetWithMetadata, ClusterPeer } from "./types";
 
 const host = process.env.IPFS_CLUSTER_HOST || "localhost";
@@ -10,6 +11,7 @@ const port = process.env.IPFS_CLUSTER_PORT || "9094";
 const protocol = process.env.IPFS_CLUSTER_PROTOCOL || "http";
 
 const clusterApiUrl = `${protocol}://${host}:${port}`;
+logs.info("IPFS Cluster HTTP API", { clusterApiUrl });
 
 interface StatusCodeError {
   name: string; // 'StatusCodeError',
@@ -107,7 +109,10 @@ interface PeerInfo {
  * Request utils
  */
 
-const jsonOptions = { json: true };
+const defaultOptions = {
+  json: true,
+  timeout: 15 * 1000
+};
 
 /**
  * Prettifies request errors giving as much info as possible
@@ -123,15 +128,14 @@ function handleErrors(e: RequestErrorGeneral) {
 
   // Prettify original request
   if (typeof e.options === "object") {
-    const { json, uri, method } = e.options;
-    req = `${method} ${uri}${json ? " - json" : ""}`;
+    const { uri, method } = e.options;
+    req = `${method} ${uri}`;
   }
 
   if (e.message.includes("ECONNREFUSED"))
     throw Error(`Can't connect to IPFS cluster at ${clusterApiUrl}`);
 
-  e.message = message + (req ? ` (req: ${req})` : "");
-  throw e;
+  throw Error([req, message].filter(e => e).join(" - "));
 }
 
 /**
@@ -172,7 +176,7 @@ function validateHashArg(hash: string): string {
  */
 async function allocationsRaw(): Promise<RawClusterPinItem[]> {
   return await request
-    .get(`${clusterApiUrl}/allocations`, jsonOptions)
+    .get(`${clusterApiUrl}/allocations`, defaultOptions)
     .catch(handleErrors);
 }
 
@@ -200,7 +204,7 @@ export async function allocations(): Promise<ClusterPinItem[]> {
  */
 async function pinsStatusRaw(): Promise<RawPinsStatusItem[]> {
   return await request
-    .get(`${clusterApiUrl}/pins`, jsonOptions)
+    .get(`${clusterApiUrl}/pins`, defaultOptions)
     .catch(handleErrors);
 }
 
@@ -247,7 +251,7 @@ async function pinsStatus(): Promise<PinsStatusItem[]> {
  *
  * POST	/pins/{cid} or /pins/{ipfs\|ipns\|ipld}/<path>	Pin a CID or IPFS path
  */
-export function pinAdd(
+export async function pinAdd(
   hash: string,
   options?: { name?: string; metadata?: { [key: string]: string } }
 ): Promise<ClusterPinItem> {
@@ -258,10 +262,10 @@ export function pinAdd(
     (_0, key) => `meta-${key}`
   );
 
-  return request
+  return await request
     .post(`${clusterApiUrl}/pins/${validateHashArg(hash)}`, {
       qs: { ...pick(options, ["name"]), ...parsedMetadata },
-      ...jsonOptions
+      ...defaultOptions
     })
     .catch(handleErrors);
 }
@@ -276,9 +280,9 @@ export function pinAdd(
  *
  * DELETE /pins/{cid} or /pins/{ipfs\|ipns\|ipld}/<path>	Unpin a CID or IPFS path
  */
-export function pinRm(hash: string): Promise<ClusterPinItem> {
-  return request
-    .delete(`${clusterApiUrl}/pins/${validateHashArg(hash)}`, jsonOptions)
+export async function pinRm(hash: string): Promise<ClusterPinItem> {
+  return await request
+    .delete(`${clusterApiUrl}/pins/${validateHashArg(hash)}`, defaultOptions)
     .catch(handleErrors);
 }
 
@@ -289,7 +293,7 @@ export function pinRm(hash: string): Promise<ClusterPinItem> {
  */
 async function idRaw(): Promise<PeerInfo> {
   return await request
-    .get(`${clusterApiUrl}/id`, jsonOptions)
+    .get(`${clusterApiUrl}/id`, defaultOptions)
     .catch(handleErrors);
 }
 
@@ -300,7 +304,7 @@ async function idRaw(): Promise<PeerInfo> {
  */
 async function peersRaw(): Promise<PeerInfo[]> {
   return await request
-    .get(`${clusterApiUrl}/peers`, jsonOptions)
+    .get(`${clusterApiUrl}/peers`, defaultOptions)
     .catch(handleErrors);
 }
 
@@ -354,5 +358,3 @@ export async function getPeers(): Promise<ClusterPeer[]> {
     ipfsAddresses: (peer.ipfs || {}).addresses || []
   }));
 }
-
-getPeers();

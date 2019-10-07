@@ -1,6 +1,5 @@
 import SockerIo from "socket.io";
-import Logs from "../logs";
-const logs = Logs(module);
+import logs from "../logs";
 
 interface SocketReturn<T> {
   data?: T;
@@ -21,7 +20,7 @@ export function SocketRouter(socket: SockerIo.Socket) {
           data = await handler(arg);
         } catch (e) {
           error = e.message;
-          logs.error(`Socket ${routePath} error: ${e.stack}`);
+          logs.error(`Socket ${routePath} error`, e);
         }
         if (acknowledgment) acknowledgment({ data, error });
       }

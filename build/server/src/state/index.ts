@@ -3,8 +3,7 @@ import * as ipfsCluster from "../ipfsCluster";
 import * as eventBus from "../eventBus";
 import { SourcesAndAssetsToEdit, Source, Asset } from "../types";
 import { addChildSourcesAndAssetsToRemove } from "./utils";
-import Logs from "../logs";
-const logs = Logs(module);
+import logs from "../logs";
 
 export async function modifyState(
   stateModifierFn: (
@@ -54,39 +53,26 @@ async function applyStateChange({
   assetsToAdd,
   assetsToRemove
 }: SourcesAndAssetsToEdit) {
-  for (const source of sourcesToAdd) {
-    try {
-      logs.info(`Adding source ${source.multiname}`);
-      sourcesDb.addSource(source);
-    } catch (e) {
-      logs.error(`Error adding source ${JSON.stringify(source)}: ${e.stack}`);
-    }
-  }
+  await iterate(sourcesToAdd, sourcesDb.addSource, "removing source");
+  await iterate(sourcesToRemove, sourcesDb.removeSource, "removing source");
+  await iterate(assetsToAdd, ipfsCluster.addAsset, "pinning asset");
+  await iterate(assetsToRemove, ipfsCluster.removeAsset, "unpinning asset");
+}
 
-  for (const source of sourcesToRemove) {
+/**
+ * DRY, abstract the logging and looping away
+ */
+async function iterate<T extends Source, R>(
+  items: T[],
+  fn: (item: T) => Promise<R> | R,
+  label: string
+) {
+  for (const item of items) {
     try {
-      logs.info(`Removing source ${source.multiname}`);
-      sourcesDb.removeSource(source);
+      logs.info(`${label} ${item.multiname}...`);
+      await fn(item);
     } catch (e) {
-      logs.error(`Error removing source ${JSON.stringify(source)}: ${e.stack}`);
-    }
-  }
-
-  for (const asset of assetsToAdd) {
-    try {
-      logs.info(`Pinning ${asset.multiname}...`);
-      await ipfsCluster.addAsset(asset);
-    } catch (e) {
-      logs.error(`Error pinning ${JSON.stringify(asset)}: ${e.stack}`);
-    }
-  }
-
-  for (const asset of assetsToRemove) {
-    try {
-      logs.info(`Pinning ${asset.multiname}...`);
-      await ipfsCluster.removeAsset(asset);
-    } catch (e) {
-      logs.error(`Error unpinning ${JSON.stringify(asset)}: ${e.stack}`);
+      logs.error(`Error ${label} ${JSON.stringify(item)}: `, e);
     }
   }
 }

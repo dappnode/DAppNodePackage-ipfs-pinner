@@ -11,11 +11,11 @@ import fetchNewApmVersions from "../fetchers/fetchNewApmVersions";
 import fetchDnpIpfsReleaseAssets from "../fetchers/fetchDnpIpfsReleaseAssets";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import * as apmDnpRepoReleaseFile from "../assets/apmDnpRepoReleaseFile";
+import { timeoutErrorMessage } from "../ipfs";
 import isIpfsHash from "../utils/isIpfsHash";
 import resolveEnsDomain from "../fetchers/resolveEns";
 import { checkIfContractIsRepo } from "../web3/checkIfContractIsRepo";
-import Logs from "../logs";
-const logs = Logs(module);
+import logs from "../logs";
 
 // Define somewhere else
 const numOfVersions = 3;
@@ -55,7 +55,7 @@ export const verify: VerifySourceFunction = async function(source: Source) {
   try {
     await checkIfContractIsRepo(address);
   } catch (e) {
-    logs.error(`${name} is not an APM repo: ${e.message}`);
+    logs.debug(`${name} is not an APM repo: `, e);
     throw Error(`${name} is not an APM repo`);
   }
 };
@@ -91,9 +91,12 @@ export const poll: PollSourceFunction = async function({
           }))
         );
       } catch (e) {
-        console.error(
-          `Error resolving release assets ${name} @ ${version}: ${e.stack}`
-        );
+        // Ignore timeout errors silently
+        if (e.message.includes(timeoutErrorMessage)) {
+          logs.debug(e.message, { contentUri });
+        } else {
+          logs.error(`Error resolving release ${name} @ ${version}: `, e);
+        }
       }
     })
   );

@@ -55,12 +55,11 @@ export default async function fetchNewApmVersions(
         // If you request an inexistent ID to the contract, web3 will throw
         // Error: couldn't decode uint16 from ABI. The try, catch block will catch that
         // and log other errors
-        if (String(e).includes("decode uint16 from ABI"))
-          console.error("Attempting to fetch an inexistent version");
-        else
-          console.error(
-            `Error getting version ${versionId}, ${address}: ${e.stack}`
-          );
+        if (e.message.includes("decode uint16 from ABI"))
+          e.message = `Attempting to fetch an inexistent version. ${e.message}`;
+
+        e.message = `Error get version ${versionId} ${address}. ${e.message}`;
+        throw e;
       }
     })
   );

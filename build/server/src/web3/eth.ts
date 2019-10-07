@@ -1,10 +1,12 @@
+import logs from "../logs";
+
 const Eth = require("ethjs");
 
-const providerUrl =
-  process.env.WEB3_HOST ||
-  "https://mainnet.infura.io/v3/bb15bacfcdbe45819caede241dcf8b0d";
+const host = process.env.WEB3_HOST || "fullnode.dappnode";
+const protocol = process.env.WEB3_PROTOCOL || "http";
 
-console.log("Web3 connection to: " + providerUrl);
+const providerUrl = `${protocol}://${host}`;
+logs.info("Web3 connection", { providerUrl });
 
 const eth = new Eth(new Eth.HttpProvider(providerUrl));
 

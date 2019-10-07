@@ -11,8 +11,7 @@ import fetchBlockNumber from "../fetchers/fetchBlockNumber";
 import * as apmDnpRepo from "./apmDnpRepo";
 import resolveEnsDomain from "../fetchers/resolveEns";
 import { checkIfContractIsRegistry } from "../web3/checkIfContractIsRegistry";
-import Logs from "../logs";
-const logs = Logs(module);
+import logs from "../logs";
 
 const repoBlacklist: { [name: string]: true } = {
   "testing.dnp.dappnode.eth": true,
@@ -54,7 +53,7 @@ export const verify: VerifySourceFunction = async function(source: Source) {
   try {
     await checkIfContractIsRegistry(address);
   } catch (e) {
-    logs.error(`${name} is not an APM registry: ${e.message}`);
+    logs.debug(`${name} is not an APM registry: `, e);
     throw Error(`${name} is not an APM registry`);
   }
 };
