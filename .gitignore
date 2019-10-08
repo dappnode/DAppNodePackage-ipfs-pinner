@@ -5,6 +5,9 @@ build/data/pin-data-db.json
 build/node_modules/
 build/bundle.js
 
+# DNP data
+build_*/
+
 # Logs
 logs
 *.log
@@ -25,5 +28,14 @@ typings/
 # Optional eslint cache
 .eslintcache
 
-# dotenv environment variables file
-.env
+
+
+# DBs
+build/*db.json
+build/server/*db.json
+
+# Build
+build/ui/build
+build/server/build
+build/server/dist
+build/server/stats.json
