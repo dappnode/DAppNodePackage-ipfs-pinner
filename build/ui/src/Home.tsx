@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginBottom: theme.spacing(6)
     },
     heroSection: {
-      margin: theme.spacing(14, 0, 5)
+      margin: theme.spacing(14, 0, 3)
     },
     summary: {
       marginBottom: theme.spacing(6)

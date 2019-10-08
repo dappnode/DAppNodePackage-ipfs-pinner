@@ -1,9 +1,10 @@
 {
   "0.1.0": {
-    "hash": "/ipfs/QmZeCt23pJpbzN6LDeL32fGhnL1faHMTjR9enKSgwwtt2k",
+    "hash": "/ipfs/QmaDgB8QDGREPTu6BQXu8sWDCTW4pKJEHuWYnKu9MhvVKB",
     "type": "directory",
     "uploadedTo": {
-      "dappnode": "Sun, 06 Oct 2019 19:50:10 GMT"
+      "dappnode": "Mon, 07 Oct 2019 01:10:20 GMT",
+      "http://ipfs.dappnode.io:5001": "Mon, 07 Oct 2019 01:14:28 GMT"
     }
   }
 }

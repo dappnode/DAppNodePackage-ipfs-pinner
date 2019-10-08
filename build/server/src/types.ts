@@ -28,23 +28,6 @@ export const pinStatus: { [status: string]: PinStatus } = {
 };
 
 /**
- * Identifiers
- */
-
-export type AssetType =
-  // Single file from a DNP release in an APM DNP repo
-  // apm-dnp-repo-file/<repoEns>/<version>/<fileUniqueName>
-  | "apm-dnp-repo-file"
-  // The directory of a DNP release in an APM DNP repo
-  // apm-dnp-repo-dir/<repoEns>/<version>
-  | "apm-dnp-repo-dir";
-
-export const assetTypes = {
-  apmDnpRepoFile: "apm-dnp-repo-file" as AssetType,
-  apmDnpRepoDir: "apm-dnp-repo-dir" as AssetType
-};
-
-/**
  * Poll function
  */
 

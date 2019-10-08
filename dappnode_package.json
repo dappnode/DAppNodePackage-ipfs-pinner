@@ -1,9 +1,9 @@
 {
-  "name": "ipfs-pinner.public.dappnode.eth",
+  "name": "ipfs-pinner.dnp.dappnode.eth",
   "version": "0.1.0",
   "shortDescription": "Pin anything, and don't worry for persistence",
-  "description": "",
-  "avatar": "/ipfs/QmRFfqN93JN5hDfqWhxaY6M16dafS6t9qzRCAKzzNT9ved",
+  "description": "Go to the IPFS pinner UI to start \n\n http://ipfs-pinner.dappnode \n\n",
+  "avatar": "/ipfs/QmfEzmGVku9ZquTYkE6zfpomgekjs6yKNUM24EPXQk5mBr",
   "type": "service",
   "author": "DAppNode Association <admin@dappnode.io> (https://github.com/dappnode)",
   "contributors": [
@@ -12,17 +12,22 @@
   "keywords": ["IPFS", "Cluster", "Pinner"],
   "links": {
     "homepage": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner#readme",
-    "ui": "http://ipfs-pinner.dappnode"
+    "ui": "http://ipfs-pinner.public.dappnode"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner"
   },
   "dependencies": {
-    "ipfs-cluster.public.dappnode.eth": "/ipfs/QmfLEuzsSPzk22RWGEYH8dLsT9CFTUTZZHEe9wyHr2EuVG"
+    "ipfs-cluster.dnp.dappnode.eth": "/ipfs/QmUfDXVLhnJcTLAXmGWM1xpRTZbf7sa2Zte1RvxKzi36wX"
   },
   "bugs": {
     "url": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner/issues"
   },
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "image": {
+    "path": "ipfs-pinner.public.dappnode.eth_0.1.0.tar.xz",
+    "hash": "/ipfs/QmbsyEquBDxUtKUD1Geb4eU4PJUxVb1jZkoHaq5LhM5KvD",
+    "size": 12157348
+  }
 }

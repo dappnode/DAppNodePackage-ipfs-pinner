@@ -53,10 +53,10 @@ async function applyStateChange({
   assetsToAdd,
   assetsToRemove
 }: SourcesAndAssetsToEdit) {
-  await iterate(sourcesToAdd, sourcesDb.addSource, "removing source");
-  await iterate(sourcesToRemove, sourcesDb.removeSource, "removing source");
-  await iterate(assetsToAdd, ipfsCluster.addAsset, "pinning asset");
-  await iterate(assetsToRemove, ipfsCluster.removeAsset, "unpinning asset");
+  await iterate(sourcesToAdd, sourcesDb.addSource, "add source");
+  await iterate(sourcesToRemove, sourcesDb.removeSource, "remove source");
+  await iterate(assetsToAdd, ipfsCluster.addAsset, "pin asset");
+  await iterate(assetsToRemove, ipfsCluster.removeAsset, "unpin asset");
 }
 
 /**
@@ -69,10 +69,10 @@ async function iterate<T extends Source, R>(
 ) {
   for (const item of items) {
     try {
-      logs.info(`${label} ${item.multiname}...`);
       await fn(item);
+      logs.info(`${label} ${item.multiname}`);
     } catch (e) {
-      logs.error(`Error ${label} ${JSON.stringify(item)}: `, e);
+      logs.error(`Error on ${label} ${JSON.stringify(item)}: `, e);
     }
   }
 }
