@@ -88,7 +88,7 @@ describe("Source > apmRegistry", () => {
       const currentOwnSources: SourceOwn[] = [];
       const currentOwnAssets: AssetOwn[] = [];
       const expectedResult: PollSourceFunctionReturn = {
-        sourcesToAdd: [{ multiname: "apm-dnp-repo/bitcoin.dnp.dappnode.eth" }],
+        sourcesToAdd: [{ multiname: "apm-repo/bitcoin.dnp.dappnode.eth" }],
         internalState: String(blockNumber)
       };
 
@@ -109,11 +109,11 @@ describe("Source > apmRegistry", () => {
 
       const bitcoin = {
         shortname: "bitcoin",
-        multiname: "apm-dnp-repo/bitcoin.dnp.dappnode.eth"
+        multiname: "apm-repo/bitcoin.dnp.dappnode.eth"
       };
       const geth = {
         shortname: "geth",
-        multiname: "apm-dnp-repo/geth.dnp.dappnode.eth"
+        multiname: "apm-repo/geth.dnp.dappnode.eth"
       };
 
       const repos: ApmRegistryRepo[] = [

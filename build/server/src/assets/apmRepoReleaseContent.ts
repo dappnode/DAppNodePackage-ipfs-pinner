@@ -1,6 +1,6 @@
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 
-interface ApmDnpReleaseFile {
+interface ApmRepoReleaseContent {
   name: string;
   version: string;
   filename: string;
@@ -10,17 +10,18 @@ interface ApmDnpReleaseFile {
  * APM DNP Release file
  *
  * type:
- * `apm-dnp-release-file`
+ * `apm-repo-release-content`
  *
  * multiname structure:
- * `apm-dnp-release-file/<dnpName>/<version>/<filename>`
+ * `apm-repo-release-content/<dnpName>/<version>/<filename>`
  */
 
-export const type = "apm-dnp-release-file";
+export const type = "apm-repo-release-content";
 
-export const parseMultiname = (multiname: string): ApmDnpReleaseFile => {
-  // `apm-dnp-release-file/<dnpName>/<version>/<filename>`
+export const parseMultiname = (multiname: string): ApmRepoReleaseContent => {
+  // `apm-repo-release-content/<dnpName>/<version>/<filename>`
   const [_type, name, version, filename] = splitMultiname(multiname);
+  if (_type !== type) throw Error(`multiname must be of type: ${type}`);
   if (!name) throw Error(`No "name" in multiname: ${multiname}`);
   if (!version) throw Error(`No "version" in multiname: ${multiname}`);
   if (!filename) throw Error(`No "filename" in multiname: ${multiname}`);
@@ -31,6 +32,6 @@ export const getMultiname = ({
   name,
   version,
   filename
-}: ApmDnpReleaseFile) => {
+}: ApmRepoReleaseContent) => {
   return joinMultiname([type, name, version, filename]);
 };

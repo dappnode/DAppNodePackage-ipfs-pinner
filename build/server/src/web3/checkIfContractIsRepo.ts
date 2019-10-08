@@ -43,5 +43,5 @@ export async function checkIfContractIsRepo(address: string) {
   if (!isValidBump) throw Error("isValidBump function not present");
 
   const evmScript = await registry[evmScriptConstant.name]();
-  if (!evmScript) throw Error("Aragon Apps have a EVMSCRIPT_REGISTRY_APP_ID");
+  if (!evmScript) throw Error("EVMSCRIPT_REGISTRY_APP_ID is zero");
 }

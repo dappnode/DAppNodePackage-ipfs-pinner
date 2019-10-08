@@ -1,15 +1,15 @@
 const eth = require("./eth");
 
-const expectedApmAppName = "apm-registry";
+// const expectedApmAppName = "apm-registry";
 
 const publicConstantAbi = {
   constant: true,
   inputs: [],
-  name: "APM_APP_NAME",
+  name: "CREATE_REPO_ROLE",
   outputs: [
     {
       name: "", // leave this empty
-      type: "string"
+      type: "bytes32"
     }
   ],
   payable: false,
@@ -23,10 +23,9 @@ const publicConstantAbi = {
  */
 export async function checkIfContractIsRegistry(address: string) {
   const registry = eth.contract([publicConstantAbi]).at(address);
-  const apmAppName = await registry[publicConstantAbi.name]().then(
+  const createRepoRole = await registry[publicConstantAbi.name]().then(
     (res: any) => res[0]
   );
-  if (!apmAppName) throw Error("APM_APP_NAME is null");
-  if (apmAppName !== expectedApmAppName)
-    throw Error(`APM_APP_NAME is ${apmAppName}`);
+  // Will throw if createRepoRole = "0x", "0x000000000..."
+  if (!parseInt(createRepoRole)) throw Error("CREATE_REPO_ROLE is zero");
 }

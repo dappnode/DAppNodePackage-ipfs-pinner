@@ -10,7 +10,7 @@ import {
 import fetchNewApmVersions from "../fetchers/fetchNewApmVersions";
 import fetchDnpIpfsReleaseAssets from "../fetchers/fetchDnpIpfsReleaseAssets";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
-import * as apmDnpRepoReleaseFile from "../assets/apmDnpRepoReleaseFile";
+import * as apmRepoReleaseContent from "../assets/apmRepoReleaseContent";
 import { timeoutErrorMessage } from "../ipfs";
 import isIpfsHash from "../utils/isIpfsHash";
 import resolveEnsDomain from "../fetchers/resolveEns";
@@ -21,20 +21,20 @@ import logs from "../logs";
 const numOfVersions = 3;
 
 /**
- * APM DNP Repo
+ * APM Repo
  *
  * type:
- * `apm-dnp-repo`
+ * `apm-repo`
  *
  * multiname structure:
- * `/apm-dnp-repo/amazing.dnp.dappnode.eth`
+ * `/apm-repo/amazing.dnp.dappnode.eth`
  */
 
 export interface ApmDnpRepo {
   name: string;
 }
 
-export const type = "apm-dnp-repo";
+export const type = "apm-repo";
 export const label = "APM repo";
 export const placeholder = "Repo ENS";
 
@@ -56,7 +56,7 @@ export const verify: VerifySourceFunction = async function(source: Source) {
     await checkIfContractIsRepo(address);
   } catch (e) {
     logs.debug(`${name} is not an APM repo: `, e);
-    throw Error(`${name} is not an APM repo`);
+    throw Error(`${name} is not an APM repo (${e.message})`);
   }
 };
 
@@ -82,7 +82,7 @@ export const poll: PollSourceFunction = async function({
         const assets = await fetchDnpIpfsReleaseAssets(contentUri);
         assetsToAdd.push(
           ...assets.map(asset => ({
-            multiname: apmDnpRepoReleaseFile.getMultiname({
+            multiname: apmRepoReleaseContent.getMultiname({
               name,
               version,
               filename: asset.filename
@@ -153,7 +153,7 @@ type AssetsByVersion = { [version: string]: AssetOwn[] };
 function getAssetsByVersions(assets: AssetOwn[]): AssetsByVersion {
   const assetsByVersion: AssetsByVersion = {};
   for (const asset of assets) {
-    const { version } = apmDnpRepoReleaseFile.parseMultiname(asset.multiname);
+    const { version } = apmRepoReleaseContent.parseMultiname(asset.multiname);
     assetsByVersion[version] = [...(assetsByVersion[version] || []), asset];
   }
   return assetsByVersion;

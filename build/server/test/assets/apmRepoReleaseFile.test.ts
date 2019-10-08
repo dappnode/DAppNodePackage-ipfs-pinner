@@ -1,9 +1,9 @@
 import "mocha";
 import { expect } from "chai";
 
-import * as apmDnpRepoReleaseFile from "../../src/assets/apmDnpRepoReleaseFile";
+import * as apmRepoReleaseContent from "../../src/assets/apmRepoReleaseContent";
 
-describe("Asset > apmDnpRepoReleaseFile", () => {
+describe("Asset > apmRepoReleaseContent", () => {
   describe("multiname parsers", () => {
     it("Should get and parse a multiname", () => {
       const releaseAsset = {
@@ -11,12 +11,12 @@ describe("Asset > apmDnpRepoReleaseFile", () => {
         version: "0.2.0",
         filename: "manifest"
       };
-      const multiname = apmDnpRepoReleaseFile.getMultiname(releaseAsset);
+      const multiname = apmRepoReleaseContent.getMultiname(releaseAsset);
       expect(multiname).to.equal(
-        "apm-dnp-release-file/bitcoin.dnp.dappnode.eth/0.2.0/manifest",
+        "apm-repo-release-content/bitcoin.dnp.dappnode.eth/0.2.0/manifest",
         "Wrong multiname"
       );
-      expect(apmDnpRepoReleaseFile.parseMultiname(multiname)).to.deep.equal(
+      expect(apmRepoReleaseContent.parseMultiname(multiname)).to.deep.equal(
         releaseAsset,
         "Wrong parsed multiname"
       );

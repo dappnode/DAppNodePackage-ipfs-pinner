@@ -1,5 +1,5 @@
 import * as ipfs from "../ipfs";
-import isIpfsHash from "../utils/isIpfsHash";
+import isIpfsHash, { normalizeIpfsHash } from "../utils/isIpfsHash";
 
 export interface ReleaseAsset {
   hash: string;
@@ -28,7 +28,7 @@ interface ManifestWithImage {
 export default async function fetchDnpIpfsReleaseAssets(
   contentUri: string
 ): Promise<ReleaseAsset[]> {
-  const hash = contentUri;
+  const hash = normalizeIpfsHash(contentUri);
   if (!isIpfsHash(hash)) throw Error(`Release must be an IPFS hash ${hash}`);
 
   try {
@@ -38,11 +38,14 @@ export default async function fetchDnpIpfsReleaseAssets(
 
     const files = [
       { hash, filename: "manifest" },
-      { hash: manifest.image.hash, filename: "image" }
+      { hash: normalizeIpfsHash(manifest.image.hash), filename: "image" }
     ];
     // Only add avatar file if exists
     if (manifest.avatar)
-      files.push({ hash: manifest.avatar, filename: "avatar" });
+      files.push({
+        hash: normalizeIpfsHash(manifest.avatar),
+        filename: "avatar"
+      });
 
     return files;
   } catch (e) {

@@ -19,6 +19,16 @@ describe("Utils > checkIfContractIsRegistry", () => {
       name: "admin.dnp.dappnode.eth",
       address: "0xEe66C4765696C922078e8670aA9E6d4F6fFcc455",
       is: false
+    },
+    {
+      name: "aragonpm.eth",
+      address: "0x346854c542d437565339e60de8cb3efe1cab30dc",
+      is: true
+    },
+    {
+      name: "finance.aragonpm.eth",
+      address: "0x2dab32a4befc9cd6221796ece92e98137c13647a",
+      is: false
     }
   ];
 

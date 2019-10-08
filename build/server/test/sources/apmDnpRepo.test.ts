@@ -3,19 +3,13 @@ import { expect } from "chai";
 import flatten from "lodash/flatten";
 import rewiremock from "rewiremock";
 
-import * as apmDnpRepo from "../../src/sources/apmDnpRepo";
+import * as apmRepo from "../../src/sources/apmRepo";
 import { Version } from "../../src/fetchers/fetchNewApmVersions";
-import {
-  Source,
-  PollSourceFunctionReturn,
-  Asset,
-  AssetOwn,
-  SourceOwn
-} from "../../src/types";
+import { PollSourceFunctionReturn, AssetOwn, SourceOwn } from "../../src/types";
 import { ReleaseAsset } from "../../src/fetchers/fetchDnpIpfsReleaseAssets";
 import { mockHash } from "../testUtils";
 
-describe("Source > apmDnpRepo", () => {
+describe("Source > apmRepo", () => {
   async function getApmDnpRepoMock(
     versions: Version[],
     releaseAssets: ReleaseAsset[]
@@ -37,7 +31,7 @@ describe("Source > apmDnpRepo", () => {
     }
 
     return await rewiremock.around(
-      () => import("../../src/sources/apmDnpRepo"),
+      () => import("../../src/sources/apmRepo"),
       mock => {
         mock(() => import("../../src/fetchers/fetchNewApmVersions"))
           .withDefault(fetchNewApmVersions)
@@ -55,12 +49,12 @@ describe("Source > apmDnpRepo", () => {
   describe("multiname parsers", () => {
     it("Should get and parse a multiname", () => {
       const repo = { name: "bitcoin.dnp.dappnode.eth" };
-      const multiname = apmDnpRepo.getMultiname(repo);
+      const multiname = apmRepo.getMultiname(repo);
       expect(multiname).to.equal(
-        "apm-dnp-repo/bitcoin.dnp.dappnode.eth",
+        "apm-repo/bitcoin.dnp.dappnode.eth",
         "Wrong multiname"
       );
-      expect(apmDnpRepo.parseMultiname(multiname)).to.deep.equal(
+      expect(apmRepo.parseMultiname(multiname)).to.deep.equal(
         repo,
         "Wrong parsed multiname"
       );
@@ -71,7 +65,7 @@ describe("Source > apmDnpRepo", () => {
     it("Should return no results for an empty case", async () => {
       const name = "bitcoin.dnp.dappnode.eth";
       const source: SourceOwn = {
-        multiname: apmDnpRepo.getMultiname({ name })
+        multiname: apmRepo.getMultiname({ name })
       };
 
       const versions: Version[] = [];
@@ -84,8 +78,8 @@ describe("Source > apmDnpRepo", () => {
         assetsToRemove: []
       };
 
-      const apmDnpRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
-      const result = await apmDnpRepoMock.poll({
+      const apmRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
+      const result = await apmRepoMock.poll({
         source,
         currentOwnAssets,
         currentOwnSources,
@@ -97,7 +91,7 @@ describe("Source > apmDnpRepo", () => {
     it("Should return new assets if new versions are found", async () => {
       const name = "bitcoin.dnp.dappnode.eth";
       const source: SourceOwn = {
-        multiname: apmDnpRepo.getMultiname({ name })
+        multiname: apmRepo.getMultiname({ name })
       };
 
       const versions: Version[] = [{ version: "0.2.0", contentUri }];
@@ -112,14 +106,14 @@ describe("Source > apmDnpRepo", () => {
           {
             hash,
             multiname:
-              "apm-dnp-release-file/bitcoin.dnp.dappnode.eth/0.2.0/manifest"
+              "apm-repo-release-content/bitcoin.dnp.dappnode.eth/0.2.0/manifest"
           }
         ],
         assetsToRemove: []
       };
 
-      const apmDnpRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
-      const result = await apmDnpRepoMock.poll({
+      const apmRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
+      const result = await apmRepoMock.poll({
         source,
         currentOwnAssets,
         currentOwnSources,
@@ -131,7 +125,7 @@ describe("Source > apmDnpRepo", () => {
     it("Should deal with multiple version and clean old versions", async () => {
       const name = "name";
       const source: SourceOwn = {
-        multiname: apmDnpRepo.getMultiname({ name })
+        multiname: apmRepo.getMultiname({ name })
       };
 
       const versions: Version[] = [
@@ -148,11 +142,11 @@ describe("Source > apmDnpRepo", () => {
       const currentOwnAssets: AssetOwn[] = flatten(
         ["0.1.3", "0.1.1", "0.1.2"].map(version => [
           {
-            multiname: `apm-dnp-release-file/${name}/${version}/manifest`,
+            multiname: `apm-repo-release-content/${name}/${version}/manifest`,
             hash
           },
           {
-            multiname: `apm-dnp-release-file/${name}/${version}/image`,
+            multiname: `apm-repo-release-content/${name}/${version}/image`,
             hash
           }
         ])
@@ -161,44 +155,44 @@ describe("Source > apmDnpRepo", () => {
       const expectedResult: PollSourceFunctionReturn = {
         assetsToAdd: [
           {
-            multiname: "apm-dnp-release-file/name/0.2.2/manifest",
+            multiname: "apm-repo-release-content/name/0.2.2/manifest",
             hash
           },
           {
-            multiname: "apm-dnp-release-file/name/0.2.2/image",
+            multiname: "apm-repo-release-content/name/0.2.2/image",
             hash
           },
           {
-            multiname: "apm-dnp-release-file/name/0.2.0/manifest",
+            multiname: "apm-repo-release-content/name/0.2.0/manifest",
             hash
           },
           {
-            multiname: "apm-dnp-release-file/name/0.2.0/image",
+            multiname: "apm-repo-release-content/name/0.2.0/image",
             hash
           }
         ],
         assetsToRemove: [
           {
-            multiname: "apm-dnp-release-file/name/0.1.2/manifest",
+            multiname: "apm-repo-release-content/name/0.1.2/manifest",
             hash
           },
           {
-            multiname: "apm-dnp-release-file/name/0.1.2/image",
+            multiname: "apm-repo-release-content/name/0.1.2/image",
             hash
           },
           {
-            multiname: "apm-dnp-release-file/name/0.1.1/manifest",
+            multiname: "apm-repo-release-content/name/0.1.1/manifest",
             hash
           },
           {
-            multiname: "apm-dnp-release-file/name/0.1.1/image",
+            multiname: "apm-repo-release-content/name/0.1.1/image",
             hash
           }
         ]
       };
 
-      const apmDnpRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
-      const result = await apmDnpRepoMock.poll({
+      const apmRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
+      const result = await apmRepoMock.poll({
         source,
         currentOwnAssets,
         currentOwnSources,
@@ -210,7 +204,7 @@ describe("Source > apmDnpRepo", () => {
     it("Should ignore new versions if there are too many", async () => {
       const name = "name";
       const source: SourceOwn = {
-        multiname: apmDnpRepo.getMultiname({ name })
+        multiname: apmRepo.getMultiname({ name })
       };
 
       const versions: Version[] = [
@@ -230,35 +224,35 @@ describe("Source > apmDnpRepo", () => {
       const expectedResult: PollSourceFunctionReturn = {
         assetsToAdd: [
           {
-            multiname: "apm-dnp-release-file/name/0.2.3/manifest",
+            multiname: "apm-repo-release-content/name/0.2.3/manifest",
             hash
           },
           {
-            multiname: "apm-dnp-release-file/name/0.2.3/image",
+            multiname: "apm-repo-release-content/name/0.2.3/image",
             hash
           },
           {
-            multiname: "apm-dnp-release-file/name/0.2.2/manifest",
+            multiname: "apm-repo-release-content/name/0.2.2/manifest",
             hash
           },
           {
-            multiname: "apm-dnp-release-file/name/0.2.2/image",
+            multiname: "apm-repo-release-content/name/0.2.2/image",
             hash
           },
           {
-            multiname: "apm-dnp-release-file/name/0.2.1/manifest",
+            multiname: "apm-repo-release-content/name/0.2.1/manifest",
             hash
           },
           {
-            multiname: "apm-dnp-release-file/name/0.2.1/image",
+            multiname: "apm-repo-release-content/name/0.2.1/image",
             hash
           }
         ],
         assetsToRemove: []
       };
 
-      const apmDnpRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
-      const result = await apmDnpRepoMock.poll({
+      const apmRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
+      const result = await apmRepoMock.poll({
         source,
         currentOwnAssets,
         currentOwnSources,

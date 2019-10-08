@@ -11,7 +11,7 @@ services:
       - IPFS_CLUSTER_HOST=ipfs-cluster.dappnode
       - IPFS_CLUSTER_PORT=9094
       - IPFS_API_HOST=ipfs.dappnode
-      - WEB3_HOST=fullnode.dappnode
+      - WEB3_HOST_URL=http://fullnode.dappnode:8545
       - LOG_LEVEL=
 
 volumes:

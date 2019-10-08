@@ -10,12 +10,12 @@ import { pollSourcesReturnStateEdit } from "./pollSources";
 import logs from "../logs";
 
 // Aggregate sources
-import * as apmDnpRepo from "./apmDnpRepo";
+import * as apmRepo from "./apmRepo";
 import * as apmRegistry from "./apmRegistry";
 import * as dweb from "./dweb";
 
 export const sources = {
-  [apmDnpRepo.type]: apmDnpRepo,
+  [apmRepo.type]: apmRepo,
   [apmRegistry.type]: apmRegistry
   // [dweb.type]: dweb
 };

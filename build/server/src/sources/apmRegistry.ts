@@ -8,7 +8,7 @@ import {
 import fetchNewApmRepos from "../fetchers/fetchNewApmRepos";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import fetchBlockNumber from "../fetchers/fetchBlockNumber";
-import * as apmDnpRepo from "./apmDnpRepo";
+import * as apmRepo from "./apmRepo";
 import resolveEnsDomain from "../fetchers/resolveEns";
 import { checkIfContractIsRegistry } from "../web3/checkIfContractIsRegistry";
 import logs from "../logs";
@@ -54,7 +54,7 @@ export const verify: VerifySourceFunction = async function(source: Source) {
     await checkIfContractIsRegistry(address);
   } catch (e) {
     logs.debug(`${name} is not an APM registry: `, e);
-    throw Error(`${name} is not an APM registry`);
+    throw Error(`${name} is not an APM registry (${e.message})`);
   }
 };
 
@@ -77,7 +77,7 @@ export const poll: PollSourceFunction = async function({
     sourcesToAdd: newRepos
       .filter(repo => !repoBlacklist[getName(repo)])
       .map(repo => ({
-        multiname: apmDnpRepo.getMultiname({ name: getName(repo) })
+        multiname: apmRepo.getMultiname({ name: getName(repo) })
       }))
       .filter(({ multiname }) => !currentRepos[multiname]),
     internalState: String(currentLastBlock)

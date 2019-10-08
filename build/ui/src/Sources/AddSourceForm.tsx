@@ -53,8 +53,19 @@ export default function AddAssetForm() {
     setType(option.value);
   }
 
+  function getPlaceholder() {
+    if (!type) return "Select a type first";
+    const currentOption = options.find(option => option.type === type);
+    if (currentOption) return currentOption.placeholder || "Name";
+    else return "Name";
+  }
+
+  const placeholder = getPlaceholder();
+
   async function addSource() {
     try {
+      if (!type) throw Error("Must select a type first");
+      if (!name) throw Error(`Must type an ${placeholder} first`);
       setLoading(true);
       setStatusText(`Adding source ${type} ${name}`);
       const multiname = [type, name].join("/");
@@ -69,13 +80,6 @@ export default function AddAssetForm() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function getPlaceholder() {
-    if (!type) return "Select a type first";
-    const currentOption = options.find(option => option.type === type);
-    if (currentOption) return currentOption.placeholder || "Name";
-    else return "Name";
   }
 
   const classes = useStyles();
