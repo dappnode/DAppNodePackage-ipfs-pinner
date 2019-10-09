@@ -26,13 +26,14 @@ jobs:
         - "10.15.3"
       cache:
         directories:
-          - build/src/node_modules
+          - build/server/node_modules
       install:
         # This is a dockerized application, the node app is in /build/src
-        - cd ./build/src
-        - npm install
+        - cd ./build/server
+        - yarn
       script:
-        - npm test
+        - yarn test
+        - yarn test:int
 
     # Test that it builds correctly
     ###############################
