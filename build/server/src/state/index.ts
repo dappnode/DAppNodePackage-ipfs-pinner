@@ -3,6 +3,7 @@ import * as ipfsCluster from "../ipfsCluster";
 import * as eventBus from "../eventBus";
 import { SourcesAndAssetsToEdit, Source, Asset } from "../types";
 import { addChildSourcesAndAssetsToRemove } from "./utils";
+import stringify from "json-stringify-safe";
 import logs from "../logs";
 
 export async function modifyState(
@@ -72,7 +73,7 @@ async function iterate<T extends Source, R>(
       await fn(item);
       logs.info(`${label} ${item.multiname}`);
     } catch (e) {
-      logs.error(`Error on ${label} ${JSON.stringify(item)}: `, e);
+      logs.error(`Error on ${label} ${stringify(item)}: `, e);
     }
   }
 }

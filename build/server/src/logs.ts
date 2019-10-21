@@ -1,4 +1,5 @@
 import { createLogger, format, transports } from "winston";
+import stringify from "json-stringify-safe";
 
 const LOG_LEVEL = process.env.LOG_LEVEL;
 
@@ -51,7 +52,7 @@ const logger = createLogger({
     format.printf(info => {
       const { level, message, stack, ...others } = info;
       const othersFormated = Object.entries(others)
-        .map(([key, value]) => [key, JSON.stringify(value, null, 2)].join(": "))
+        .map(([key, value]) => [key, stringify(value, null, 2)].join(": "))
         .join(" - ");
       return `${info.level.padEnd(5)} ${stack || message} ${othersFormated}`;
     })
