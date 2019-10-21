@@ -24,10 +24,5 @@
   "bugs": {
     "url": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner/issues"
   },
-  "license": "GPL-3.0",
-  "image": {
-    "path": "ipfs-pinner.dnp.dappnode.eth_0.1.0.tar.xz",
-    "hash": "/ipfs/QmbxLykSTMXFFzq4G3XTjNfBwVfTNmhCxgz4uNBfojbVKR",
-    "size": 12148656
-  }
+  "license": "GPL-3.0"
 }
