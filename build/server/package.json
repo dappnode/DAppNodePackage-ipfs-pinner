@@ -41,6 +41,7 @@
     "request-promise-native": "^1.0.7",
     "semver": "^6.0.0",
     "socket.io": "^2.3.0",
+    "source-map-support": "^0.5.13",
     "uws": "10.148.1",
     "winston": "^3.2.1"
   },
