@@ -9,6 +9,9 @@ import setupSocketIo from "./api";
 import { pollSources } from "./sources";
 import * as eventBus from "./eventBus";
 import logs from "./logs";
+// Display stack traces with source-maps
+import "source-map-support/register";
+
 const app = express();
 
 const port = process.env.SERVER_PORT || 8080;

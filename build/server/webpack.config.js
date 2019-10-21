@@ -6,7 +6,7 @@ module.exports = {
   target: "node",
   output: {
     path: path.resolve(__dirname, "build"),
-    filename: "bundle.js"
+    filename: "index.js"
   },
   // externals: [/node_modules/, "bufferutil", "utf-8-validate"],
   resolve: {
@@ -19,5 +19,6 @@ module.exports = {
         use: ["ts-loader"]
       }
     ]
-  }
+  },
+  devtool: "source-map"
 };
