@@ -6,6 +6,9 @@
     "@material-ui/core": "^4.4.3",
     "@material-ui/icons": "^4.4.3",
     "apexcharts": "^3.8.6",
+    "autobahn": "^19.10.1",
+    "autobahn-browser": "^19.10.1",
+    "copy-to-clipboard": "^3.2.0",
     "lodash": "^4.17.15",
     "material-table": "^1.50.0",
     "moment": "^2.24.0",
@@ -41,6 +44,7 @@
     ]
   },
   "devDependencies": {
+    "@types/autobahn": "^18.10.0",
     "@types/jest": "24.0.18",
     "@types/lodash": "^4.14.141",
     "@types/node": "12.7.8",

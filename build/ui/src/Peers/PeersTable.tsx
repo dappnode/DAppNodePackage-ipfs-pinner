@@ -1,11 +1,16 @@
 import React from "react";
-import isEqual from "lodash/isEqual";
 import MaterialTable from "material-table";
 import { tableIcons } from "../MaterialTable";
 import { ClusterPeer } from "../types";
 import PeerDetail from "./PeerDetail";
 
-function PeersTable({ peers }: { peers: ClusterPeer[]; summary?: boolean }) {
+// No need to do a React.memo as it's done in Peers/index.tsx
+export default function PeersTable({
+  peers
+}: {
+  peers: ClusterPeer[];
+  summary?: boolean;
+}) {
   return (
     <div style={{ maxWidth: "100%" }}>
       <MaterialTable
@@ -40,5 +45,3 @@ function PeersTable({ peers }: { peers: ClusterPeer[]; summary?: boolean }) {
     </div>
   );
 }
-
-export default React.memo(PeersTable, isEqual);

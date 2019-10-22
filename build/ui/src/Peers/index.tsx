@@ -1,13 +1,21 @@
 import React from "react";
 import PeersTable from "./PeersTable";
 import { ClusterPeer } from "../types";
+import ConfigCluster from "./ConfigCluster";
+import isEqual from "lodash/isEqual";
 
 export const peersPath = "/peers";
 
-export default function Peers({ peers }: { peers: ClusterPeer[] }) {
+function Peers({ peers }: { peers: ClusterPeer[] }) {
+  console.log(peers);
+  const yourPeer = peers.find(peer => peer.you);
+
   return (
     <>
+      <ConfigCluster yourPeer={yourPeer} />
       <PeersTable peers={peers} />
     </>
   );
 }
+
+export default React.memo(Peers, isEqual);
