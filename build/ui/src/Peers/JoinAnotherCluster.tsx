@@ -48,8 +48,6 @@ export default function JoinAnotherCluster({
 
       try {
         // Validate URL params
-        if (!/[0-9A-Fa-f]{32}/g.test(secret))
-          throw Error(`secret must be a 32 bytes hex string: ${secret}`);
         if (multiaddress.includes(yourPeerId))
           throw Error("You can't add yourself");
 

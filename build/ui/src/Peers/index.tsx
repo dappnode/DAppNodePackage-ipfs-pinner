@@ -7,7 +7,6 @@ import isEqual from "lodash/isEqual";
 export const peersPath = "/peers";
 
 function Peers({ peers }: { peers: ClusterPeer[] }) {
-  console.log(peers);
   const yourPeer = peers.find(peer => peer.you);
 
   return (

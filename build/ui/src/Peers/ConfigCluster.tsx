@@ -37,7 +37,10 @@ export default function ConfigCluster({
 
   async function setClusterSettings(secret: string, multiaddress: string) {
     try {
-      await wampApi.setClusterSettings({ secret, multiaddress });
+      await wampApi.setClusterEnvs({
+        CLUSTER_SECRET: secret,
+        BOOTSTRAP_MULTIADDRESS: multiaddress
+      });
     } catch (e) {
       console.error(`Error on setClusterSettings ${e.stack}`);
     }
@@ -46,7 +49,7 @@ export default function ConfigCluster({
   async function generateSecret() {
     try {
       setGeneratingSecret(true);
-      await wampApi.setClusterSecret(getRandomHex(32));
+      await wampApi.setClusterEnvs({ CLUSTER_SECRET: getRandomHex(32) });
       await getCurrentClusterSettings();
     } catch (e) {
       console.error(`Error setting cluster secret: ${e.stack}`);

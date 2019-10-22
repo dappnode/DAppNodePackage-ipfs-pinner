@@ -4,9 +4,9 @@ const url = "ws://my.wamp.dnp.dappnode.eth:8080/ws";
 const realm = "dappnode_admin";
 
 const ipfsClusterName = "ipfs-cluster.dnp.dappnode.eth";
-const peerstorePath = "/data/ipfs-cluster/peerstore";
 
 export interface ClusterEnvs {
+  BOOTSTRAP_MULTIADDRESS?: string; // "/ip4/172.19.0.2/tcp/9096/p2p/12D3KooWK3tVkERcMXqqikhaZhSNoXdSs4M5w6bMEtJomav3VFHX"
   CLUSTER_PEERNAME?: string; // "cluster0";
   CLUSTER_SECRET?: string; // "";
 }
@@ -36,7 +36,7 @@ async function getSession(): Promise<autobahn.Session> {
   return sessionCache;
 }
 
-export async function getCurrentClusterSettings() {
+export async function getCurrentClusterSettings(): Promise<ClusterEnvs> {
   const dnps: {
     name: string;
     envs: ClusterEnvs;
@@ -46,40 +46,21 @@ export async function getCurrentClusterSettings() {
   });
   const ipfsClusterDnp = dnps.find(dnp => dnp.name === ipfsClusterName);
   if (!ipfsClusterDnp) throw Error("No IPFS cluster DNP found");
-  return ipfsClusterDnp.envs;
+  return ipfsClusterDnp.envs || {};
 }
 
-export async function setClusterSettings({
-  secret,
-  multiaddress
-}: {
-  secret: string;
-  multiaddress: string;
-}) {
-  await setClusterPeerstore(multiaddress);
-  await setClusterEnvs({ CLUSTER_SECRET: secret });
-}
+export async function setClusterEnvs(envs: ClusterEnvs): Promise<void> {
+  // Validate params
+  if (envs.CLUSTER_SECRET && !/[0-9A-Fa-f]{32}/g.test(envs.CLUSTER_SECRET))
+    throw Error(`secret must be a 32 bytes hex string: ${envs.CLUSTER_SECRET}`);
 
-export async function setClusterSecret(secret: string) {
-  await setClusterEnvs({ CLUSTER_SECRET: secret });
-}
+  // #### TODO: validate an IPFS cluster multiaddress
+  // if (envs.BOOTSTRAP_MULTIADDRESS && false)
+  //   throw Error(`Invalid bootstrap multiaddress`);
 
-async function setClusterEnvs(envs: ClusterEnvs) {
   await wrapCall({
     event: "updatePackageEnv.dappmanager.dnp.dappnode.eth",
     kwargs: { id: ipfsClusterName, envs, restart: true }
-  });
-}
-
-async function setClusterPeerstore(multiaddress: string) {
-  await wrapCall({
-    event: "copyFileTo.dappmanager.dnp.dappnode.eth",
-    kwargs: {
-      id: ipfsClusterName,
-      dataUri: `data:text/plain;base64,${btoa(multiaddress)}`,
-      filename: "peerstore",
-      toPath: peerstorePath
-    }
   });
 }
 
