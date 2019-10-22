@@ -3,8 +3,8 @@ import {
   TextField,
   Tooltip,
   Button,
-  LinearProgress,
-  Typography
+  Typography,
+  CircularProgress
 } from "@material-ui/core";
 import copy from "copy-to-clipboard";
 import { makeStyles } from "@material-ui/core/styles";
@@ -14,6 +14,10 @@ import { getUrlToShare } from "./configClusterUtils";
 const height = "40px";
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    marginBottom: theme.spacing(7),
+    height: theme.spacing(9.5)
+  },
   appendedButton: {
     marginTop: "8px"
   },
@@ -81,57 +85,53 @@ export default function ShareLinkToJoinCluster({
   loadingSecret: boolean;
   generateSecret: () => void;
 }) {
+  const classes = useStyles();
+
   return (
-    <div>
-      <div>
-        {yourMultiaddress ? (
-          yourSecret ? (
-            <>
-              <Typography color="textSecondary">
-                Share this link with a trusted peer to join your cluster
-              </Typography>
-              <CopyableInput
-                text={getUrlToShare(yourSecret, yourMultiaddress)}
-              />
-            </>
-          ) : generatingSecret ? (
-            <>
-              <Typography color="textSecondary">
-                Generating secret to start your cluster...
-              </Typography>
-              <LinearProgress />
-            </>
-          ) : loadingSecret ? (
-            <>
-              <Typography color="textSecondary">Loading secret...</Typography>
-              <LinearProgress />
-            </>
-          ) : (
-            <>
-              <Typography color="textSecondary">
-                To be able to invite other peers to your cluster, first generate
-                a cluster secret
-              </Typography>
-              <Button
-                onClick={generateSecret}
-                disabled={generatingSecret}
-                variant="contained"
-                color="primary"
-                style={{ whiteSpace: "nowrap", color: "white" }}
-              >
-                Generate secret
-              </Button>
-            </>
-          )
+    <div className={classes.root}>
+      {yourMultiaddress ? (
+        yourSecret ? (
+          <>
+            <Typography color="textSecondary">
+              Share this link with a trusted peer to join your cluster
+            </Typography>
+            <CopyableInput text={getUrlToShare(yourSecret, yourMultiaddress)} />
+          </>
+        ) : generatingSecret ? (
+          <>
+            <Typography color="textSecondary">
+              Generating secret to start your cluster...
+            </Typography>
+            <CircularProgress size={24} />
+          </>
+        ) : loadingSecret ? (
+          <>
+            <Typography color="textSecondary">Loading secret...</Typography>
+            <CircularProgress size={24} />
+          </>
         ) : (
           <>
             <Typography color="textSecondary">
-              Loading multiaddress...
+              To be able to invite other peers to your cluster, first generate a
+              cluster secret
             </Typography>
-            <LinearProgress />
+            <Button
+              onClick={generateSecret}
+              disabled={generatingSecret}
+              variant="contained"
+              color="primary"
+              style={{ whiteSpace: "nowrap", color: "white" }}
+            >
+              Generate secret
+            </Button>
           </>
-        )}
-      </div>
+        )
+      ) : (
+        <>
+          <Typography color="textSecondary">Loading multiaddress...</Typography>
+          <CircularProgress size={24} />
+        </>
+      )}
     </div>
   );
 }

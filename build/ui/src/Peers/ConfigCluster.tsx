@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  getCurrentClusterSettings,
-  ClusterEnvs,
-  setClusterSecret
-} from "./wampApi";
+import * as wampApi from "./wampApi";
 import ShareLinkToJoinCluster from "./ShareLinkToJoinCluster";
 import JoinAnotherCluster from "./JoinAnotherCluster";
 import { ClusterPeer } from "../types";
@@ -14,7 +10,7 @@ export default function ConfigCluster({
 }: {
   yourPeer: ClusterPeer | undefined;
 }) {
-  const [clusterEnvs, setClusterEnvs] = useState({} as ClusterEnvs);
+  const [clusterEnvs, setClusterEnvs] = useState({} as wampApi.ClusterEnvs);
   const yourSecret = clusterEnvs.CLUSTER_SECRET || "";
   const yourMultiaddress = yourPeer
     ? yourPeer.clusterAddresses.slice(-1)[0] || ""
@@ -25,13 +21,13 @@ export default function ConfigCluster({
   const [loadingSecret, setLoadingSecret] = useState(false);
 
   useEffect(() => {
-    _getCurrentClusterSettings();
+    getCurrentClusterSettings();
   }, []);
 
-  async function _getCurrentClusterSettings() {
+  async function getCurrentClusterSettings() {
     try {
       setLoadingSecret(true);
-      await getCurrentClusterSettings().then(setClusterEnvs);
+      await wampApi.getCurrentClusterSettings().then(setClusterEnvs);
     } catch (e) {
       console.error(`Error on getCurrentClusterSettings ${e.stack}`);
     } finally {
@@ -39,9 +35,9 @@ export default function ConfigCluster({
     }
   }
 
-  async function _setClusterSettings() {
+  async function setClusterSettings(secret: string, multiaddress: string) {
     try {
-      // await setClusterSettings({ secret, multiaddress });
+      await wampApi.setClusterSettings({ secret, multiaddress });
     } catch (e) {
       console.error(`Error on setClusterSettings ${e.stack}`);
     }
@@ -50,8 +46,8 @@ export default function ConfigCluster({
   async function generateSecret() {
     try {
       setGeneratingSecret(true);
-      await setClusterSecret(getRandomHex(32));
-      await _getCurrentClusterSettings();
+      await wampApi.setClusterSecret(getRandomHex(32));
+      await getCurrentClusterSettings();
     } catch (e) {
       console.error(`Error setting cluster secret: ${e.stack}`);
     } finally {
@@ -61,7 +57,10 @@ export default function ConfigCluster({
 
   return (
     <>
-      <JoinAnotherCluster yourPeerId={yourPeerId} />
+      <JoinAnotherCluster
+        yourPeerId={yourPeerId}
+        setClusterSettings={setClusterSettings}
+      />
 
       <ShareLinkToJoinCluster
         yourMultiaddress={yourMultiaddress}

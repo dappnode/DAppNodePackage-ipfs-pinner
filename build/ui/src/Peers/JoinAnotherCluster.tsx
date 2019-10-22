@@ -1,49 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router";
 import { makeStyles } from "@material-ui/core/styles";
-import {
-  Grid,
-  TextField,
-  Button,
-  Typography,
-  Paper,
-  CircularProgress
-} from "@material-ui/core";
+import { Typography, CircularProgress } from "@material-ui/core";
 import { parseUrlToShare } from "./configClusterUtils";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import ErrorIcon from "@material-ui/icons/Error";
-import { setClusterSettings } from "./wampApi";
-
-// To keep the three elements at a consistent height
-const height = "40px";
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    padding: theme.spacing(3)
-  },
-  selectAndButton: {
-    display: "flex"
-  },
-  selectContainer: {
-    width: "100%",
-    marginRight: theme.spacing(2)
-  },
-  textInput: {
-    backgroundColor: "white",
-    marginBottom: 0,
-    "& label": { fontSize: theme.typography.fontSize },
-    "& input": { fontSize: theme.typography.fontSize }
-  },
-  statusText: {
-    margin: theme.spacing(1),
-    height: theme.spacing(4)
-  },
-  margin: {
-    margin: theme.spacing(1)
-  },
-  appendedButton: {
-    marginTop: "8px"
-  },
   title: {
     display: "flex",
     alignItems: "center"
@@ -66,9 +29,11 @@ interface JoiningStatus {
 }
 
 export default function JoinAnotherCluster({
-  yourPeerId
+  yourPeerId,
+  setClusterSettings
 }: {
   yourPeerId: string;
+  setClusterSettings: (secret: string, multiaddress: string) => Promise<void>;
 }) {
   const [status, setStatus] = useState({} as JoiningStatus);
 
@@ -89,25 +54,21 @@ export default function JoinAnotherCluster({
           throw Error("You can't add yourself");
 
         setStatus({ loading: true });
-        await setClusterSettings({ secret, multiaddress });
+        await setClusterSettings(secret, multiaddress);
         setStatus({ success: true });
       } catch (e) {
         setStatus({ error: e.message });
         console.error(`Error joining cluster: ${e.stack}`);
       }
     }
-
     joinCluster();
-
-    // Display success
-  }, [location, yourPeerId]);
+  }, [location, yourPeerId, setClusterSettings]);
 
   const classes = useStyles();
 
   const { loading, success, error } = status;
-  const show = loading || success || error;
 
-  if (!show) return null;
+  if (!loading && !success && !error) return null;
 
   return (
     <div>
