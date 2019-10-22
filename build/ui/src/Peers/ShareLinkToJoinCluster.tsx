@@ -1,7 +1,29 @@
 import React, { useState } from "react";
-import { TextField, Tooltip, Button, LinearProgress } from "@material-ui/core";
+import {
+  TextField,
+  Tooltip,
+  Button,
+  LinearProgress,
+  Typography
+} from "@material-ui/core";
 import copy from "copy-to-clipboard";
+import { makeStyles } from "@material-ui/core/styles";
 import { getUrlToShare } from "./configClusterUtils";
+
+// To keep the three elements at a consistent height
+const height = "40px";
+
+const useStyles = makeStyles(theme => ({
+  appendedButton: {
+    marginTop: "8px"
+  },
+  input: {
+    marginRight: theme.spacing(2)
+  },
+  inputGroup: {
+    display: "flex"
+  }
+}));
 
 function CopyableInput({ text }: { text: string }) {
   const [showTooltip, setShowTooltip] = useState(false);
@@ -11,6 +33,8 @@ function CopyableInput({ text }: { text: string }) {
     setShowTooltip(true);
   }
 
+  const classes = useStyles();
+
   return (
     <Tooltip
       open={showTooltip}
@@ -18,17 +42,28 @@ function CopyableInput({ text }: { text: string }) {
       leaveDelay={1500}
       onClose={() => setShowTooltip(false)}
     >
-      <TextField
-        onClick={onCopy}
-        InputProps={{
-          readOnly: true,
-          disabled: true
-        }}
-        value={text}
-        fullWidth
-        margin="dense"
-        variant="outlined"
-      />
+      <div className={classes.inputGroup}>
+        <TextField
+          className={classes.input}
+          onClick={onCopy}
+          InputProps={{
+            readOnly: true,
+            disabled: true
+          }}
+          value={text}
+          fullWidth
+          margin="dense"
+          variant="outlined"
+        />
+        <Button
+          className={classes.appendedButton}
+          onClick={onCopy}
+          variant="contained"
+          style={{ height }}
+        >
+          Copy
+        </Button>
+      </div>
     </Tooltip>
   );
 }
@@ -52,27 +87,31 @@ export default function ShareLinkToJoinCluster({
         {yourMultiaddress ? (
           yourSecret ? (
             <>
-              Share this link with a trusted peer to join your cluster
+              <Typography color="textSecondary">
+                Share this link with a trusted peer to join your cluster
+              </Typography>
               <CopyableInput
                 text={getUrlToShare(yourSecret, yourMultiaddress)}
               />
-              In case other peers cannot connect to you, make sure your
-              multiaddress is correct: {yourMultiaddress}
             </>
           ) : generatingSecret ? (
             <>
-              Generating secret to start your cluster...
+              <Typography color="textSecondary">
+                Generating secret to start your cluster...
+              </Typography>
               <LinearProgress />
             </>
           ) : loadingSecret ? (
             <>
-              Loading secret...
+              <Typography color="textSecondary">Loading secret...</Typography>
               <LinearProgress />
             </>
           ) : (
             <>
-              To be able to invite other peers to your cluster, first generate a
-              cluster secret
+              <Typography color="textSecondary">
+                To be able to invite other peers to your cluster, first generate
+                a cluster secret
+              </Typography>
               <Button
                 onClick={generateSecret}
                 disabled={generatingSecret}
@@ -86,7 +125,9 @@ export default function ShareLinkToJoinCluster({
           )
         ) : (
           <>
-            Loading multiaddress...
+            <Typography color="textSecondary">
+              Loading multiaddress...
+            </Typography>
             <LinearProgress />
           </>
         )}

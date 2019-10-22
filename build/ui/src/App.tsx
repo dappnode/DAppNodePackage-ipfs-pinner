@@ -20,11 +20,6 @@ const useStyles = makeStyles((theme: Theme) =>
       "& > div:not(:last-child)": {
         paddingBottom: theme.spacing(3)
       },
-      "& > div": {
-        "& > div": {
-          paddingTop: "0 !important"
-        }
-      },
       paddingBottom: theme.spacing(9)
     },
     header: {
