@@ -13,7 +13,7 @@ import { splitMultiname, joinMultiname } from "../utils/multiname";
 import * as apmRepoReleaseContent from "../assets/apmRepoReleaseContent";
 import { timeoutErrorMessage } from "../ipfs";
 import isIpfsHash from "../utils/isIpfsHash";
-import resolveEnsDomain from "../fetchers/resolveEns";
+import resolveEnsDomain from "../fetchers/fetchEnsDomain";
 import { checkIfContractIsRepo } from "../web3/checkIfContractIsRepo";
 import logs from "../logs";
 
@@ -51,6 +51,7 @@ export const getMultiname = ({ name }: ApmDnpRepo): string => {
 
 export const verify: VerifySourceFunction = async function(source: Source) {
   const { name } = parseMultiname(source.multiname);
+  // Resolve name first to separate errors
   const address = await resolveEnsDomain(name);
   try {
     await checkIfContractIsRepo(address);

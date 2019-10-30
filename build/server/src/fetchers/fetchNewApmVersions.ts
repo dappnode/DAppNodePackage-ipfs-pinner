@@ -1,5 +1,4 @@
-import * as web3 from "../web3";
-import { ens } from "../web3";
+import getRepoContract from "../web3/getRepoContract";
 
 export interface Version {
   version: string;
@@ -19,8 +18,7 @@ export default async function fetchNewApmVersions(
   repoName: string,
   numOfVersions: number
 ): Promise<Version[]> {
-  const address = await ens.lookup(repoName);
-  const repoContract = web3.repoContract(address);
+  const repoContract = getRepoContract(repoName);
 
   const latestIndex = await repoContract.getVersionsCount();
 
@@ -58,7 +56,7 @@ export default async function fetchNewApmVersions(
         if (e.message.includes("decode uint16 from ABI"))
           e.message = `Attempting to fetch an inexistent version. ${e.message}`;
 
-        e.message = `Error get version ${versionId} ${address}. ${e.message}`;
+        e.message = `Error get version ${versionId} ${repoName}. ${e.message}`;
         throw e;
       }
     })

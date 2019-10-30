@@ -1,6 +1,5 @@
-import * as web3 from "../web3";
+import getBlockNumber from "../web3/getBlockNumber";
 
 export default async function fetchBlockNumber(): Promise<number> {
-  const latestBlock = await web3.getBlockNumber();
-  return latestBlock;
+  return await getBlockNumber();
 }

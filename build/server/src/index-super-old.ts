@@ -7,7 +7,6 @@ const portMissingAssetsFromGithubToIpfs = require("./stages/portMissingAssetsFro
 const db = require("./db");
 // Utils
 const runEvery = require("./utils/runEvery");
-const { ens } = require("./web3");
 const parseCsv = require("./utils/parseCsv");
 const resolveWhenIpfsIsReady = require("./utils/resolveWhenIpfsIsReady");
 
@@ -23,9 +22,7 @@ async function start() {
    * - REGISTRY_CSV="dnp.dappnode.eth, public.dappnode.eth"
    */
   await registriesToAdd.mapAsyncParallel(async (name: any) => {
-    const address = await ens.lookup(name);
-    console.log(`Adding registry: ${name} ${address}`);
-    db.addRegistry({ name, address });
+    // db.addRegistry({ name, address });
   });
 
   /**

@@ -10,7 +10,7 @@ describe("Fetcher > fetchNewApmRepos", () => {
 
     const expectedBindRepo = {
       shortname: "bind",
-      address: "0xb7e15019b306b9d76068742330e10cdc61bf5006"
+      address: "0xB7e15019b306B9d76068742330E10CDC61Bf5006"
     };
 
     it("Should fetch a regular release", async () => {
@@ -38,7 +38,7 @@ describe("Fetcher > fetchNewApmRepos", () => {
 
     const expectedFinanceRepo = {
       shortname: "finance",
-      address: "0x2dab32a4befc9cd6221796ece92e98137c13647a"
+      address: "0x2DAb32A4bEFC9cd6221796ecE92e98137c13647A"
     };
 
     it("Should fetch a regular release", async () => {

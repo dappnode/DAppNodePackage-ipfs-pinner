@@ -1,6 +1,6 @@
-const eth = require("./eth");
+import provider from "./provider";
 
-const blockToTest = "7000000";
+const blockToTest = 7000000;
 /**
  * [NOTE] only valid if the underlying web3 library is `ethjs`
  */
@@ -16,7 +16,7 @@ Please,
 
 export default async function ensureAncientBlocks() {
   try {
-    await eth.getBlockByNumber(blockToTest, false);
+    await provider.getBlock(blockToTest);
   } catch (e) {
     if ((e.message || "").includes(ethjsErrorMessage))
       throw Error(errorMessage);

@@ -9,7 +9,7 @@ import fetchNewApmRepos from "../fetchers/fetchNewApmRepos";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import fetchBlockNumber from "../fetchers/fetchBlockNumber";
 import * as apmRepo from "./apmRepo";
-import resolveEnsDomain from "../fetchers/resolveEns";
+import resolveEnsDomain from "../fetchers/fetchEnsDomain";
 import { checkIfContractIsRegistry } from "../web3/checkIfContractIsRegistry";
 import logs from "../logs";
 
@@ -49,6 +49,7 @@ export const getMultiname = ({ name }: ApmRegistry): string => {
 
 export const verify: VerifySourceFunction = async function(source: Source) {
   const { name } = parseMultiname(source.multiname);
+  // Resolve name first to separate errors
   const address = await resolveEnsDomain(name);
   try {
     await checkIfContractIsRegistry(address);
