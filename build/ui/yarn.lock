@@ -2032,11 +2032,6 @@ atob@^2.1.1:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-autobahn-browser@^19.10.1:
-  version "19.10.1"
-  resolved "https://registry.yarnpkg.com/autobahn-browser/-/autobahn-browser-19.10.1.tgz#2f09cc527610c957c9895198060833b387d119c6"
-  integrity sha512-3HFnW0uE+xEAOR19z6w4omueDlQlGKMP+I967lqTQ8l9UV93mi4WUCi/lBCIeIwF/iTEzZhSZE5fn+fnHbsOEQ==
-
 autobahn@^19.10.1:
   version "19.10.1"
   resolved "https://registry.yarnpkg.com/autobahn/-/autobahn-19.10.1.tgz#9c9c6cf5f2548a9463599aaf045f81507b09384d"
