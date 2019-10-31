@@ -5,6 +5,8 @@ const realm = "dappnode_admin";
 
 const ipfsClusterName = "ipfs-cluster.dnp.dappnode.eth";
 
+export type ClusterStatus = "" | "not-found" | "stopped" | "running";
+
 export interface ClusterEnvs {
   BOOTSTRAP_MULTIADDRESS?: string; // "/ip4/172.19.0.2/tcp/9096/p2p/12D3KooWK3tVkERcMXqqikhaZhSNoXdSs4M5w6bMEtJomav3VFHX"
   CLUSTER_PEERNAME?: string; // "cluster0";
@@ -18,7 +20,6 @@ const connection = new autobahn.Connection({ url, realm });
 connection.onopen = session => {
   sessionCache = session;
   console.log("CONNECTED to \nurl: " + url + " \nrealm: " + realm);
-  getCurrentClusterSettings();
 };
 
 // connection closed, lost or unable to connect
@@ -36,17 +37,35 @@ async function getSession(): Promise<autobahn.Session> {
   return sessionCache;
 }
 
-export async function getCurrentClusterSettings(): Promise<ClusterEnvs> {
-  const dnps: {
-    name: string;
-    envs: ClusterEnvs;
-  }[] = await wrapCall({
+interface ClusterDnp {
+  name: string;
+  envs: ClusterEnvs;
+  ports: { host: number; container: number; protocol: "TCP" | "UDP" }[];
+  running: boolean;
+}
+
+export interface DappnodeParams {
+  domain: string;
+  staticIp: string;
+  name: string;
+}
+
+export async function getCurrentIdentity(): Promise<DappnodeParams> {
+  return await wrapCall({
+    event: "getParams.dappmanager.dnp.dappnode.eth",
+    kwargs: {}
+  });
+}
+
+export async function getCurrentClusterSettings(): Promise<
+  ClusterDnp | undefined
+> {
+  getCurrentIdentity();
+  const dnps: ClusterDnp[] = await wrapCall({
     event: "listPackages.dappmanager.dnp.dappnode.eth",
     kwargs: {}
   });
-  const ipfsClusterDnp = dnps.find(dnp => dnp.name === ipfsClusterName);
-  if (!ipfsClusterDnp) throw Error("No IPFS cluster DNP found");
-  return ipfsClusterDnp.envs || {};
+  return dnps.find(dnp => dnp.name === ipfsClusterName);
 }
 
 export async function setClusterEnvs(envs: ClusterEnvs): Promise<void> {

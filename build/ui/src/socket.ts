@@ -1,7 +1,10 @@
 import io from "socket.io-client";
 import { SourceOption, ClusterPeer } from "./types";
 
-const apiUrl = window.location.origin;
+export const apiUrl =
+  process.env.NODE_ENV === "development"
+    ? "http://ipfs-pinner.dappnode"
+    : window.location.origin;
 console.log(`Connecting socket.io-client to: ${apiUrl}`);
 
 const socket = io(apiUrl);
