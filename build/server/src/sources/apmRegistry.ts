@@ -73,6 +73,9 @@ export const poll: PollSourceFunction = async function({
   const getName = (repo: { shortname: string }) =>
     [repo.shortname, name].join(".");
 
+  if (newRepos.length)
+    logs.debug(`Fetched new repos from ${name}: ${newRepos.map(getName)}`);
+
   const currentRepos = mapKeys(currentOwnSources, ({ multiname }) => multiname);
   return {
     sourcesToAdd: newRepos

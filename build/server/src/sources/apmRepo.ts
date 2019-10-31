@@ -80,6 +80,8 @@ export const poll: PollSourceFunction = async function({
         // Ignore broken versions
         if (!isIpfsHash(contentUri)) return;
 
+        logs.debug(`Found new version ${name} ${version}, resolving...`);
+
         const assets = await fetchDnpIpfsReleaseAssets(contentUri);
         assetsToAdd.push(
           ...assets.map(asset => ({
@@ -91,6 +93,8 @@ export const poll: PollSourceFunction = async function({
             hash: asset.hash
           }))
         );
+
+        logs.debug(`Resolved assets of version ${name} ${version}`);
       } catch (e) {
         // Ignore timeout errors silently
         if (e.message.includes(timeoutErrorMessage)) {
