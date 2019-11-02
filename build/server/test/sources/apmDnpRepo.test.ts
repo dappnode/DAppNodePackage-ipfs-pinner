@@ -75,7 +75,8 @@ describe("Source > apmRepo", () => {
       const currentOwnAssets: AssetOwn[] = [];
       const expectedResult: PollSourceFunctionReturn = {
         assetsToAdd: [],
-        assetsToRemove: []
+        assetsToRemove: [],
+        internalState: "{}"
       };
 
       const apmRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
@@ -109,7 +110,8 @@ describe("Source > apmRepo", () => {
               "apm-repo-release-content/bitcoin.dnp.dappnode.eth/0.2.0/manifest"
           }
         ],
-        assetsToRemove: []
+        assetsToRemove: [],
+        internalState: "{}"
       };
 
       const apmRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
@@ -188,7 +190,8 @@ describe("Source > apmRepo", () => {
             multiname: "apm-repo-release-content/name/0.1.1/image",
             hash
           }
-        ]
+        ],
+        internalState: "{}"
       };
 
       const apmRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
@@ -248,7 +251,8 @@ describe("Source > apmRepo", () => {
             hash
           }
         ],
-        assetsToRemove: []
+        assetsToRemove: [],
+        internalState: "{}"
       };
 
       const apmRepoMock = await getApmDnpRepoMock(versions, releaseAssets);

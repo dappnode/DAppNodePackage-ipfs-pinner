@@ -44,6 +44,6 @@ describe("Utils > checkIfContractIsRepo", () => {
       }
 
       expect(isRepo).to.equal(is, error);
-    });
+    }).timeout(10 * 1000);
   }
 });

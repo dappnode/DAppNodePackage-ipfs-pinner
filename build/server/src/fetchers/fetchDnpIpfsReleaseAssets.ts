@@ -16,6 +16,8 @@ interface ManifestWithImage {
   };
 }
 
+export class BrokenManifestError extends Error {}
+
 /**
  * Should resolve a name/version into the manifest and all relevant hashes
  * Should return enough information to then query other files if necessary
@@ -33,8 +35,10 @@ export default async function fetchDnpIpfsReleaseAssets(
 
   try {
     const manifest: ManifestWithImage = await ipfs.catJson(hash);
-    if (typeof manifest !== "object") throw Error("Manifest is not an object");
-    if (!manifest.image) throw Error("Manifest has no image field");
+    if (typeof manifest !== "object")
+      throw new BrokenManifestError("BROKEN: Manifest is not an object");
+    if (!manifest.image)
+      throw new BrokenManifestError("Manifest has no image field");
 
     const files = [
       { hash, filename: "manifest" },

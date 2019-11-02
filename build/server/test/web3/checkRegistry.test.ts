@@ -42,6 +42,6 @@ describe("Utils > checkIfContractIsRegistry", () => {
         is,
         is ? "Should be registry" : "Should NOT be a registry"
       );
-    });
+    }).timeout(10 * 1000);
   }
 });
