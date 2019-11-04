@@ -33,15 +33,17 @@ describe("Utils > checkIfContractIsRepo", () => {
   ];
 
   for (const { name, address, is } of addresses) {
-    it(`${name} should be a repo`, async () => {
-      const isRepo = await checkIfContractIsRepo(address).then(
-        () => true,
-        () => false
-      );
-      expect(isRepo).to.equal(
-        is,
-        is ? "Should be repo" : "Should NOT be a repo"
-      );
-    });
+    it(`${name} should ${is ? "" : "NOT"} be a repo`, async () => {
+      let isRepo = false;
+      let error: string = "";
+      try {
+        await checkIfContractIsRepo(address);
+        isRepo = true;
+      } catch (e) {
+        error = e.message;
+      }
+
+      expect(isRepo).to.equal(is, error);
+    }).timeout(10 * 1000);
   }
 });

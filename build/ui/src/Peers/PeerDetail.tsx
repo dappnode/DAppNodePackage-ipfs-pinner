@@ -33,7 +33,7 @@ export default function PeerDetail({ peer }: { peer: ClusterPeer }) {
           </TableHead>
           <TableBody>
             {addressArray.map(({ name, address }) => (
-              <TableRow key={peer.peername}>
+              <TableRow key={name}>
                 <TableCell component="th" scope="row">
                   {name}
                 </TableCell>

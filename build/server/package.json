@@ -30,8 +30,7 @@
   "dependencies": {
     "compression": "^1.7.4",
     "cors": "^2.8.5",
-    "ethjs": "^0.4.0",
-    "ethjs-ens": "^2.0.1",
+    "ethers": "^4.0.39",
     "express": "^4.17.1",
     "is-ipfs": "^0.6.1",
     "json-stringify-safe": "^5.0.1",

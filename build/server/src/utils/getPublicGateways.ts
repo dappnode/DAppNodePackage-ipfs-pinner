@@ -66,7 +66,7 @@ export default async function getPublicGateways() {
 
   const activeGateways: string[] = [];
   const errors: string[] = [];
-  console.log(`Fetched ${gateways.length} possible active gateways`);
+  logs.info(`Fetched ${gateways.length} possible active gateways`);
   await Promise.all(
     gateways.map(async (gateway: string) => {
       try {

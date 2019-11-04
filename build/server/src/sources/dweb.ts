@@ -1,7 +1,7 @@
 import { PollSourceFunction, VerifySourceFunction, Source } from "../types";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import fetchDweb from "../fetchers/fetchDweb";
-import resolveEnsDomain from "../fetchers/resolveEns";
+import resolveEnsDomain from "../fetchers/fetchEnsDomain";
 
 /**
  * DWeb

@@ -8,12 +8,14 @@ import {
   VerifySourceFunction
 } from "../types";
 import fetchNewApmVersions from "../fetchers/fetchNewApmVersions";
-import fetchDnpIpfsReleaseAssets from "../fetchers/fetchDnpIpfsReleaseAssets";
+import fetchDnpIpfsReleaseAssets, {
+  BrokenManifestError
+} from "../fetchers/fetchDnpIpfsReleaseAssets";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import * as apmRepoReleaseContent from "../assets/apmRepoReleaseContent";
 import { timeoutErrorMessage } from "../ipfs";
 import isIpfsHash from "../utils/isIpfsHash";
-import resolveEnsDomain from "../fetchers/resolveEns";
+import resolveEnsDomain from "../fetchers/fetchEnsDomain";
 import { checkIfContractIsRepo } from "../web3/checkIfContractIsRepo";
 import logs from "../logs";
 
@@ -51,6 +53,7 @@ export const getMultiname = ({ name }: ApmDnpRepo): string => {
 
 export const verify: VerifySourceFunction = async function(source: Source) {
   const { name } = parseMultiname(source.multiname);
+  // Resolve name first to separate errors
   const address = await resolveEnsDomain(name);
   try {
     await checkIfContractIsRepo(address);
@@ -62,12 +65,15 @@ export const verify: VerifySourceFunction = async function(source: Source) {
 
 export const poll: PollSourceFunction = async function({
   source,
-  currentOwnAssets
+  currentOwnAssets,
+  internalState: brokenVersionsString
 }: PollSourceFunctionArg) {
   const { name } = parseMultiname(source.multiname);
   const latestVersions = await fetchNewApmVersions(name, numOfVersions);
   // Construct an object to check if the latest version are already here
   const currentAssetsByVersion = getAssetsByVersions(currentOwnAssets);
+  // Parse broken versions object
+  const brokenVersions = parseBrokenVersions(brokenVersionsString);
 
   const assetsToAdd: AssetOwn[] = [];
   await Promise.all(
@@ -78,6 +84,9 @@ export const poll: PollSourceFunction = async function({
 
         // Ignore broken versions
         if (!isIpfsHash(contentUri)) return;
+        if (brokenVersions[contentUri]) return;
+
+        logs.debug(`Found new version ${name} ${version}, resolving...`);
 
         const assets = await fetchDnpIpfsReleaseAssets(contentUri);
         assetsToAdd.push(
@@ -90,10 +99,18 @@ export const poll: PollSourceFunction = async function({
             hash: asset.hash
           }))
         );
+
+        logs.debug(`Resolved assets of version ${name} ${version}`);
       } catch (e) {
         // Ignore timeout errors silently
         if (e.message.includes(timeoutErrorMessage)) {
           logs.debug(e.message, { contentUri });
+        } else if (e instanceof BrokenManifestError) {
+          logs.debug(
+            `Ignoring release ${name} @ ${version}, broken manifest e.message`,
+            { contentUri }
+          );
+          brokenVersions[contentUri] = true;
         } else {
           logs.error(`Error resolving release ${name} @ ${version}: `, e);
         }
@@ -102,7 +119,10 @@ export const poll: PollSourceFunction = async function({
   );
 
   // Remove old assets
-  return computeAssetsToEdit(assetsToAdd, currentOwnAssets, numOfVersions);
+  return {
+    ...computeAssetsToEdit(assetsToAdd, currentOwnAssets, numOfVersions),
+    internalState: stringifyBrokenVersions(brokenVersions)
+  };
 };
 
 /**
@@ -167,4 +187,27 @@ function getVersionsDescendingOrder(
   assetsByVersion: AssetsByVersion
 ): string[] {
   return Object.keys(assetsByVersion).sort(semver.rcompare);
+}
+
+interface BrokenVersions {
+  [contentUri: string]: boolean;
+}
+
+function parseBrokenVersions(s: string): BrokenVersions {
+  try {
+    if (!s) return {};
+    return JSON.parse(s);
+  } catch (e) {
+    logs.warn(`Error parsing brokenVersions of apmRepo: ${e.message}`);
+    return {};
+  }
+}
+
+function stringifyBrokenVersions(brokenVersions: BrokenVersions): string {
+  try {
+    return JSON.stringify(brokenVersions);
+  } catch (e) {
+    logs.warn(`Error stringifying brokenVersions of apmRepo: ${e.message}`);
+    return JSON.stringify({});
+  }
 }

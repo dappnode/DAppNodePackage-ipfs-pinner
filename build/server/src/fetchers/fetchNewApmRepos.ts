@@ -1,5 +1,4 @@
-import * as web3 from "../web3";
-import { ens } from "../web3";
+import getNewReposFromRegistry from "../web3/getNewReposFromRegistry";
 
 const shortNameBlacklist = ["apm-registry", "apm-enssub", "apm-repo"];
 
@@ -29,8 +28,7 @@ export default async function fetchNewApmRepos(
   registryName: string,
   fromBlock: number
 ): Promise<ApmRegistryRepo[]> {
-  const address = await ens.lookup(registryName);
-  const rawEvents = await web3.getNewReposFromRegistry(address, fromBlock || 0);
+  const rawEvents = await getNewReposFromRegistry(registryName, fromBlock || 0);
 
   const repos: ApmRepoEvent[] = rawEvents
     .map(event => ({
