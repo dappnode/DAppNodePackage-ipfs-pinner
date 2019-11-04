@@ -1,10 +1,12 @@
 import { apiUrl } from "../socket";
+import { peersPath } from "./data";
 
 const secretParamName = "secret";
 const multiaddressParamName = "multiaddress";
 
 export function getUrlToShare(secret: string, multiaddress: string) {
   const baseUrl = new URL(apiUrl);
+  baseUrl.pathname = peersPath;
   baseUrl.searchParams.set(secretParamName, secret);
   baseUrl.searchParams.set(multiaddressParamName, multiaddress);
   return baseUrl.toString();

@@ -3,8 +3,9 @@ import PeersTable from "./PeersTable";
 import { ClusterPeer } from "../types";
 import ConfigCluster from "./ConfigCluster";
 import isEqual from "lodash/isEqual";
+import { peersPath } from "./data";
 
-export const peersPath = "/peers";
+export { peersPath };
 
 function Peers({ peers }: { peers: ClusterPeer[] }) {
   const yourPeer = peers.find(peer => peer.you);
