@@ -1,22 +1,31 @@
 import * as sourcesDb from "../sourcesDb";
-import { verifyFunctions } from "../sources";
-import { Source } from "../types";
+import { verifyFunctions, getMultinameFunctions } from "../sources";
+import { Source, SourceTypeAndInputs } from "../types";
 import { modifyState } from "../state";
-import { parseType } from "../utils/multiname";
 
 /**
  * @param type "apm-registry"
  * @param name Must contain all data necessary to identify this source type
  */
-export async function addSource(sourceMultiname: string): Promise<void> {
-  if (!sourceMultiname) throw Error(`Arg sourceMultiname required`);
+export async function addSource(
+  inputsAndType: SourceTypeAndInputs
+): Promise<void> {
+  if (!inputsAndType) throw Error(`Arg inputsAndType required`);
+  if (typeof inputsAndType !== "object")
+    throw Error(`Arg inputsAndType must be an object`);
+
+  const { type, ...inputs } = inputsAndType;
+
+  // Verify that the source exists
+  if (!verifyFunctions[type]) throw Error(`Source type not supported: ${type}`);
+
+  // Get source multiname
+  const sourceMultiname = getMultinameFunctions[type](inputs);
+  console.log({ sourceMultiname, inputs });
 
   // Add an ID referencing the user
   const source = { multiname: sourceMultiname, from: `user/userId` };
 
-  // Verify that the source exists
-  const type = parseType(sourceMultiname);
-  if (!verifyFunctions[type]) throw Error(`Source type not supported: ${type}`);
   await verifyFunctions[type](source);
 
   await modifyState(async () => {

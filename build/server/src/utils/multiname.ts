@@ -5,13 +5,17 @@ const removeSeparator = (str: string): string =>
   (str || "").replace(separatorSearch, "");
 
 export const joinMultiname = (parts: string[]): string =>
-  parts.map(removeSeparator).join(separator);
+  parts
+    .map(encodeURIComponent)
+    .map(removeSeparator)
+    .join(separator);
 
 export const splitMultiname = (multiname: string): string[] =>
   multiname
     .replace(/^\/+|\/+$/g, "")
     .split(separator)
-    .filter(p => p);
+    .filter(p => p)
+    .map(decodeURIComponent);
 
 export const parseType = (multiname: string): string =>
   splitMultiname(multiname)[0];

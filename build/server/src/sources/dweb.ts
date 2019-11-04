@@ -19,7 +19,7 @@ export interface Dweb {
 
 export const type = "dweb";
 export const label = "DWeb";
-export const placeholder = "ENS domain";
+export const fields = [{ id: "domain", required: false, label: "ENS domain" }];
 
 export const parseMultiname = (multiname: string): Dweb => {
   const [_type, domain] = splitMultiname(multiname);
@@ -29,6 +29,7 @@ export const parseMultiname = (multiname: string): Dweb => {
 };
 
 export const getMultiname = ({ domain }: Dweb): string => {
+  if (!domain) throw Error(`Arg "domain" missing`);
   return joinMultiname([type, domain]);
 };
 

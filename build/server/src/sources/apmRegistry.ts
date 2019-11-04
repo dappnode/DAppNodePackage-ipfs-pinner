@@ -34,7 +34,7 @@ export interface ApmRegistry {
 
 export const type = "apm-registry";
 export const label = "APM registry";
-export const placeholder = "Registry ENS";
+export const fields = [{ id: "name", required: true, label: "Registry ENS" }];
 
 export const parseMultiname = (multiname: string): ApmRegistry => {
   const [_type, name] = splitMultiname(multiname);
@@ -44,6 +44,7 @@ export const parseMultiname = (multiname: string): ApmRegistry => {
 };
 
 export const getMultiname = ({ name }: ApmRegistry): string => {
+  if (!name) throw Error(`Arg "name" missing`);
   return joinMultiname([type, name]);
 };
 

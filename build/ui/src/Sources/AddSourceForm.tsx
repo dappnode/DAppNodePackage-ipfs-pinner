@@ -2,21 +2,26 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/styles";
-import { Grid, TextField, Button, Typography } from "@material-ui/core";
+import { TextField, Button, Typography } from "@material-ui/core";
 import * as socket from "../socket";
-import { SourceOption } from "../types";
+import { SourceOption, SourceFormInputs } from "../types";
 
 const useStyles = makeStyles(theme => ({
   root: {
     margin: "0 auto",
-    maxWidth: "40rem"
+    maxWidth: "30rem",
+    "& > *:not(:last-child)": {
+      marginBottom: "8px"
+    }
+  },
+  addButton: {
+    marginTop: "8px"
   },
   selectAndButton: {
     display: "flex"
   },
   selectContainer: {
-    width: "100%",
-    marginRight: theme.spacing(2)
+    width: "100%"
   },
   textInput: {
     backgroundColor: "white",
@@ -36,9 +41,11 @@ const useStyles = makeStyles(theme => ({
 export default function AddAssetForm() {
   const [options, setOptions] = useState([] as SourceOption[]);
   const [type, setType] = useState("");
-  const [name, setName] = useState("");
+  const [inputs, setInputs] = useState({} as SourceFormInputs);
   const [loading, setLoading] = useState(false);
   const [statusText, setStatusText] = useState("");
+  const currentOption = options.find(option => type && option.type === type);
+  const fields = currentOption ? currentOption.fields || [] : [];
 
   useEffect(() => {
     socket
@@ -47,38 +54,32 @@ export default function AddAssetForm() {
       .catch(e => console.error(`Error getting options: ${e.stack}`));
   }, []);
 
-  // react-select types are impossible to comply with this handler
-  // it must use any to compile
-  function handleSelectChange(option: any) {
-    setType(option.value);
-  }
-
-  function getPlaceholder() {
-    if (!type) return "Select a type first";
-    const currentOption = options.find(option => option.type === type);
-    if (currentOption) return currentOption.placeholder || "Name";
-    else return "Name";
-  }
-
-  const placeholder = getPlaceholder();
-
   async function addSource() {
     try {
       if (!type) throw Error("Must select a type first");
-      if (!name) throw Error(`Must type an ${placeholder} first`);
+      validateForm();
+
       setLoading(true);
-      setStatusText(`Adding source ${type} ${name}`);
-      const multiname = [type, name].join("/");
-      const nameOnSend = name;
-      await socket.addSource(multiname);
-      setStatusText(`Successfully added ${name}`);
-      // Clean only if the name has not changed
-      if (nameOnSend === name) setName("");
+      setStatusText(`Adding source ${type}`);
+      console.log("Adding source", inputs, type);
+      const cacheInputs = JSON.stringify(inputs);
+
+      await socket.addSource({ ...inputs, type });
+      setStatusText(`Successfully added ${type}`);
+      // Clean only if the inputs have not changed
+      if (cacheInputs === JSON.stringify(inputs)) setInputs({});
     } catch (e) {
       setStatusText(e.message);
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  }
+
+  function validateForm() {
+    for (const field of fields) {
+      const value = inputs[field.id];
+      if (field.required && !value) throw Error(`${field.label} is required`);
     }
   }
 
@@ -91,69 +92,75 @@ export default function AddAssetForm() {
 
   return (
     <div className={classes.root}>
-      <Grid container spacing={2} alignItems="flex-end">
-        <Grid item xs={12} sm={6}>
-          <TextField
-            id="outlined-name"
-            label={getPlaceholder()}
-            className={classes.textInput}
-            InputProps={{
-              style: { height }
-            }}
-            onKeyPress={e => {
-              if (e.key === "Enter") addSource();
-            }}
-            value={name}
-            onChange={e => {
+      <div className={classes.selectAndButton}>
+        <div className={classes.selectContainer}>
+          <Select
+            // defaultValue={options[0]}
+            // defaultMenuIsOpen={true}
+            // react-select can't work with this handler, it must use any to compile
+            onChange={(option: any) => {
               setStatusText("");
-              setName(e.target.value);
+              setType(option.value);
             }}
-            fullWidth
-            margin="dense"
-            variant="outlined"
+            styles={{
+              menu: provided => ({
+                ...provided,
+                // z-index must be higher than the material-table header
+                zIndex: 200
+              }),
+              control: provided => ({
+                ...provided,
+                height
+              }),
+              placeholder: provided => ({
+                ...provided,
+                color: textColor
+              })
+            }}
+            options={options.map(({ type, label }) => ({
+              value: type,
+              label
+            }))}
           />
-        </Grid>
+        </div>
+      </div>
 
-        <Grid item xs={12} sm={6}>
-          <div className={classes.selectAndButton}>
-            <div className={classes.selectContainer}>
-              <Select
-                // defaultValue={options[0]}
-                // defaultMenuIsOpen={true}
-                onChange={handleSelectChange}
-                styles={{
-                  menu: provided => ({
-                    ...provided,
-                    // z-index must be higher than the material-table header
-                    zIndex: 200
-                  }),
-                  control: provided => ({
-                    ...provided,
-                    height
-                  }),
-                  placeholder: provided => ({
-                    ...provided,
-                    color: textColor
-                  })
-                }}
-                options={options.map(({ type, label }) => ({
-                  value: type,
-                  label
-                }))}
-              />
-            </div>
-            <Button
-              onClick={addSource}
-              disabled={loading}
-              variant="contained"
-              color="primary"
-              style={{ whiteSpace: "nowrap", color: "white", height }}
-            >
-              Add
-            </Button>
-          </div>
-        </Grid>
-      </Grid>
+      {fields.map(field => (
+        <TextField
+          key={field.id}
+          label={field.label}
+          className={classes.textInput}
+          InputProps={{ style: { height } }}
+          onKeyPress={e => {
+            if (e.key === "Enter") addSource();
+          }}
+          value={inputs[field.id] || ""}
+          onChange={e => {
+            const value = e.target.value;
+            setStatusText("");
+            setInputs(_inputs => ({ ..._inputs, [field.id]: value }));
+          }}
+          fullWidth
+          margin="dense"
+          variant="outlined"
+        />
+      ))}
+
+      {currentOption && (
+        <div className={classes.addButton}>
+          <Button
+            onClick={addSource}
+            disabled={loading}
+            variant="contained"
+            color="primary"
+            style={{ whiteSpace: "nowrap", color: "white", height }}
+            fullWidth
+          >
+            Add
+          </Button>
+        </div>
+      )}
+
       <Typography
         className={classes.statusText}
         align="center"
