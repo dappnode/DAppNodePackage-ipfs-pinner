@@ -21,7 +21,6 @@ export async function addSource(
 
   // Get source multiname
   const sourceMultiname = getMultinameFunctions[type](inputs);
-  console.log({ sourceMultiname, inputs });
 
   // Add an ID referencing the user
   const source = { multiname: sourceMultiname, from: `user/userId` };

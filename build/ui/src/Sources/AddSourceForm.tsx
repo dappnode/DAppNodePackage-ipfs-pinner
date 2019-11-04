@@ -121,6 +121,7 @@ export default function AddAssetForm() {
               value: type,
               label
             }))}
+            placeholder="Select a type to start..."
           />
         </div>
       </div>
