@@ -11,7 +11,6 @@ function getDisplayName(type: string, parts: string[]) {
       filename === "directory" ? "" : `(${filename})`
     }`;
   }
-  console.log(type);
   // Fallback
   return parts.join(" ");
 }

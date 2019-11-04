@@ -1,6 +1,7 @@
 import { PollSourceFunction, VerifySourceFunction, Source } from "../types";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import isIpfsHash, { normalizeIpfsHash } from "../utils/isIpfsHash";
+import * as regularHash from "../assets/regularHash";
 
 /**
  * Regular IPFS hash
@@ -21,7 +22,7 @@ export const type = "hash";
 export const label = "Hash";
 export const fields = [
   { id: "hash", required: true, label: "IPFS hash" },
-  { id: "label", required: false, label: "Label or name" }
+  { id: "label", required: true, label: "Label or name" }
 ];
 
 export const parseMultiname = (multiname: string): HashSource => {
@@ -51,7 +52,7 @@ export const poll: PollSourceFunction = async function({
     const { hash: multihash, label } = parseMultiname(source.multiname);
     const hash = normalizeIpfsHash(multihash);
     return {
-      assetsToAdd: [{ multiname: `hash-content/${label || hash}`, hash }]
+      assetsToAdd: [{ multiname: regularHash.getMultiname({ label }), hash }]
     };
   } else {
     return {};

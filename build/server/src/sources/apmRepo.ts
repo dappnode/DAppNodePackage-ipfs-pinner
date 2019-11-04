@@ -15,7 +15,7 @@ import { splitMultiname, joinMultiname } from "../utils/multiname";
 import * as apmRepoReleaseContent from "../assets/apmRepoReleaseContent";
 import { timeoutErrorMessage } from "../ipfs";
 import isIpfsHash from "../utils/isIpfsHash";
-import resolveEnsDomain from "../fetchers/fetchEnsDomain";
+import resolveEnsDomain from "../fetchers/fetchEnsAddress";
 import { checkIfContractIsRepo } from "../web3/checkIfContractIsRepo";
 import logs from "../logs";
 

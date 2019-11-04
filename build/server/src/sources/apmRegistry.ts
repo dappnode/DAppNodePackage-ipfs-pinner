@@ -9,7 +9,7 @@ import fetchNewApmRepos from "../fetchers/fetchNewApmRepos";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import fetchBlockNumber from "../fetchers/fetchBlockNumber";
 import * as apmRepo from "./apmRepo";
-import resolveEnsDomain from "../fetchers/fetchEnsDomain";
+import resolveEnsDomain from "../fetchers/fetchEnsAddress";
 import { checkIfContractIsRegistry } from "../web3/checkIfContractIsRegistry";
 import logs from "../logs";
 

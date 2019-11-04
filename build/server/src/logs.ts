@@ -43,7 +43,6 @@ const logger = createLogger({
     format.colorize(),
     // format.simple()
     // format.printf(info => {
-    //   console.log(info);
     //   let message = `${info.level} [${info.timestamp}] ${info.stack ||
     //     info.message}`;
 

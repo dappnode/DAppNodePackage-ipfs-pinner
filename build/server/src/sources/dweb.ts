@@ -1,7 +1,7 @@
 import { PollSourceFunction, VerifySourceFunction, Source } from "../types";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import fetchDweb from "../fetchers/fetchDweb";
-import resolveEnsDomain from "../fetchers/fetchEnsDomain";
+import * as dwebContent from "../assets/dwebContent";
 
 /**
  * DWeb
@@ -35,7 +35,7 @@ export const getMultiname = ({ domain }: Dweb): string => {
 
 export const verify: VerifySourceFunction = async function(source: Source) {
   const { domain } = parseMultiname(source.multiname);
-  await resolveEnsDomain(domain);
+  await fetchDweb(domain);
 };
 
 export const poll: PollSourceFunction = async function({
@@ -44,9 +44,9 @@ export const poll: PollSourceFunction = async function({
 }) {
   const { domain } = parseMultiname(source.multiname);
   const hash = await fetchDweb(domain);
-  if (hash !== (currentOwnAssets[0] || {}).hash)
+  if (hash && hash !== (currentOwnAssets[0] || {}).hash)
     return {
-      assetsToAdd: [{ multiname: `dweb-content/${source.multiname}`, hash }],
+      assetsToAdd: [{ multiname: dwebContent.getMultiname({ domain }), hash }],
       assetsToRemove: currentOwnAssets
     };
   else return {};
