@@ -3,7 +3,7 @@ import { SourceOption, ClusterPeer } from "./types";
 
 export const apiUrl =
   process.env.NODE_ENV === "development"
-    ? "http://ipfs-pinner.dappnode"
+    ? process.env.REACT_APP_PINNER_URL || "http://ipfs-pinner.dappnode"
     : window.location.origin;
 console.log(`Connecting socket.io-client to: ${apiUrl}`);
 
