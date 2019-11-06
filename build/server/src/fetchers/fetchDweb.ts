@@ -1,7 +1,7 @@
-import resolveName from "../web3/resolveName";
+import resolveEnsContent from "../web3/resolveEnsContent";
 
 export default async function fetchDweb(ensDomain: string) {
-  const address = await resolveName(ensDomain);
-  if (!address) throw Error(`ENS domain not found`);
-  return address;
+  const content = await resolveEnsContent(ensDomain);
+  if (!content) throw Error(`ENS content not found: ${ensDomain}`);
+  return content;
 }

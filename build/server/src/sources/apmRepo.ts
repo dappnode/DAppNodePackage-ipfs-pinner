@@ -15,7 +15,7 @@ import { splitMultiname, joinMultiname } from "../utils/multiname";
 import * as apmRepoReleaseContent from "../assets/apmRepoReleaseContent";
 import { timeoutErrorMessage } from "../ipfs";
 import isIpfsHash from "../utils/isIpfsHash";
-import resolveEnsDomain from "../fetchers/fetchEnsDomain";
+import resolveEnsDomain from "../fetchers/fetchEnsAddress";
 import { checkIfContractIsRepo } from "../web3/checkIfContractIsRepo";
 import logs from "../logs";
 
@@ -38,7 +38,7 @@ export interface ApmDnpRepo {
 
 export const type = "apm-repo";
 export const label = "APM repo";
-export const placeholder = "Repo ENS";
+export const fields = [{ id: "name", required: true, label: "Repo ENS" }];
 
 export const parseMultiname = (multiname: string): ApmDnpRepo => {
   const [_type, name] = splitMultiname(multiname);
@@ -48,6 +48,7 @@ export const parseMultiname = (multiname: string): ApmDnpRepo => {
 };
 
 export const getMultiname = ({ name }: ApmDnpRepo): string => {
+  if (!name) throw Error(`Arg "name" missing`);
   return joinMultiname([type, name]);
 };
 

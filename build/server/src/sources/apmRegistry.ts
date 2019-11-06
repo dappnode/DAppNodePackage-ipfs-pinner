@@ -9,7 +9,7 @@ import fetchNewApmRepos from "../fetchers/fetchNewApmRepos";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import fetchBlockNumber from "../fetchers/fetchBlockNumber";
 import * as apmRepo from "./apmRepo";
-import resolveEnsDomain from "../fetchers/fetchEnsDomain";
+import resolveEnsDomain from "../fetchers/fetchEnsAddress";
 import { checkIfContractIsRegistry } from "../web3/checkIfContractIsRegistry";
 import logs from "../logs";
 
@@ -34,7 +34,7 @@ export interface ApmRegistry {
 
 export const type = "apm-registry";
 export const label = "APM registry";
-export const placeholder = "Registry ENS";
+export const fields = [{ id: "name", required: true, label: "Registry ENS" }];
 
 export const parseMultiname = (multiname: string): ApmRegistry => {
   const [_type, name] = splitMultiname(multiname);
@@ -44,6 +44,7 @@ export const parseMultiname = (multiname: string): ApmRegistry => {
 };
 
 export const getMultiname = ({ name }: ApmRegistry): string => {
+  if (!name) throw Error(`Arg "name" missing`);
   return joinMultiname([type, name]);
 };
 

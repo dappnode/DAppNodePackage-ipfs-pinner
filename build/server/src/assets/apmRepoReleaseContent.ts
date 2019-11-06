@@ -19,7 +19,6 @@ interface ApmRepoReleaseContent {
 export const type = "apm-repo-release-content";
 
 export const parseMultiname = (multiname: string): ApmRepoReleaseContent => {
-  // `apm-repo-release-content/<dnpName>/<version>/<filename>`
   const [_type, name, version, filename] = splitMultiname(multiname);
   if (_type !== type) throw Error(`multiname must be of type: ${type}`);
   if (!name) throw Error(`No "name" in multiname: ${multiname}`);

@@ -45,12 +45,12 @@ export default function Home({
     <>
       <Box className={classes.heroSection}>
         <Box>
-          <Typography variant="h4" align="center" style={{ color: "#141e27" }}>
-            Pin anything.
+          <Typography variant="h4" align="center" color="textSecondary">
+            Pin anything
           </Typography>
-          <Typography align="center" color="textSecondary">
+          {/* <Typography align="center" color="textSecondary">
             Select an asset type to start
-          </Typography>
+          </Typography> */}
         </Box>
 
         <Grid container spacing={2} className={classes.addForm}>

@@ -13,16 +13,22 @@ import logs from "../logs";
 import * as apmRepo from "./apmRepo";
 import * as apmRegistry from "./apmRegistry";
 import * as dweb from "./dweb";
+import * as hash from "./hash";
 
 export const sources = {
   [apmRepo.type]: apmRepo,
-  [apmRegistry.type]: apmRegistry
-  // [dweb.type]: dweb
+  [apmRegistry.type]: apmRegistry,
+  [dweb.type]: dweb,
+  [hash.type]: hash
 };
 
 export const verifyFunctions: {
   [type: string]: VerifySourceFunction;
 } = mapValues(sources, ({ verify }) => verify);
+
+export const getMultinameFunctions: {
+  [type: string]: (args: any) => string;
+} = mapValues(sources, ({ getMultiname }) => getMultiname);
 
 export const pollFunctions: {
   [type: string]: PollSourceFunction;

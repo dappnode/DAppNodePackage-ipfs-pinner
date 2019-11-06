@@ -1,9 +1,9 @@
 import io from "socket.io-client";
-import { SourceOption, ClusterPeer } from "./types";
+import { SourceOption, ClusterPeer, SourceFormInputs } from "./types";
 
 export const apiUrl =
   process.env.NODE_ENV === "development"
-    ? "http://ipfs-pinner.dappnode"
+    ? process.env.REACT_APP_PINNER_URL || "http://ipfs-pinner.dappnode"
     : window.location.origin;
 console.log(`Connecting socket.io-client to: ${apiUrl}`);
 
@@ -29,7 +29,7 @@ function socketGet<T, R>(routePath: string) {
 
 export const getOptions = socketGet<undefined, SourceOption[]>("options");
 export const getPeers = socketGet<undefined, ClusterPeer[]>("peers");
-export const addSource = socketGet<string, null>("addSource");
+export const addSource = socketGet<SourceFormInputs, null>("addSource");
 export const delSource = socketGet<string, null>("delSource");
 export const refresh = socketGet<undefined, null>("refresh");
 

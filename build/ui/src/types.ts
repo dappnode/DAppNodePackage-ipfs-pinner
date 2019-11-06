@@ -15,16 +15,13 @@ export type PinStatus =
   | "error"; //  pins in pin_error or unpin_error
 
 export const pinStatus: { [status: string]: PinStatus } = {
-  // Ok
   pinned: "pinned",
   remote: "remote",
-  // Processing
   pinning: "pinning",
   unpinning: "unpinning",
   pin_queued: "pin_queued",
   unpin_queued: "unpin_queued",
   queued: "queued",
-  // Error
   cluster_error: "cluster_error",
   pin_error: "pin_error",
   unpin_error: "unpin_error",
@@ -77,6 +74,10 @@ export interface SourcesAndAssetsToEdit {
   assetsToRemove: Asset[];
 }
 
+export interface VerifySourceFunction {
+  (arg: Source): Promise<void>;
+}
+
 /**
  * API
  */
@@ -99,10 +100,16 @@ export interface SourceWithMetadata extends Source {
   // displayName: string; // Should be handled in the UI
 }
 
+export interface SourceField {
+  id: string;
+  required: boolean;
+  label: string;
+}
+
 export interface SourceOption {
   type: string;
   label: string;
-  placeholder: string;
+  fields: SourceField[];
 }
 
 export interface ClusterPeer {
@@ -113,4 +120,12 @@ export interface ClusterPeer {
   clusterAddresses: string[];
   ipfsError: string;
   ipfsAddresses: string[];
+}
+
+export interface SourceFormInputs {
+  [fieldId: string]: string | number;
+}
+
+export interface SourceTypeAndInputs extends SourceFormInputs {
+  type: string;
 }
