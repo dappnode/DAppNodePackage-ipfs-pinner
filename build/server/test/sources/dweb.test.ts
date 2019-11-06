@@ -38,7 +38,7 @@ describe("Source > dweb", () => {
   });
 
   describe("poll function", () => {
-    const assetMultiname = "dweb-content/dweb/decentralize.eth";
+    const assetMultiname = "dweb-content/decentralize.eth";
 
     it("Deal with empty case", async () => {
       const source: SourceOwn = {

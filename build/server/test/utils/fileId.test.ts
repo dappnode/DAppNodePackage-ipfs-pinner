@@ -17,7 +17,8 @@ describe("Utils > multiname", () => {
 
   it("Should deal with fields with backslashes", () => {
     const parts = ["admin.dnp.dappnode///.eth//", "0.2.4", "/manifest/"];
-    const expectedMultiname = "admin.dnp.dappnode.eth/0.2.4/manifest";
+    const expectedMultiname =
+      "admin.dnp.dappnode%2F%2F%2F.eth%2F%2F/0.2.4/%2Fmanifest%2F";
     const multiname = joinMultiname(parts);
     expect(multiname).to.equal(expectedMultiname, "Wrong multiname");
   });

@@ -1,8 +1,7 @@
 import "mocha";
 import { expect } from "chai";
 
-import {
-  getContent,
+import resolveEnsContent, {
   namehash,
   decodeContentHash
 } from "../../src/web3/resolveEnsContent";
@@ -44,7 +43,7 @@ describe("ENS", () => {
   describe("getContent", () => {
     for (const [domain, expectedContent] of Object.entries(domainToContent)) {
       it(`should return the IPFS hash of ${domain}`, async () => {
-        const content = await getContent(domain);
+        const content = await resolveEnsContent(domain);
         expect(content).to.equal(expectedContent);
       }).timeout(30 * 1000);
     }
