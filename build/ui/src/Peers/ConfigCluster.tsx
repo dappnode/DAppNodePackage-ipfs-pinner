@@ -7,11 +7,7 @@ import { ClusterPeer } from "../types";
 import { getRandomHex, getBootstrapMultiaddress } from "./configClusterUtils";
 import { RequestStatus } from "./data";
 
-export default function ConfigCluster({
-  yourPeer
-}: {
-  yourPeer: ClusterPeer | undefined;
-}) {
+export default function ConfigCluster({ peers }: { peers: ClusterPeer[] }) {
   // State params
   const [clusterEnvs, setClusterEnvs] = useState(null as ClusterEnvs | null);
   const [hostPort, setHostPort] = useState(null as number | null);
@@ -22,8 +18,9 @@ export default function ConfigCluster({
   const [loadingSecret, setLoadingSecret] = useState(false);
   const [joinStatus, setJoinStatus] = useState({} as RequestStatus);
   // Derived from state
+  // const yourBootstrap = (clusterEnvs || {}).BOOTSTRAP_MULTIADDRESS || "";
   const yourSecret = (clusterEnvs || {}).CLUSTER_SECRET || "";
-  const yourBootstrap = (clusterEnvs || {}).BOOTSTRAP_MULTIADDRESS || "";
+  const yourPeer = peers.find(peer => peer.you);
   const yourPeerId = yourPeer ? yourPeer.id || "" : "";
 
   useEffect(() => {
@@ -123,6 +120,7 @@ export default function ConfigCluster({
       <JoinAnotherCluster
         yourPeerId={yourPeerId}
         clusterEnvs={clusterEnvs}
+        peers={peers}
         joinStatus={joinStatus}
         setJoinStatus={setJoinStatus}
         setClusterSettings={setClusterSettings}

@@ -94,6 +94,13 @@ export async function setClusterEnvs(envs: ClusterEnvs): Promise<void> {
   }
 }
 
+export async function getClusterLogs(): Promise<string> {
+  return await wrapCall({
+    event: "logPackage.dappmanager.dnp.dappnode.eth",
+    kwargs: { id: ipfsClusterName, options: { tail: 200, timestamp: true } }
+  });
+}
+
 /**
  * Wrapper for WAMP RPC calls
  *

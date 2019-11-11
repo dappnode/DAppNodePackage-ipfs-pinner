@@ -1,5 +1,5 @@
 import io from "socket.io-client";
-import { SourceOption, ClusterPeer, SourceFormInputs } from "./types";
+import { SourceOption, SourceFormInputs } from "./types";
 
 export const apiUrl =
   process.env.NODE_ENV === "development"

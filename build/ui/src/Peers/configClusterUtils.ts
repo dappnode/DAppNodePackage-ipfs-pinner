@@ -95,6 +95,18 @@ export function validateBootstrapMultiaddress(multiaddress: string): string {
   return `/${ip4OrDns4}/${ipOrDomain}/tcp/${port}/p2p/${peerId}`;
 }
 
+/**
+ * Returns the last part of a multiaddress, which is the peerId
+ * @param multiaddress "/ip4/172.19.0.2/tcp/9096/p2p/12D3KooWK3tVkERcMXqqikhaZhSNoXdSs4M5w6bMEtJomav3VFHX";
+ * @return peerId "12D3KooWK3tVkERcMXqqikhaZhSNoXdSs4M5w6bMEtJomav3VFHX"
+ */
+export function parsePeerIdFromMultiaddress(multiaddress: string): string {
+  return multiaddress
+    .replace(/\/+$/, "")
+    .split("/")
+    .slice(-1)[0];
+}
+
 function isAlphanumeric(data: string) {
   return /^[a-zA-Z0-9]+$/.test(data);
 }

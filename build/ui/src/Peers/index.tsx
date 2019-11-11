@@ -8,11 +8,9 @@ import { peersPath } from "./data";
 export { peersPath };
 
 function Peers({ peers }: { peers: ClusterPeer[] }) {
-  const yourPeer = peers.find(peer => peer.you);
-
   return (
     <>
-      <ConfigCluster yourPeer={yourPeer} />
+      <ConfigCluster peers={peers} />
       <PeersTable peers={peers} />
     </>
   );
