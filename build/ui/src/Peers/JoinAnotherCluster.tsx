@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography, CircularProgress } from "@material-ui/core";
-import { parseUrlToShare } from "./configClusterUtils";
+import {
+  parseUrlToShare,
+  validateBootstrapMultiaddress
+} from "./configClusterUtils";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import ErrorIcon from "@material-ui/icons/Error";
+import { ClusterEnvs } from "./wampApi";
+import { RequestStatus } from "./data";
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -22,22 +27,25 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-interface JoiningStatus {
-  loading?: boolean;
-  success?: boolean;
-  error?: string;
-}
-
 export default function JoinAnotherCluster({
   yourPeerId,
+  clusterEnvs,
+  joinStatus,
+  setJoinStatus,
+  onSuccess,
   setClusterSettings
 }: {
   yourPeerId: string;
+  clusterEnvs: ClusterEnvs | null;
+  joinStatus: RequestStatus;
+  setJoinStatus: (newStatus: RequestStatus) => void;
+  onSuccess: () => void;
   setClusterSettings: (secret: string, multiaddress: string) => Promise<void>;
 }) {
-  const [status, setStatus] = useState({} as JoiningStatus);
+  const { loading, success, error } = joinStatus;
 
   const location = useLocation();
+  const history = useHistory();
 
   // Process of adding yourself to some else's cluster
   useEffect(() => {
@@ -45,26 +53,48 @@ export default function JoinAnotherCluster({
       const { secret, multiaddress } = parseUrlToShare(location.search);
       if (!secret || !multiaddress) return;
       if (!yourPeerId) return; // Wait for yourPeer to be able to verify it's not you
+      if (!clusterEnvs) return; // Wait until ENVs are loaded to verify
 
       try {
+        // Make sure the multiaddress is valid and safe
+        // Compare the multiaddress after validation in case some character is different at the end
+        const multiaddressSafe = validateBootstrapMultiaddress(multiaddress);
+
         // Validate URL params
-        if (multiaddress.includes(yourPeerId))
+        if (multiaddressSafe.includes(yourPeerId))
           throw Error("You can't add yourself");
 
-        setStatus({ loading: true });
-        await setClusterSettings(secret, multiaddress);
-        setStatus({ success: true });
+        // Compare the multiaddress after validation in case some character is different at the end
+        if (
+          clusterEnvs.CLUSTER_SECRET === secret &&
+          clusterEnvs.BOOTSTRAP_MULTIADDRESS === multiaddressSafe
+        ) {
+          console.log("Already joinned cluster link, skipping");
+          return setJoinStatus({ success: true });
+        }
+
+        // Prevent double calls
+        if (loading) return;
+        setJoinStatus({ loading: true });
+
+        await setClusterSettings(secret, multiaddressSafe);
+        // Reset the URL to prevent using the URL again
+        history.push({
+          pathname: location.pathname,
+          search: ""
+        });
+
+        setJoinStatus({ success: true });
+        onSuccess(); // Trigger the re-fetching of ENVs
       } catch (e) {
-        setStatus({ error: e.message });
+        setJoinStatus({ error: e.message });
         console.error(`Error joining cluster: ${e.stack}`);
       }
     }
     joinCluster();
-  }, [location, yourPeerId, setClusterSettings]);
+  }, [location, yourPeerId, clusterEnvs, setClusterSettings]);
 
   const classes = useStyles();
-
-  const { loading, success, error } = status;
 
   if (!loading && !success && !error) return null;
 

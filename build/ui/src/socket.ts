@@ -28,9 +28,9 @@ function socketGet<T, R>(routePath: string) {
 }
 
 export const getOptions = socketGet<undefined, SourceOption[]>("options");
-export const getPeers = socketGet<undefined, ClusterPeer[]>("peers");
 export const addSource = socketGet<SourceFormInputs, null>("addSource");
 export const delSource = socketGet<string, null>("delSource");
+export const pingCluster = socketGet<undefined, null>("pingCluster");
 export const refresh = socketGet<undefined, null>("refresh");
 
 export default socket;
