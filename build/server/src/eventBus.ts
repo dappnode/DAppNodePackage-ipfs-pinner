@@ -82,3 +82,4 @@ const busFactoryAsync = <T>(event: string) => ({
 export const pollSources = busFactoryAsync<Source[]>("POLL_SOURCES");
 export const sourcesChanged = busFactoryNoArg("SOURCES_CHANGED");
 export const assetsChanged = busFactoryNoArgAsync("ASSETS_CHANGED");
+export const emitPeers = busFactoryNoArgAsync("EMIT_PEERS");

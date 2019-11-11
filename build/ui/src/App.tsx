@@ -11,7 +11,7 @@ import Assets, { assetsPath } from "./Assets";
 import Sources, { sourcesPath } from "./Sources";
 import Peers, { peersPath } from "./Peers";
 // Api
-import socket, { getPeers, refresh } from "./socket";
+import socket, { refresh, pingCluster } from "./socket";
 import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -42,6 +42,7 @@ const App: React.FC = () => {
   useEffect(() => {
     socket.on("assets", setAssets);
     socket.on("sources", setSources);
+    socket.on("peers", setPeers);
     // Successful connection or reconnection
     socket.on("connect", () => setPinnerError(""));
     // Disconnection initiated by the server
@@ -54,12 +55,6 @@ const App: React.FC = () => {
     );
   }, []);
 
-  // For debugging
-  // @ts-ignore
-  window["getState"] = () => ({ assets, sources });
-  // @ts-ignore
-  window["socket"] = () => socket;
-
   useEffect(() => {
     const interval = setInterval(() => {
       if (!pinnerError) refresh(undefined).catch(console.error);
@@ -71,21 +66,20 @@ const App: React.FC = () => {
 
   // Use the peers call to check if the cluster is OK
   useEffect(() => {
-    async function getPeersAsync() {
+    async function triggerPingCluster() {
       try {
-        const _peers = await getPeers(undefined);
+        await pingCluster(undefined);
         setClusterError("");
-        setPeers(_peers);
       } catch (e) {
         const message = e.message.includes("ECONNREFUSED")
           ? "Can't reach cluster HTTP API"
           : e.message;
         setClusterError(message);
-        console.error(`Error getting peers: ${e.stack}`);
-        setTimeout(getPeersAsync, 10 * 1000);
+        console.error(`Error pinging cluster: ${e.stack}`);
+        setTimeout(triggerPingCluster, 10 * 1000);
       }
     }
-    getPeersAsync();
+    triggerPingCluster();
   }, []);
 
   const classes = useStyles();
