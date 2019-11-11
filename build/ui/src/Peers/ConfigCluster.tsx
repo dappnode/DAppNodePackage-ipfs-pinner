@@ -1,31 +1,30 @@
 import React, { useState, useEffect } from "react";
 import * as wampApi from "./wampApi";
+import { ClusterEnvs, ClusterStatus, DappnodeParams } from "./wampApi";
 import ShareLinkToJoinCluster from "./ShareLinkToJoinCluster";
 import JoinAnotherCluster from "./JoinAnotherCluster";
 import { ClusterPeer } from "../types";
-import { getRandomHex } from "./configClusterUtils";
+import { getRandomHex, getBootstrapMultiaddress } from "./configClusterUtils";
+import { RequestStatus } from "./data";
 
 export default function ConfigCluster({
   yourPeer
 }: {
   yourPeer: ClusterPeer | undefined;
 }) {
-  const [clusterEnvs, setClusterEnvs] = useState({} as wampApi.ClusterEnvs);
+  // State params
+  const [clusterEnvs, setClusterEnvs] = useState(null as ClusterEnvs | null);
   const [hostPort, setHostPort] = useState(null as number | null);
-  const [clusterStatus, setClusterStatus] = useState(
-    "" as wampApi.ClusterStatus
-  );
-  const [dappnodeIdentity, setDappnodeIdentity] = useState(
-    null as wampApi.DappnodeParams | null
-  );
-  const yourSecret = clusterEnvs.CLUSTER_SECRET || "";
-  const yourMultiaddress = yourPeer
-    ? yourPeer.clusterAddresses.slice(-1)[0] || ""
-    : "";
-  const yourPeerId = yourPeer ? yourPeer.id || "" : "";
-
+  const [clusterStatus, setClusterStatus] = useState("" as ClusterStatus);
+  const [yourIdentity, setYourIden] = useState(null as DappnodeParams | null);
+  // State flags / loading
   const [generatingSecret, setGeneratingSecret] = useState(false);
   const [loadingSecret, setLoadingSecret] = useState(false);
+  const [joinStatus, setJoinStatus] = useState({} as RequestStatus);
+  // Derived from state
+  const yourSecret = (clusterEnvs || {}).CLUSTER_SECRET || "";
+  const yourBootstrap = (clusterEnvs || {}).BOOTSTRAP_MULTIADDRESS || "";
+  const yourPeerId = yourPeer ? yourPeer.id || "" : "";
 
   useEffect(() => {
     getCurrentClusterSettings();
@@ -35,7 +34,7 @@ export default function ConfigCluster({
   async function getDappnodeIdentity() {
     try {
       const { domain, staticIp, name } = await wampApi.getCurrentIdentity();
-      setDappnodeIdentity({ domain, staticIp, name });
+      setYourIden({ domain, staticIp, name });
     } catch (e) {
       console.error(`Error on getDappnodeIdentity ${e.stack}`);
     }
@@ -69,6 +68,10 @@ export default function ConfigCluster({
     }
   }
 
+  async function onJoinClusterSuccess() {
+    getCurrentClusterSettings();
+  }
+
   async function setClusterSettings(secret: string, multiaddress: string) {
     try {
       await wampApi.setClusterEnvs({
@@ -95,14 +98,16 @@ export default function ConfigCluster({
   function getMultiaddress() {
     if (!hostPort) throw Error("Cluster 9096 port not exposed");
     if (!yourPeerId) throw Error("Can't get your peer ID");
-    if (dappnodeIdentity) {
-      const { staticIp, domain } = dappnodeIdentity;
-      if (staticIp) return `/ip4/${staticIp}/tcp/${hostPort}/p2p/${yourPeerId}`;
-      if (domain) return `/dns4/${domain}/tcp/${hostPort}/p2p/${yourPeerId}`;
-    }
-    if (yourMultiaddress && !yourMultiaddress.startsWith("/ip4/172.33."))
-      return yourMultiaddress;
-    throw Error("Can't figure out your cluster multiaddress");
+    if (!yourIdentity) throw Error("Can't get your DAppNode's identity");
+    const { staticIp, domain } = yourIdentity;
+    if (!staticIp && !domain)
+      throw Error("Can't get your DAppNode's IP or domain");
+    return getBootstrapMultiaddress({
+      staticIp,
+      domain,
+      port: hostPort,
+      peerId: yourPeerId
+    });
   }
 
   let betterMultiaddress: string = "";
@@ -117,18 +122,24 @@ export default function ConfigCluster({
     <>
       <JoinAnotherCluster
         yourPeerId={yourPeerId}
+        clusterEnvs={clusterEnvs}
+        joinStatus={joinStatus}
+        setJoinStatus={setJoinStatus}
         setClusterSettings={setClusterSettings}
+        onSuccess={onJoinClusterSuccess}
       />
 
-      <ShareLinkToJoinCluster
-        yourMultiaddress={betterMultiaddress}
-        errorMessage={errorMessage}
-        yourSecret={yourSecret}
-        generatingSecret={generatingSecret}
-        loadingSecret={loadingSecret}
-        clusterStatus={clusterStatus}
-        generateSecret={generateSecret}
-      />
+      {!joinStatus.loading && (
+        <ShareLinkToJoinCluster
+          yourMultiaddress={betterMultiaddress}
+          errorMessage={errorMessage}
+          yourSecret={yourSecret}
+          generatingSecret={generatingSecret}
+          loadingSecret={loadingSecret}
+          clusterStatus={clusterStatus}
+          generateSecret={generateSecret}
+        />
+      )}
     </>
   );
 }

@@ -1,4 +1,5 @@
 import autobahn from "autobahn";
+import { validateBootstrapMultiaddress } from "./configClusterUtils";
 
 const url = "ws://my.wamp.dnp.dappnode.eth:8080/ws";
 const realm = "dappnode_admin";
@@ -14,6 +15,7 @@ export interface ClusterEnvs {
 }
 
 let sessionCache: autobahn.Session;
+let settingEnvs = false;
 
 const connection = new autobahn.Connection({ url, realm });
 
@@ -73,14 +75,23 @@ export async function setClusterEnvs(envs: ClusterEnvs): Promise<void> {
   if (envs.CLUSTER_SECRET && !/[0-9A-Fa-f]{32}/g.test(envs.CLUSTER_SECRET))
     throw Error(`secret must be a 32 bytes hex string: ${envs.CLUSTER_SECRET}`);
 
-  // #### TODO: validate an IPFS cluster multiaddress
-  // if (envs.BOOTSTRAP_MULTIADDRESS && false)
-  //   throw Error(`Invalid bootstrap multiaddress`);
+  // STRICTLY validate an IPFS cluster multiaddress
+  if (envs.BOOTSTRAP_MULTIADDRESS)
+    validateBootstrapMultiaddress(envs.BOOTSTRAP_MULTIADDRESS);
 
-  await wrapCall({
-    event: "updatePackageEnv.dappmanager.dnp.dappnode.eth",
-    kwargs: { id: ipfsClusterName, envs, restart: true }
-  });
+  // Prevent calling `updatePackageEnv` more than once
+  if (settingEnvs) throw Error(`Already setting cluster ENVs`);
+  try {
+    settingEnvs = true;
+    await wrapCall({
+      event: "updatePackageEnv.dappmanager.dnp.dappnode.eth",
+      kwargs: { id: ipfsClusterName, envs, restart: true }
+    });
+    settingEnvs = false;
+  } catch (e) {
+    settingEnvs = false;
+    throw e;
+  }
 }
 
 /**

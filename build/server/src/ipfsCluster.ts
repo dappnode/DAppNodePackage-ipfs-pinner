@@ -312,6 +312,10 @@ async function peersRaw(): Promise<PeerInfo[]> {
  * High level methods
  */
 
+export async function ping() {
+  await idRaw();
+}
+
 export async function addAsset(asset: Asset) {
   return await pinAdd(asset.hash, {
     name: asset.multiname,
