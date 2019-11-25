@@ -1,25 +1,25 @@
-import * as sourcesDb from "../sourcesDb";
 import * as ipfsCluster from "../ipfsCluster";
+import * as cacheDb from "../cacheDb";
 import * as eventBus from "../eventBus";
-import { SourcesAndAssetsToEdit, Source, Asset } from "../types";
+import { StateChange, Source, State } from "../types";
 import { addChildSourcesAndAssetsToRemove } from "./utils";
 import stringify from "json-stringify-safe";
 import logs from "../logs";
 
 export async function modifyState(
-  stateModifierFn: (
-    currentSources: Source[],
-    currentAssets: Asset[]
-  ) => Promise<SourcesAndAssetsToEdit>
+  stateModifierFn: (state: State) => Promise<StateChange>
 ) {
-  const currentSources = sourcesDb.getSources();
-  const currentAssets = await ipfsCluster.getAssets();
-  const stateChange = await stateModifierFn(currentSources, currentAssets);
+  const state: State = {
+    sources: await ipfsCluster.getSources(),
+    assets: await ipfsCluster.getAssets(),
+    cache: cacheDb.getInternalCache()
+  };
+
+  const stateChange = await stateModifierFn(state);
 
   const stateChangeWithChild = addChildSourcesAndAssetsToRemove(
     stateChange,
-    currentSources,
-    currentAssets
+    state
   );
 
   await applyStateChange(stateChangeWithChild);
@@ -52,12 +52,14 @@ async function applyStateChange({
   sourcesToAdd,
   sourcesToRemove,
   assetsToAdd,
-  assetsToRemove
-}: SourcesAndAssetsToEdit) {
-  await iterate(sourcesToAdd, sourcesDb.addSource, "add source");
-  await iterate(sourcesToRemove, sourcesDb.removeSource, "remove source");
+  assetsToRemove,
+  cacheChange
+}: StateChange) {
+  await iterate(sourcesToAdd, cacheDb.addSource, "add source");
+  await iterate(sourcesToRemove, cacheDb.removeSource, "remove source");
   await iterate(assetsToAdd, ipfsCluster.addAsset, "pin asset");
   await iterate(assetsToRemove, ipfsCluster.removeAsset, "unpin asset");
+  cacheDb.mergeInternalCache(cacheChange);
 }
 
 /**

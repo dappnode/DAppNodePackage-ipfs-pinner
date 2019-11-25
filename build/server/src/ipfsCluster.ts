@@ -1,10 +1,18 @@
 import request from "request-promise-native";
+import * as ipfs from "./ipfs";
 import omit from "lodash/omit";
 import pick from "lodash/pick";
 import mapKeys from "lodash/mapKeys";
 import mapValues from "lodash/mapValues";
 import logs from "./logs";
-import { PinStatus, Asset, AssetWithMetadata, ClusterPeer } from "./types";
+import {
+  PinStatus,
+  Asset,
+  AssetWithMetadata,
+  ClusterPeer,
+  Source,
+  SourceWithMetadata
+} from "./types";
 
 const host = process.env.IPFS_CLUSTER_HOST || "localhost";
 const port = process.env.IPFS_CLUSTER_PORT || "9094";
@@ -174,7 +182,7 @@ function validateHashArg(hash: string): string {
  *
  * GET	/allocations	List of pins and their allocations (pinset)
  */
-async function allocationsRaw(): Promise<RawClusterPinItem[]> {
+async function getPinsetRaw(): Promise<RawClusterPinItem[]> {
   return await request
     .get(`${clusterApiUrl}/allocations`, defaultOptions)
     .catch(handleErrors);
@@ -183,10 +191,10 @@ async function allocationsRaw(): Promise<RawClusterPinItem[]> {
 /**
  * Gets the list of pins in the cluster.
  * Pins may not be actually pinned in the IPFS nodes, see `pinsStatus`
- * Foramts the return object omitting some keys, use `allocationsRaw` for a full return
+ * Foramts the return object omitting some keys, use `pinsetRaw` for a full return
  */
-export async function allocations(): Promise<ClusterPinItem[]> {
-  const pinset = await allocationsRaw();
+export async function getPinset(): Promise<ClusterPinItem[]> {
+  const pinset = await getPinsetRaw();
   return pinset.map(({ cid, name, metadata }) => ({
     hash: getHashFromCid(cid),
     name,
@@ -309,6 +317,35 @@ async function peersRaw(): Promise<PeerInfo[]> {
 }
 
 /**
+ * Parses assets from the pinset. Pure function for testability
+ */
+function parseAssetsFromPinset(pinset: ClusterPinItem[]): Asset[] {
+  // Declaring map callback above for erroring on undeclared types
+  const parseAssetFromPinset = (pin: ClusterPinItem): Asset => ({
+    hash: pin.hash,
+    multiname: pin.name,
+    from: pin.metadata.from
+  });
+  return pinset.filter(pin => !pin.metadata.isSource).map(parseAssetFromPinset);
+}
+
+/**
+ * Parses sources from the pinset. Pure function for testability
+ */
+function parseSourcesFromPinset(
+  pinset: ClusterPinItem[]
+): SourceWithMetadata[] {
+  // Declaring map callback above for erroring on undeclared types
+  const parseSourceFromPinset = (pin: ClusterPinItem): SourceWithMetadata => ({
+    multiname: pin.name,
+    from: pin.metadata.from,
+    // hash: pin.hash,
+    added: parseInt(pin.metadata.added) || 0
+  });
+  return pinset.filter(pin => pin.metadata.isSource).map(parseSourceFromPinset);
+}
+
+/**
  * High level methods
  */
 
@@ -319,7 +356,9 @@ export async function ping() {
 export async function addAsset(asset: Asset) {
   return await pinAdd(asset.hash, {
     name: asset.multiname,
-    metadata: { from: asset.from }
+    metadata: {
+      from: asset.from
+    }
   });
 }
 
@@ -328,12 +367,8 @@ export async function removeAsset(asset: Asset) {
 }
 
 export async function getAssets(): Promise<Asset[]> {
-  const pins = await allocations();
-  return pins.map(pin => ({
-    hash: pin.hash,
-    multiname: pin.name,
-    from: pin.metadata.from
-  }));
+  const pinset = await getPinset();
+  return parseAssetsFromPinset(pinset);
 }
 
 export async function getAssetsWithStatus(): Promise<AssetWithMetadata[]> {
@@ -345,6 +380,47 @@ export async function getAssetsWithStatus(): Promise<AssetWithMetadata[]> {
     ...asset,
     peerMap: statusObj[asset.hash] ? statusObj[asset.hash].peer_map : {}
   }));
+}
+
+/**
+ * Add a record of a user source to the pinset
+ * @param asset
+ */
+export async function addSource(source: Source) {
+  const hash = await ipfs.add(source.multiname);
+  return await pinAdd(hash, {
+    name: source.multiname,
+    metadata: {
+      from: source.from,
+      added: String(Date.now()),
+      isSource: "true"
+    }
+  });
+}
+
+// export async function removeSource(source: SourceWithMetadata) {
+//   return await pinRm(source.hash);
+// }
+
+export async function getSources(): Promise<SourceWithMetadata[]> {
+  const pinset = await getPinset();
+  return parseSourcesFromPinset(pinset);
+}
+
+export async function getSourcesWithMetadata(): Promise<SourceWithMetadata[]> {
+  const pinset = await getPinset();
+  return parseSourcesFromPinset(pinset);
+}
+
+export async function getAssetsAndSources(): Promise<{
+  assets: Asset[];
+  sources: Source[];
+}> {
+  const pinset = await getPinset();
+  return {
+    assets: parseAssetsFromPinset(pinset),
+    sources: parseSourcesFromPinset(pinset)
+  };
 }
 
 export async function getPeers(): Promise<ClusterPeer[]> {

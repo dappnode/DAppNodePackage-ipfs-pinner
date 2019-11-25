@@ -3,10 +3,12 @@ import {
   PollSourceFunction,
   Source,
   Asset,
-  VerifySourceFunction
+  VerifySourceFunction,
+  CacheState,
+  State
 } from "../types";
 import { modifyState } from "../state";
-import { pollSourcesReturnStateEdit } from "./pollSources";
+import { pollSourcesReturnStateChange } from "./pollSources";
 import logs from "../logs";
 
 // Aggregate sources
@@ -34,16 +36,14 @@ export const pollFunctions: {
   [type: string]: PollSourceFunction;
 } = mapValues(sources, ({ poll }) => poll);
 
+/**
+ * Never throws
+ */
 export async function pollSources() {
   try {
-    await modifyState(
-      async (currentSources: Source[], currentAssets: Asset[]) => {
-        return await pollSourcesReturnStateEdit(pollFunctions, {
-          currentAssets,
-          currentSources
-        });
-      }
-    );
+    await modifyState(async (state: State) => {
+      return await pollSourcesReturnStateChange(pollFunctions, state);
+    });
   } catch (e) {
     logs.error("Error on poll source loop: ", e);
   }

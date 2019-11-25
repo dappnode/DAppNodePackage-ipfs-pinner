@@ -2,7 +2,7 @@ import "mocha";
 import { expect } from "chai";
 
 import { addChildSourcesAndAssetsToRemove } from "../../src/state/utils";
-import { SourcesAndAssetsToEdit, Asset, Source } from "../../src/types";
+import { StateChange, State } from "../../src/types";
 
 describe("Sources > utils", () => {
   describe("addChildSourcesAndAssetsToRemove", () => {
@@ -13,27 +13,30 @@ describe("Sources > utils", () => {
         from: sourceMain.multiname
       };
 
-      const stateChange: SourcesAndAssetsToEdit = {
+      const stateChange: StateChange = {
         sourcesToAdd: [],
         sourcesToRemove: [sourceMain],
         assetsToAdd: [],
-        assetsToRemove: []
+        assetsToRemove: [],
+        cacheChange: {}
       };
-      const currentSources: Source[] = [sourceMain, sourceChild1];
-      const currentAssets: Asset[] = [];
-      const expectedResult: SourcesAndAssetsToEdit = {
+
+      const state: State = {
+        sources: [sourceMain, sourceChild1],
+        assets: [],
+        cache: {}
+      };
+
+      const expectedResult: StateChange = {
         sourcesToAdd: [],
         sourcesToRemove: [sourceMain, sourceChild1],
         assetsToAdd: [],
-        assetsToRemove: []
+        assetsToRemove: [],
+        cacheChange: {}
       };
 
       expect(
-        addChildSourcesAndAssetsToRemove(
-          stateChange,
-          currentSources,
-          currentAssets
-        )
+        addChildSourcesAndAssetsToRemove(stateChange, state)
       ).to.deep.equal(expectedResult);
     });
 
@@ -45,27 +48,30 @@ describe("Sources > utils", () => {
         hash: "Qm"
       };
 
-      const stateChange: SourcesAndAssetsToEdit = {
+      const stateChange: StateChange = {
         sourcesToAdd: [],
         sourcesToRemove: [sourceMain],
         assetsToAdd: [],
-        assetsToRemove: []
+        assetsToRemove: [],
+        cacheChange: {}
       };
-      const currentSources: Source[] = [sourceMain];
-      const currentAssets: Asset[] = [assetOfMain];
-      const expectedResult: SourcesAndAssetsToEdit = {
+
+      const state: State = {
+        sources: [sourceMain],
+        assets: [assetOfMain],
+        cache: {}
+      };
+
+      const expectedResult: StateChange = {
         sourcesToAdd: [],
         sourcesToRemove: [sourceMain],
         assetsToAdd: [],
-        assetsToRemove: [assetOfMain]
+        assetsToRemove: [assetOfMain],
+        cacheChange: {}
       };
 
       expect(
-        addChildSourcesAndAssetsToRemove(
-          stateChange,
-          currentSources,
-          currentAssets
-        )
+        addChildSourcesAndAssetsToRemove(stateChange, state)
       ).to.deep.equal(expectedResult);
     });
 
@@ -108,27 +114,29 @@ describe("Sources > utils", () => {
         hash: "Qm"
       };
 
-      const stateChange: SourcesAndAssetsToEdit = {
+      const stateChange: StateChange = {
         sourcesToAdd: [],
         sourcesToRemove: [sourceMain],
         assetsToAdd: [],
-        assetsToRemove: []
+        assetsToRemove: [],
+        cacheChange: {}
       };
-      const currentSources: Source[] = [
-        sourceMain,
-        sourceChild1,
-        sourceChild2,
-        sourceChild3,
-        sourceChild4a,
-        sourceChild4b,
-        sourceOther
-      ];
-      const currentAssets: Asset[] = [
-        assetOfMain,
-        assetOfChild,
-        duplicatedAsset
-      ];
-      const expectedResult: SourcesAndAssetsToEdit = {
+
+      const state: State = {
+        sources: [
+          sourceMain,
+          sourceChild1,
+          sourceChild2,
+          sourceChild3,
+          sourceChild4a,
+          sourceChild4b,
+          sourceOther
+        ],
+        assets: [assetOfMain, assetOfChild, duplicatedAsset],
+        cache: {}
+      };
+
+      const expectedResult: StateChange = {
         sourcesToAdd: [],
         sourcesToRemove: [
           sourceMain,
@@ -139,15 +147,12 @@ describe("Sources > utils", () => {
           sourceChild4b
         ],
         assetsToAdd: [],
-        assetsToRemove: [assetOfMain, assetOfChild]
+        assetsToRemove: [assetOfMain, assetOfChild],
+        cacheChange: {}
       };
 
       expect(
-        addChildSourcesAndAssetsToRemove(
-          stateChange,
-          currentSources,
-          currentAssets
-        )
+        addChildSourcesAndAssetsToRemove(stateChange, state)
       ).to.deep.equal(expectedResult);
     });
   });

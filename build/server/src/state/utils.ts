@@ -1,7 +1,7 @@
 import mapKeys from "lodash/mapKeys";
 import concat from "lodash/concat";
 import uniqBy from "lodash/uniqBy";
-import { Source, Asset, SourcesAndAssetsToEdit } from "../types";
+import { Source, Asset, StateChange, State } from "../types";
 
 interface Basic {
   multiname: string;
@@ -12,21 +12,15 @@ interface Basic {
  * [UTIL] Recursively add all child sources and assets to remove
  */
 export function addChildSourcesAndAssetsToRemove(
-  {
-    sourcesToRemove,
-    assetsToRemove,
-    assetsToAdd,
-    sourcesToAdd
-  }: SourcesAndAssetsToEdit,
-  currentSources: Source[],
-  currentAssets: Asset[]
-): SourcesAndAssetsToEdit {
+  { sourcesToRemove, assetsToRemove, assetsToAdd, sourcesToAdd }: StateChange,
+  { sources, assets }: State
+): StateChange {
   // Recursively find all child sources of the sources to remove and add them
-  const childSourcesToRemove = getChildSources(sourcesToRemove, currentSources);
+  const childSourcesToRemove = getChildSources(sourcesToRemove, sources);
   sourcesToRemove.push(...childSourcesToRemove);
 
   // Also, find the child assets of the sources to remove and remove them
-  const childAssetsToRemove = getChildAssets(sourcesToRemove, currentAssets);
+  const childAssetsToRemove = getChildAssets(sourcesToRemove, assets);
   assetsToRemove.push(...childAssetsToRemove);
 
   // Make sure there are no duplicated sources or assets, they can be added
@@ -35,7 +29,8 @@ export function addChildSourcesAndAssetsToRemove(
     assetsToAdd: uniqByMultiname(assetsToAdd),
     sourcesToAdd: uniqByMultiname(sourcesToAdd),
     sourcesToRemove: uniqByMultiname(sourcesToRemove),
-    assetsToRemove: uniqByMultiname(assetsToRemove)
+    assetsToRemove: uniqByMultiname(assetsToRemove),
+    cacheChange: {}
   };
 }
 

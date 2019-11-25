@@ -1,6 +1,6 @@
-import * as sourcesDb from "../sourcesDb";
+import * as ipfsCluster from "../ipfsCluster";
 import { verifyFunctions, getMultinameFunctions } from "../sources";
-import { Source, SourceTypeAndInputs } from "../types";
+import { SourceTypeAndInputs, State } from "../types";
 import { modifyState } from "../state";
 
 /**
@@ -32,7 +32,8 @@ export async function addSource(
       sourcesToAdd: [source],
       sourcesToRemove: [],
       assetsToAdd: [],
-      assetsToRemove: []
+      assetsToRemove: [],
+      cacheChange: {}
     };
   });
 }
@@ -44,8 +45,8 @@ export async function addSource(
 export async function deleteSource(sourceMultiname: string): Promise<void> {
   if (!sourceMultiname) throw Error(`Arg sourceMultiname required`);
 
-  await modifyState(async (currentSources: Source[]) => {
-    const source = currentSources.find(
+  await modifyState(async ({ sources }: State) => {
+    const source = sources.find(
       ({ multiname }) => multiname === sourceMultiname
     );
     if (!source) throw Error(`Source ${sourceMultiname} not found`);
@@ -53,11 +54,12 @@ export async function deleteSource(sourceMultiname: string): Promise<void> {
       sourcesToAdd: [],
       sourcesToRemove: [source],
       assetsToAdd: [],
-      assetsToRemove: []
+      assetsToRemove: [],
+      cacheChange: {}
     };
   });
 }
 
 export function getSources() {
-  return sourcesDb.getSourcesWithMetadata();
+  return ipfsCluster.getSourcesWithMetadata();
 }

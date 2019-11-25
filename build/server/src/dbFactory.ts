@@ -46,7 +46,15 @@ export function dbFactory(path: string) {
     return { set, get, del };
   }
 
-  return { dynamicSubKeyFactory, simpleDynamicSubKeyFactory };
+  function simpleKeyFactory<T>(rootPath: string) {
+    const set = (arg: T): void => db.set(rootPath, arg);
+    const get = (): T | undefined => db.get(rootPath);
+    const del = (): void => db.del(rootPath);
+
+    return { set, get, del };
+  }
+
+  return { dynamicSubKeyFactory, simpleDynamicSubKeyFactory, simpleKeyFactory };
 }
 
 /**

@@ -32,6 +32,10 @@ export const pinStatus: { [status: string]: PinStatus } = {
  * Poll function
  */
 
+export interface CacheState {
+  [multiname: string]: string;
+}
+
 export interface SourceOwn {
   multiname: string;
 }
@@ -67,11 +71,18 @@ export interface PollSourceFunction {
   (arg: PollSourceFunctionArg): Promise<PollSourceFunctionReturn>;
 }
 
-export interface SourcesAndAssetsToEdit {
+export interface State {
+  sources: Source[];
+  assets: Asset[];
+  cache: CacheState;
+}
+
+export interface StateChange {
   sourcesToAdd: Source[];
   sourcesToRemove: Source[];
   assetsToAdd: Asset[];
   assetsToRemove: Asset[];
+  cacheChange: CacheState;
 }
 
 export interface VerifySourceFunction {

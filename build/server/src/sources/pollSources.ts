@@ -5,10 +5,12 @@ import {
   SourceOwn,
   Asset,
   AssetOwn,
-  SourcesAndAssetsToEdit
+  CacheState,
+  StateChange,
+  State
 } from "../types";
 import { parseType } from "../utils/multiname";
-import * as sourcesDb from "../sourcesDb";
+import * as sourcesDb from "../cacheDb";
 import logs from "../logs";
 
 interface Basic {
@@ -23,16 +25,11 @@ interface Basic {
  *
  * @returns State to be modified
  */
-export async function pollSourcesReturnStateEdit(
+export async function pollSourcesReturnStateChange(
   pollFunctions: { [type: string]: PollSourceFunction },
-  {
-    currentSources,
-    currentAssets
-  }: {
-    currentSources: Source[];
-    currentAssets: Asset[];
-  }
-): Promise<SourcesAndAssetsToEdit> {
+  { sources: currentSources, assets: currentAssets, cache: currentCache }: State
+): Promise<StateChange> {
+  const cacheChange: CacheState = {};
   const sourcesToAdd: Source[] = [];
   const sourcesToRemove: Source[] = [];
   const assetsToAdd: Asset[] = [];
@@ -71,12 +68,12 @@ export async function pollSourcesReturnStateEdit(
           source,
           currentOwnSources: getOwn(currentSources),
           currentOwnAssets: getOwn(currentAssets),
-          internalState: sourcesDb.getPollInternalState(multiname)
+          internalState: currentCache[multiname] || ""
         });
 
         logs.debug("Successfully polled", { multiname });
 
-        sourcesDb.setPollInternalState(multiname, internalState);
+        cacheChange[multiname] = internalState;
         sourcesToAdd.push(...ownSourcesToAdd.map(markOwnSource));
         sourcesToRemove.push(...ownSourcesToRemove.map(markOwnSource));
         assetsToAdd.push(...ownAssetsToAdd.map(markOwnAsset));
@@ -88,6 +85,7 @@ export async function pollSourcesReturnStateEdit(
   );
 
   const stateChange = {
+    cacheChange,
     sourcesToAdd,
     sourcesToRemove,
     assetsToAdd,
