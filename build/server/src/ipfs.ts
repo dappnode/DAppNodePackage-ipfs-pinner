@@ -82,11 +82,25 @@ export const addFromUrl = (
   });
 
 /**
- * Gets the list of pins in the cluster.
- * Pins may not be actually pinned in the IPFS nodes, see `pinsStatus`
+ * Add raw string to IPFS as file
  *
- * GET	/allocations	List of pins and their allocations (pinset)
+ * @param data "amazing raw content"
+ * @returns raw CID "QmVqbBsi4jswchAvBK4USLhcUPKQVXN7893PxtFq85xrtH"
  */
+export function add(data: string): Promise<string> {
+  return request
+    .post(`${httpApiUrl}/add`, {
+      qs: { "only-hash": false },
+      json: true,
+      timeout: ipfsCatTimeout,
+      formData: {
+        file: Buffer.from(data)
+      }
+    })
+    .catch(handleErrors)
+    .then((res: { Hash: string; Size: number }) => res.Hash);
+}
+
 /**
  * Downloads IPFS hash contents
  * @param hash
