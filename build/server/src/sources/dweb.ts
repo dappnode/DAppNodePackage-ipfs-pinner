@@ -2,6 +2,7 @@ import { PollSourceFunction, VerifySourceFunction, Source } from "../types";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import fetchDweb from "../fetchers/fetchDweb";
 import * as dwebContent from "../assets/dwebContent";
+import fetchBlockNumber from "../fetchers/fetchBlockNumber";
 
 /**
  * DWeb
@@ -44,10 +45,32 @@ export const poll: PollSourceFunction = async function({
 }) {
   const { domain } = parseMultiname(source.multiname);
   const hash = await fetchDweb(domain);
-  if (hash && hash !== (currentOwnAssets[0] || {}).hash)
-    return {
-      assetsToAdd: [{ multiname: dwebContent.getMultiname({ domain }), hash }],
-      assetsToRemove: currentOwnAssets
-    };
-  else return {};
+
+  const prevAsset = currentOwnAssets[0];
+
+  if (hash && (!prevAsset || hash !== prevAsset.hash)) {
+    // Now, check which hash is more recent comparing the blockNumber
+    const currentBlockNumber = await fetchBlockNumber();
+    const prevBlockNumber = prevAsset
+      ? dwebContent.parseMultiname(prevAsset.multiname).blockNumber
+      : 0;
+    if (currentBlockNumber > prevBlockNumber) {
+      const newAsset = {
+        multiname: dwebContent.getMultiname({
+          domain,
+          blockNumber: currentBlockNumber
+        }),
+        hash
+      };
+      return {
+        assetsToAdd: [newAsset],
+        assetsToRemove: currentOwnAssets
+      };
+    }
+  }
+
+  return {
+    assetsToAdd: [],
+    assetsToRemove: []
+  };
 };

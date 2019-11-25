@@ -1,7 +1,8 @@
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 
-interface DwebContent {
+export interface DwebContent {
   domain: string;
+  blockNumber: number;
 }
 
 /**
@@ -11,18 +12,19 @@ interface DwebContent {
  * `dweb-content`
  *
  * multiname structure:
- * `dweb-content/<domain>`
+ * `dweb-content/<domain>/<blockNumber>`
  */
 
 export const type = "dweb-content";
 
 export const parseMultiname = (multiname: string): DwebContent => {
-  const [_type, domain] = splitMultiname(multiname);
+  const [_type, domain, blockNumber] = splitMultiname(multiname);
   if (_type !== type) throw Error(`multiname must be of type: ${type}`);
   if (!domain) throw Error(`No "domain" in multiname: ${multiname}`);
-  return { domain };
+  if (!blockNumber) throw Error(`No "blockNumber" in multiname: ${multiname}`);
+  return { domain, blockNumber: parseInt(blockNumber) };
 };
 
-export const getMultiname = ({ domain }: DwebContent) => {
-  return joinMultiname([type, domain]);
+export const getMultiname = ({ domain, blockNumber }: DwebContent) => {
+  return joinMultiname([type, domain, String(blockNumber)]);
 };
