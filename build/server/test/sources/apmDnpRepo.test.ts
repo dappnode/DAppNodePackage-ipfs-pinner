@@ -45,6 +45,9 @@ describe("Source > apmRepo", () => {
 
   const hash = mockHash;
   const contentUri = mockHash;
+  const name = "name";
+  const assetType = "apm-repo-release-content";
+  const assetPrefix = `${assetType}/${name}`;
 
   describe("multiname parsers", () => {
     it("Should get and parse a multiname", () => {
@@ -90,9 +93,9 @@ describe("Source > apmRepo", () => {
     });
 
     it("Should return new assets if new versions are found", async () => {
-      const name = "bitcoin.dnp.dappnode.eth";
+      const bitcoinName = "bitcoin.dnp.dappnode.eth";
       const source: SourceOwn = {
-        multiname: apmRepo.getMultiname({ name })
+        multiname: apmRepo.getMultiname({ name: bitcoinName })
       };
 
       const versions: Version[] = [{ version: "0.2.0", contentUri }];
@@ -104,11 +107,7 @@ describe("Source > apmRepo", () => {
       const currentOwnAssets: AssetOwn[] = [];
       const expectedResult: PollSourceFunctionReturn = {
         assetsToAdd: [
-          {
-            hash,
-            multiname:
-              "apm-repo-release-content/bitcoin.dnp.dappnode.eth/0.2.0/manifest"
-          }
+          { hash, multiname: `${assetType}/${bitcoinName}/0.2.0/manifest` }
         ],
         assetsToRemove: [],
         internalState: "{}"
@@ -125,7 +124,6 @@ describe("Source > apmRepo", () => {
     });
 
     it("Should deal with multiple version and clean old versions", async () => {
-      const name = "name";
       const source: SourceOwn = {
         multiname: apmRepo.getMultiname({ name })
       };
@@ -143,53 +141,72 @@ describe("Source > apmRepo", () => {
       const currentOwnSources: SourceOwn[] = [];
       const currentOwnAssets: AssetOwn[] = flatten(
         ["0.1.3", "0.1.1", "0.1.2"].map(version => [
-          {
-            multiname: `apm-repo-release-content/${name}/${version}/manifest`,
-            hash
-          },
-          {
-            multiname: `apm-repo-release-content/${name}/${version}/image`,
-            hash
-          }
+          { hash, multiname: `${assetPrefix}/${version}/manifest` },
+          { hash, multiname: `${assetPrefix}/${version}/image` }
         ])
       );
 
       const expectedResult: PollSourceFunctionReturn = {
         assetsToAdd: [
-          {
-            multiname: "apm-repo-release-content/name/0.2.2/manifest",
-            hash
-          },
-          {
-            multiname: "apm-repo-release-content/name/0.2.2/image",
-            hash
-          },
-          {
-            multiname: "apm-repo-release-content/name/0.2.0/manifest",
-            hash
-          },
-          {
-            multiname: "apm-repo-release-content/name/0.2.0/image",
-            hash
-          }
+          { hash, multiname: `${assetPrefix}/0.2.2/manifest` },
+          { hash, multiname: `${assetPrefix}/0.2.2/image` },
+          { hash, multiname: `${assetPrefix}/0.2.0/manifest` },
+          { hash, multiname: `${assetPrefix}/0.2.0/image` }
         ],
         assetsToRemove: [
-          {
-            multiname: "apm-repo-release-content/name/0.1.2/manifest",
-            hash
-          },
-          {
-            multiname: "apm-repo-release-content/name/0.1.2/image",
-            hash
-          },
-          {
-            multiname: "apm-repo-release-content/name/0.1.1/manifest",
-            hash
-          },
-          {
-            multiname: "apm-repo-release-content/name/0.1.1/image",
-            hash
-          }
+          { hash, multiname: `${assetPrefix}/0.1.2/manifest` },
+          { hash, multiname: `${assetPrefix}/0.1.2/image` },
+          { hash, multiname: `${assetPrefix}/0.1.1/manifest` },
+          { hash, multiname: `${assetPrefix}/0.1.1/image` }
+        ],
+        internalState: "{}"
+      };
+
+      const apmRepoMock = await getApmDnpRepoMock(versions, releaseAssets);
+      const result = await apmRepoMock.poll({
+        source,
+        currentOwnAssets,
+        currentOwnSources,
+        internalState: ""
+      });
+      expect(result).to.deep.equal(expectedResult);
+    });
+
+    it("Should deal with multiple versions and current version that are ahead", async () => {
+      const source: SourceOwn = {
+        multiname: apmRepo.getMultiname({ name })
+      };
+
+      const versions: Version[] = [
+        { version: "0.2.0", contentUri },
+        { version: "0.1.3", contentUri },
+        { version: "0.2.2", contentUri }
+      ];
+      const releaseAssets: ReleaseAsset[] = [
+        { hash: "", filename: "manifest" },
+        { hash: "", filename: "image" }
+      ];
+
+      const currentOwnSources: SourceOwn[] = [];
+      const currentOwnAssets: AssetOwn[] = flatten(
+        ["0.2.3", "0.2.2", "0.1.3", "0.1.1", "0.1.2"].map(version => [
+          { hash, multiname: `${assetPrefix}/${version}/manifest` },
+          { hash, multiname: `${assetPrefix}/${version}/image` }
+        ])
+      );
+
+      const expectedResult: PollSourceFunctionReturn = {
+        assetsToAdd: [
+          { hash, multiname: `${assetPrefix}/0.2.0/manifest` },
+          { hash, multiname: `${assetPrefix}/0.2.0/image` }
+        ],
+        assetsToRemove: [
+          { hash, multiname: `${assetPrefix}/0.1.3/manifest` },
+          { hash, multiname: `${assetPrefix}/0.1.3/image` },
+          { hash, multiname: `${assetPrefix}/0.1.2/manifest` },
+          { hash, multiname: `${assetPrefix}/0.1.2/image` },
+          { hash, multiname: `${assetPrefix}/0.1.1/manifest` },
+          { hash, multiname: `${assetPrefix}/0.1.1/image` }
         ],
         internalState: "{}"
       };
@@ -205,7 +222,6 @@ describe("Source > apmRepo", () => {
     });
 
     it("Should ignore new versions if there are too many", async () => {
-      const name = "name";
       const source: SourceOwn = {
         multiname: apmRepo.getMultiname({ name })
       };
@@ -226,30 +242,12 @@ describe("Source > apmRepo", () => {
 
       const expectedResult: PollSourceFunctionReturn = {
         assetsToAdd: [
-          {
-            multiname: "apm-repo-release-content/name/0.2.3/manifest",
-            hash
-          },
-          {
-            multiname: "apm-repo-release-content/name/0.2.3/image",
-            hash
-          },
-          {
-            multiname: "apm-repo-release-content/name/0.2.2/manifest",
-            hash
-          },
-          {
-            multiname: "apm-repo-release-content/name/0.2.2/image",
-            hash
-          },
-          {
-            multiname: "apm-repo-release-content/name/0.2.1/manifest",
-            hash
-          },
-          {
-            multiname: "apm-repo-release-content/name/0.2.1/image",
-            hash
-          }
+          { hash, multiname: `${assetPrefix}/0.2.3/manifest` },
+          { hash, multiname: `${assetPrefix}/0.2.3/image` },
+          { hash, multiname: `${assetPrefix}/0.2.2/manifest` },
+          { hash, multiname: `${assetPrefix}/0.2.2/image` },
+          { hash, multiname: `${assetPrefix}/0.2.1/manifest` },
+          { hash, multiname: `${assetPrefix}/0.2.1/image` }
         ],
         assetsToRemove: [],
         internalState: "{}"

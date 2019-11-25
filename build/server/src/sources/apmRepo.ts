@@ -143,24 +143,29 @@ function computeAssetsToEdit(
   const currentAssetsByVersion = getAssetsByVersions(currentOwnAssets);
 
   /**
-   * Rules for seletion:
-   * - Keep all new versions up to numOfVersions
-   * - Remove all but the newest current version so the total num
-   *   of versions is numOfVersions
+   * Compute the latest n versions, which will be kept
+   * - Then, add the new versions found in this array
+   * - Remove current versions NOT found in this array
    */
-  const allVersionsToAdd = getVersionsDescendingOrder(assetsToAddByVersion);
-  const currentVersions = getVersionsDescendingOrder(currentAssetsByVersion);
-  const versionsToAdd = allVersionsToAdd.slice(0, numOfVersions);
-  const versionsToRemove = currentVersions.slice(
-    numOfVersions - versionsToAdd.length
-  );
+  const versionsToKeep = Object.keys({
+    ...assetsToAddByVersion,
+    ...currentAssetsByVersion
+  })
+    .sort(semver.rcompare)
+    .slice(0, numOfVersions);
 
   return {
     assetsToAdd: flatten(
-      versionsToAdd.map(version => assetsToAddByVersion[version])
+      Object.keys(assetsToAddByVersion)
+        .filter(version => versionsToKeep.includes(version))
+        .sort(semver.rcompare)
+        .map(version => assetsToAddByVersion[version])
     ),
     assetsToRemove: flatten(
-      versionsToRemove.map(version => currentAssetsByVersion[version])
+      Object.keys(currentAssetsByVersion)
+        .filter(version => !versionsToKeep.includes(version))
+        .sort(semver.rcompare)
+        .map(version => currentAssetsByVersion[version])
     )
   };
 }
@@ -178,16 +183,6 @@ function getAssetsByVersions(assets: AssetOwn[]): AssetsByVersion {
     assetsByVersion[version] = [...(assetsByVersion[version] || []), asset];
   }
   return assetsByVersion;
-}
-
-/**
- * [UTIL] Get a versions array in descending order
- * @returns ["0.2.4", "0.2.3", "0.2.2"]
- */
-function getVersionsDescendingOrder(
-  assetsByVersion: AssetsByVersion
-): string[] {
-  return Object.keys(assetsByVersion).sort(semver.rcompare);
 }
 
 interface BrokenVersions {

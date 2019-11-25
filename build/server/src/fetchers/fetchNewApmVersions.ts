@@ -22,13 +22,7 @@ export default async function fetchNewApmVersions(
 
   const latestIndex = await repoContract.getVersionsCount();
 
-  // Limit the amount of releases to fetch on init
-  const firstIndex = latestIndex - numOfVersions + 1;
-
   /**
-   * Versions called by id are ordered in ascending order.
-   * The min version = 1 and the latest = versionCount
-   *
    *  i | semanticVersion
    * ---|------------------
    *  1 | [ '0', '0', '1' ]
@@ -36,13 +30,13 @@ export default async function fetchNewApmVersions(
    *  3 | [ '0', '0', '3' ]
    *  4 | [ '0', '0', '4' ]
    *
-   *  versionIds = [1, 2, 3, 4, 5, ...]
+   *  versionIds = [4, 3, 2] (if n = 3)
    */
   const versionIds = [];
-  for (let i = firstIndex < 1 ? 1 : firstIndex; i <= latestIndex; i++)
+  for (let i = latestIndex; i >= 1 && i > latestIndex - numOfVersions; i--)
     versionIds.push(i);
 
-  // Paralelize requests since ethereum clients can hanlde many requests well
+  // Paralelize since eth nodes handle many client requests well
 
   const versions = await Promise.all(
     versionIds.map(async versionId => {
