@@ -128,7 +128,7 @@ const defaultOptions = {
  */
 function handleErrors(e: RequestErrorGeneral) {
   let message: string = e.message;
-  let req: string = "";
+  let req = "";
 
   if (typeof e.error === "object") {
     message = `${e.error.code} ${e.error.message}`;

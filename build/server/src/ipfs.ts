@@ -25,7 +25,7 @@ interface IpfsApiError {
  */
 function handleErrors(e: any) {
   let message: string = e.message;
-  let req: string = "";
+  let req = "";
 
   if (typeof e.error === "object" && e.error.Message) {
     const error: IpfsApiError = e.error;

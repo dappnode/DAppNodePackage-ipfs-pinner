@@ -30,8 +30,7 @@ export async function modifyState(
    * Consider passing an array of sources to poll so not every is re-polled multiple
    * times in recursive iterations
    */
-  if (stateChangeWithChild.sourcesToAdd.length)
-    eventBus.pollSources.emit(stateChangeWithChild.sourcesToAdd);
+  if (stateChangeWithChild.sourcesToAdd.length) eventBus.pollSources.emit([]);
 
   if (
     stateChangeWithChild.sourcesToAdd.length ||

@@ -15,7 +15,7 @@ export function SocketRouter(socket: SockerIo.Socket) {
       routePath,
       async (arg: T, acknowledgment: (res: SocketReturn<R>) => void) => {
         let data: any;
-        let error: string = "";
+        let error = "";
         try {
           data = await handler(arg);
         } catch (e) {

@@ -35,7 +35,7 @@ describe("Utils > checkIfContractIsRepo", () => {
   for (const { name, address, is } of addresses) {
     it(`${name} should ${is ? "" : "NOT"} be a repo`, async () => {
       let isRepo = false;
-      let error: string = "";
+      let error = "";
       try {
         await checkIfContractIsRepo(address);
         isRepo = true;

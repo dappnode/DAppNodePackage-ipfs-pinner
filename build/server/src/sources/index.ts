@@ -1,12 +1,5 @@
 import mapValues from "lodash/mapValues";
-import {
-  PollSourceFunction,
-  Source,
-  Asset,
-  VerifySourceFunction,
-  CacheState,
-  State
-} from "../types";
+import { PollSourceFunction, VerifySourceFunction, State } from "../types";
 import { modifyState } from "../state";
 import { pollSourcesReturnStateChange } from "./pollSources";
 import logs from "../logs";

@@ -10,7 +10,6 @@ import {
   State
 } from "../types";
 import { parseType } from "../utils/multiname";
-import * as sourcesDb from "../cacheDb";
 import logs from "../logs";
 
 interface Basic {

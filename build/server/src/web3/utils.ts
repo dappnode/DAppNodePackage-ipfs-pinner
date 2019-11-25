@@ -22,7 +22,7 @@ function hex2ascii(hex: string) {
   hex = hex.toString().replace(/\s+/gi, "");
   const stack = [];
 
-  for (var i = 0; i < hex.length; i += 2) {
+  for (let i = 0; i < hex.length; i += 2) {
     const code = parseInt(hex.substr(i, 2), 16);
     if (!isNaN(code) && code !== 0) stack.push(String.fromCharCode(code));
   }
