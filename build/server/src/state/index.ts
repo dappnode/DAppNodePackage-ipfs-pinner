@@ -69,14 +69,16 @@ async function iterate<T extends Source, R>(
   fn: (item: T) => Promise<R> | R,
   label: string
 ) {
-  for (const item of items) {
-    try {
-      await fn(item);
-      logs.info(`${label} ${item.multiname}`);
-    } catch (e) {
-      logs.error(`Error on ${label} ${stringify(item)}: `, e);
-    }
-  }
+  await Promise.all(
+    items.map(async item => {
+      try {
+        await fn(item);
+        logs.info(`${label} ${item.multiname}`);
+      } catch (e) {
+        logs.error(`Error on ${label} ${stringify(item)}: `, e);
+      }
+    })
+  );
 }
 
 export {};
