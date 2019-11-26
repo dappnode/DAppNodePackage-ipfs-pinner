@@ -32,34 +32,54 @@ export const pinStatus: { [status: string]: PinStatus } = {
  * Poll function
  */
 
-export interface SourceOwn {
+export interface CacheState {
+  [multiname: string]: string;
+}
+export interface SourceOwnAdd {
   multiname: string;
 }
-
-export interface Source extends SourceOwn {
+export interface SourceAdd extends SourceOwnAdd {
   from: string;
 }
-
+export interface SourceOwn extends SourceOwnAdd {
+  hash: string;
+}
+export interface Source extends SourceAdd {
+  hash: string;
+}
 export interface AssetOwn extends SourceOwn {
   hash: string;
 }
-
 export interface Asset extends Source {
   hash: string;
 }
 
+export interface State {
+  sources: Source[];
+  assets: Asset[];
+  cache: CacheState;
+}
+
+export interface StateChange {
+  sourcesToAdd: SourceAdd[];
+  sourcesToRemove: Source[];
+  assetsToAdd: Asset[];
+  assetsToRemove: Asset[];
+  cacheChange: CacheState;
+}
+
 export interface PollSourceFunctionArg {
   source: SourceOwn;
-  currentOwnAssets: AssetOwn[];
   currentOwnSources: SourceOwn[];
+  currentOwnAssets: AssetOwn[];
   internalState: string;
 }
 
 export interface PollSourceFunctionReturn {
+  sourcesToAdd?: SourceOwnAdd[];
+  sourcesToRemove?: SourceOwn[];
   assetsToAdd?: AssetOwn[];
   assetsToRemove?: AssetOwn[];
-  sourcesToAdd?: SourceOwn[];
-  sourcesToRemove?: SourceOwn[];
   internalState?: string;
 }
 
@@ -67,16 +87,17 @@ export interface PollSourceFunction {
   (arg: PollSourceFunctionArg): Promise<PollSourceFunctionReturn>;
 }
 
-export interface SourcesAndAssetsToEdit {
-  sourcesToAdd: Source[];
-  sourcesToRemove: Source[];
-  assetsToAdd: Asset[];
-  assetsToRemove: Asset[];
+export interface VerifySourceFunction {
+  (arg: SourceAdd): Promise<void>;
 }
 
-export interface VerifySourceFunction {
-  (arg: Source): Promise<void>;
+export interface PollStatusObj {
+  [multiname: string]: {
+    message: string;
+    done: boolean;
+  };
 }
+export type PollStatus = PollStatusObj | undefined;
 
 /**
  * API
@@ -97,6 +118,7 @@ export interface AssetWithMetadata extends Asset {
 
 export interface SourceWithMetadata extends Source {
   added: number;
+  hash: string;
   // displayName: string; // Should be handled in the UI
 }
 

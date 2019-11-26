@@ -5,8 +5,14 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import AssetsTable from "./Assets/AssetsTable";
 import SourcesTable from "./Sources/SourcesTable";
 import AddSourceForm from "./Sources/AddSourceForm";
+import PollStatusView from "./Sources/PollStatusView";
 import AssetsStatusChart from "./AssetsStatusChart";
-import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
+import {
+  AssetWithMetadata,
+  SourceWithMetadata,
+  ClusterPeer,
+  PollStatus
+} from "./types";
 import { Box, Fade, Grid, Typography } from "@material-ui/core";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -15,9 +21,13 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: "0 auto",
       maxWidth: "40rem"
     },
+    boxPollStatus: {
+      height: theme.spacing(6),
+      marginBottom: theme.spacing(2)
+    },
     boxChart: {
       width: "100%",
-      marginBottom: theme.spacing(6)
+      marginBottom: theme.spacing(0)
     },
     heroSection: {
       margin: theme.spacing(14, 0, 3)
@@ -31,11 +41,13 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function Home({
   assets,
   sources,
-  peers
+  peers,
+  pollStatus
 }: {
   assets: AssetWithMetadata[];
   sources: SourceWithMetadata[];
   peers: ClusterPeer[];
+  pollStatus: PollStatus;
 }) {
   const classes = useStyles();
 
@@ -67,6 +79,12 @@ export default function Home({
           ) : (
             <span />
           )}
+        </Fade>
+      </Box>
+
+      <Box className={classes.boxPollStatus}>
+        <Fade in={!!pollStatus}>
+          {pollStatus ? <PollStatusView {...{ pollStatus }} /> : <span />}
         </Fade>
       </Box>
 

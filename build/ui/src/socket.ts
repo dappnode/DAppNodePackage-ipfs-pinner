@@ -2,10 +2,10 @@ import io from "socket.io-client";
 import {
   SourceOption,
   SourceFormInputs,
-  Asset,
   AssetWithMetadata,
   SourceWithMetadata,
-  ClusterPeer
+  ClusterPeer,
+  PollStatus
 } from "./types";
 
 export const apiUrl =
@@ -58,27 +58,48 @@ export const onPeers = (cb: (peers: ClusterPeer[]) => void) => {
     cb(peers);
   });
 };
+export const onPollStatus = (cb: (pollStatus: PollStatus) => void) => {
+  socket.on("pollStatus", (pollStatus: PollStatus) => {
+    validatePollStatus(pollStatus);
+    cb(pollStatus);
+  });
+};
 
 /**
  * Validators
  */
 
 function validateSources(sources: SourceWithMetadata[]) {
-  if (!Array.isArray(sources)) {
-    console.log({ sources });
-    throw Error(`Sources is not an array`);
+  try {
+    if (!Array.isArray(sources)) throw Error(`Sources is not an array`);
+  } catch (e) {
+    console.error(e.message, { sources });
+    throw e;
   }
 }
 function validateAssets(assets: AssetWithMetadata[]) {
-  if (!Array.isArray(assets)) {
-    console.log({ assets });
-    throw Error(`Assets is not an array`);
+  try {
+    if (!Array.isArray(assets)) throw Error(`Assets is not an array`);
+  } catch (e) {
+    console.error(e.message, { assets });
+    throw e;
   }
 }
 function validatePeers(peers: ClusterPeer[]) {
-  if (!Array.isArray(peers)) {
-    console.log({ peers });
-    throw Error(`Peers is not an array`);
+  try {
+    if (!Array.isArray(peers)) throw Error(`Peers is not an array`);
+  } catch (e) {
+    console.error(e.message, { peers });
+    throw e;
+  }
+}
+function validatePollStatus(pollStatus: PollStatus) {
+  try {
+    if (pollStatus && typeof pollStatus !== "object")
+      throw Error(`Poll status must be an object`);
+  } catch (e) {
+    console.error(e.message, { pollStatus });
+    throw e;
   }
 }
 

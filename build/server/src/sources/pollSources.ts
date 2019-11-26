@@ -1,4 +1,8 @@
+import * as eventBus from "../eventBus";
+import { parseType } from "../utils/multiname";
+import logs from "../logs";
 import omit from "lodash/omit";
+import throttle from "lodash/throttle";
 import {
   PollSourceFunction,
   SourceOwn,
@@ -9,10 +13,16 @@ import {
   State,
   Source,
   SourceAdd,
-  SourceOwnAdd
+  SourceOwnAdd,
+  PollStatus,
+  PollStatusObj
 } from "../types";
-import { parseType } from "../utils/multiname";
-import logs from "../logs";
+
+// Throttle this function since it can be called very quickly
+// and can trigger db writes and socket emits
+const logPollStatus = throttle((pollStatus: PollStatus) => {
+  eventBus.pollStatus.emit(pollStatus);
+}, 200);
 
 interface Basic {
   multiname: string;
@@ -35,6 +45,19 @@ export async function pollSourcesReturnStateChange(
   const sourcesToRemove: Source[] = [];
   const assetsToAdd: Asset[] = [];
   const assetsToRemove: Asset[] = [];
+
+  // Report polling status to the UI
+  const sourcePollStatus = currentSources.reduce(
+    (obj: PollStatusObj, source) => {
+      return { ...obj, [source.multiname]: { message: "", done: false } };
+    },
+    {}
+  );
+  const finishedPolling = (multiname: string) => {
+    sourcePollStatus[multiname].done = true;
+    logPollStatus(sourcePollStatus);
+  };
+  logPollStatus(sourcePollStatus);
 
   await Promise.all(
     currentSources.map(async source => {
@@ -61,8 +84,6 @@ export async function pollSourcesReturnStateChange(
         return { ...source, from: multiname };
       }
 
-      let updateUiInfoDynamicallyToHaveFeedbackOfWhatsPolling;
-
       try {
         const {
           sourcesToAdd: ownSourcesToAdd = [],
@@ -86,6 +107,8 @@ export async function pollSourcesReturnStateChange(
         assetsToRemove.push(...ownAssetsToRemove.map(markOwnAsset));
       } catch (e) {
         logs.error(`Error polling source ${multiname}: `, e);
+      } finally {
+        finishedPolling(multiname);
       }
     })
   );
@@ -99,6 +122,7 @@ export async function pollSourcesReturnStateChange(
   };
 
   logs.debug("Finished polling all sources", { stateChange });
+  logPollStatus(undefined);
 
   return stateChange;
 }

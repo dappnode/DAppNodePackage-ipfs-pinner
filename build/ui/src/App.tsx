@@ -16,15 +16,21 @@ import socket, {
   pingCluster,
   onSources,
   onAssets,
-  onPeers
+  onPeers,
+  onPollStatus
 } from "./socket";
-import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
+import {
+  AssetWithMetadata,
+  SourceWithMetadata,
+  ClusterPeer,
+  PollStatus
+} from "./types";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     mainContainer: {
       "& > div:not(:last-child)": {
-        paddingBottom: theme.spacing(3)
+        paddingBottom: theme.spacing(1)
       },
       paddingBottom: theme.spacing(9)
     },
@@ -42,6 +48,7 @@ const App: React.FC = () => {
   const [assets, setAssets] = useState([] as AssetWithMetadata[]);
   const [sources, setSources] = useState([] as SourceWithMetadata[]);
   const [peers, setPeers] = useState([] as ClusterPeer[]);
+  const [pollStatus, setPollStatus] = useState(undefined as PollStatus);
   const [pinnerError, setPinnerError] = useState("");
   const [clusterError, setClusterError] = useState("");
 
@@ -49,6 +56,7 @@ const App: React.FC = () => {
     onSources(setSources);
     onAssets(setAssets);
     onPeers(setPeers);
+    onPollStatus(setPollStatus);
     // Successful connection or reconnection
     socket.on("connect", () => setPinnerError(""));
     // Disconnection initiated by the server
@@ -105,16 +113,16 @@ const App: React.FC = () => {
       <Container fixed className={classes.mainContainer}>
         <Switch>
           <Route path={sourcesPath}>
-            <Sources sources={sources} />
+            <Sources {...{ sources, pollStatus }} />
           </Route>
           <Route path={assetsPath}>
-            <Assets assets={assets} />
+            <Assets {...{ assets }} />
           </Route>
           <Route path={peersPath}>
-            <Peers peers={peers} />
+            <Peers {...{ peers }} />
           </Route>
           <Route path="/">
-            <Home assets={assets} sources={sources} peers={peers} />
+            <Home {...{ assets, sources, peers, pollStatus }} />
           </Route>
         </Switch>
       </Container>

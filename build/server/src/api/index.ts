@@ -1,4 +1,5 @@
 import * as eventBus from "../eventBus";
+import * as cacheDb from "../cacheDb";
 import logs from "../logs";
 
 // Api Methods
@@ -13,6 +14,7 @@ const sourcesRoute = "sources";
 const optionsRoute = "options";
 const assetsRoute = "assets";
 const peersRoute = "peers";
+const pollStatusRoute = "pollStatus";
 const addSourceRoute = "addSource";
 const delSourceRoute = "delSource";
 const refreshRoute = "refresh";
@@ -38,6 +40,7 @@ export default function setupSocketIo(io: SocketIO.Server) {
     eventBus.sourcesChanged.emit();
     eventBus.assetsChanged.emit();
     eventBus.emitPeers.emit();
+    io.emit(pollStatusRoute, cacheDb.getPollStatus());
   }
 
   // Pipe changed events to all sockets
@@ -49,5 +52,8 @@ export default function setupSocketIo(io: SocketIO.Server) {
   });
   eventBus.emitPeers.on(async () => {
     io.emit(peersRoute, await getPeers());
+  });
+  eventBus.pollStatus.on(pollStatus => {
+    io.emit(pollStatusRoute, pollStatus);
   });
 }

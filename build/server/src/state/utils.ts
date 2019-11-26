@@ -4,6 +4,7 @@ import uniqBy from "lodash/uniqBy";
 import differenceBy from "lodash/differenceBy";
 import { Source, Asset, StateChange, State } from "../types";
 import { parseType } from "../utils/multiname";
+import { pipe } from "../utils/functions";
 
 /**
  * MUST return a unique string for EVERY asset
@@ -37,9 +38,10 @@ export function processStateChange({
     prevState
   );
 
-  const stateChangeIntent = addChildNodesToRemove(stateChange, prevState);
-
-  return addChildNodesToRemove(stateChange, prevState);
+  return pipe(
+    (arg: StateChange) => addChildNodesToRemove(arg, prevState),
+    (arg: StateChange) => removeAssetsWithoutUserParent(arg, nextState)
+  )(stateChange);
 }
 
 interface BasicItem {
@@ -63,7 +65,7 @@ interface BasicItem {
  *  - If parent is still there
  *  - If it is not being added
  */
-function reconcileChangesWithUpstream(
+function removeAssetsWithoutUserParent(
   {
     sourcesToAdd,
     sourcesToRemove,

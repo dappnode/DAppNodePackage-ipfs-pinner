@@ -9,6 +9,7 @@ import setupSocketIo from "./api";
 import { pollSources } from "./sources";
 import * as eventBus from "./eventBus";
 import logs from "./logs";
+import { runOnlyOneSequentially } from "./utils/asyncFlows";
 // Display stack traces with source-maps
 import "source-map-support/register";
 
@@ -33,18 +34,16 @@ app.get("*", (_0, res) => res.sendFile(path.resolve(filesPath, "index.html"))); 
 
 server.listen(port, () => logs.info(`Webserver on ${port}, ${filesPath}`));
 
-let throttlePollSources; // MUST run only once at a time, REALLY important
+// MUST run only once at a time
+const pollSourcesThrottled = runOnlyOneSequentially(pollSources);
 
-/**
- * CRON job to poll pin sources
- */
+// Cron job to poll pin sources
 setInterval(() => {
-  pollSources();
+  pollSourcesThrottled();
 }, 5 * 60 * 1000);
 
 eventBus.pollSources.on(async () => {
-  pollSources();
+  pollSourcesThrottled();
 });
 
-// Make this a es6 module
-export {};
+export {}; // Force ES6 module

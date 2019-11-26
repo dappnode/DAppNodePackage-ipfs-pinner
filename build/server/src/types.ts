@@ -91,6 +91,14 @@ export interface VerifySourceFunction {
   (arg: SourceAdd): Promise<void>;
 }
 
+export interface PollStatusObj {
+  [multiname: string]: {
+    message: string;
+    done: boolean;
+  };
+}
+export type PollStatus = PollStatusObj | undefined;
+
 /**
  * API
  */

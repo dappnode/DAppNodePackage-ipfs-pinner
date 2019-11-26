@@ -1,7 +1,8 @@
 import path from "path";
+import * as eventBus from "./eventBus";
 import { dbFactory } from "./dbFactory";
 import logs from "./logs";
-import { CacheState } from "./types";
+import { CacheState, PollStatus } from "./types";
 
 const cacheDbPath = path.join(process.env.DATA_PATH || ".", "cachedb.json");
 logs.info("Starting cache DB", { cacheDbPath });
@@ -16,6 +17,7 @@ const pollInternalStateDb = db.simpleDynamicSubKeyFactory<string>(
   "poll-internal-state"
 );
 const cacheStateDb = db.simpleKeyFactory<CacheState>("cache-state");
+const pollStatusDb = db.simpleKeyFactory<PollStatus>("poll-status");
 
 /**
  * Internal state for the poll functions
@@ -37,3 +39,11 @@ export function getInternalCache(): CacheState {
 export function mergeInternalCache(cacheChange: CacheState): void {
   return cacheStateDb.set({ ...cacheStateDb.get(), ...cacheChange });
 }
+
+export function getPollStatus(): PollStatus {
+  return pollStatusDb.get() || undefined;
+}
+
+eventBus.pollStatus.on(pollStatus => {
+  pollStatusDb.set(pollStatus);
+});

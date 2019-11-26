@@ -163,7 +163,7 @@ export default function AddAssetForm() {
       )}
 
       <Typography
-        className={classes.statusText}
+        className={`${classes.statusText} ${loading ? " atention-grab" : ""}`}
         align="center"
         color="textSecondary"
       >

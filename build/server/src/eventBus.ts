@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 import logs from "./logs";
-import { Source } from "./types";
+import { Source, PollStatus } from "./types";
 
 /** HOW TO:
  * - ON:
@@ -72,14 +72,16 @@ const busFactoryAsync = <T>(event: string) => ({
   }
 });
 /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
-// const busFactory = <T>(event: string) => ({
-//   on: (listener: (arg: T) => void): void => eventBusOnSafe<T>(event, listener),
-//   emit: (arg: T): void => {
-//     eventBus.emit(event, arg);
-//   }
-// });
+const busFactory = <T>(event: string) => ({
+  on: (listener: (arg: T) => void): void => eventBusOnSafe<T>(event, listener),
+  emit: (arg: T): void => {
+    eventBus.emit(event, arg);
+  }
+});
 
 export const pollSources = busFactoryAsync<Source[]>("POLL_SOURCES");
 export const sourcesChanged = busFactoryNoArgAsync("SOURCES_CHANGED");
 export const assetsChanged = busFactoryNoArgAsync("ASSETS_CHANGED");
 export const emitPeers = busFactoryNoArgAsync("EMIT_PEERS");
+
+export const pollStatus = busFactory<PollStatus>("POLL_STATUS");
