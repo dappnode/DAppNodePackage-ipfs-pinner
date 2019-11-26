@@ -40,4 +40,4 @@ ENV DATA_PATH /usr/src/app/data
 COPY --from=ui_build /usr/src/app/build /usr/src/app/${CLIENT_FILES_PATH}
 COPY --from=server_build /usr/src/app/build /usr/src/app
 
-ENTRYPOINT node /usr/src/app
+CMD [ "node", "/usr/src/app" ]
