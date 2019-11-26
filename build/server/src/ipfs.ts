@@ -5,7 +5,8 @@ const host = process.env.IPFS_API_HOST || "localhost";
 const port = process.env.IPFS_API_PORT || "5001";
 const protocol = process.env.IPFS_API_PROTOCOL || "http";
 
-const ipfsCatTimeout = 30 * 1000;
+const ipfsCatTimeout = 5 * 1000;
+const ipfsAddTimeout = 10 * 1000;
 
 const httpApiUrl = `${protocol}://${host}:${port}/api/v0`;
 logs.info("IPFS HTTP API", { httpApiUrl });
@@ -87,12 +88,12 @@ export const addFromUrl = (
  * @param data "amazing raw content"
  * @returns raw CID "QmVqbBsi4jswchAvBK4USLhcUPKQVXN7893PxtFq85xrtH"
  */
-export function add(data: string): Promise<string> {
-  return request
+export async function add(data: string): Promise<string> {
+  return await request
     .post(`${httpApiUrl}/add`, {
       qs: { "only-hash": false },
       json: true,
-      timeout: ipfsCatTimeout,
+      timeout: ipfsAddTimeout,
       formData: {
         file: Buffer.from(data)
       }
