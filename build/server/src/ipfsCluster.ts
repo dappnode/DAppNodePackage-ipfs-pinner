@@ -11,7 +11,8 @@ import {
   AssetWithMetadata,
   ClusterPeer,
   Source,
-  SourceWithMetadata
+  SourceWithMetadata,
+  SourceAdd
 } from "./types";
 
 const host = process.env.IPFS_CLUSTER_HOST || "localhost";
@@ -332,15 +333,29 @@ function parseAssetsFromPinset(pinset: ClusterPinItem[]): Asset[] {
 /**
  * Parses sources from the pinset. Pure function for testability
  */
-function parseSourcesFromPinset(
+function parseSourcesWithMetadataFromPinset(
   pinset: ClusterPinItem[]
 ): SourceWithMetadata[] {
   // Declaring map callback above for erroring on undeclared types
   const parseSourceFromPinset = (pin: ClusterPinItem): SourceWithMetadata => ({
     multiname: pin.name,
     from: pin.metadata.from,
-    // hash: pin.hash,
+    hash: pin.hash,
     added: parseInt(pin.metadata.added) || 0
+  });
+  return pinset.filter(pin => pin.metadata.isSource).map(parseSourceFromPinset);
+}
+
+/**
+ * Parses sources from the pinset. Pure function for testability
+ */
+function parseSourcesFromPinset(pinset: ClusterPinItem[]): Source[] {
+  // Declaring map callback above for erroring on undeclared types
+  const parseSourceFromPinset = (pin: ClusterPinItem): Source => ({
+    multiname: pin.name,
+    from: pin.metadata.from,
+    hash: pin.hash
+    // added: parseInt(pin.metadata.added) || 0
   });
   return pinset.filter(pin => pin.metadata.isSource).map(parseSourceFromPinset);
 }
@@ -384,9 +399,9 @@ export async function getAssetsWithStatus(): Promise<AssetWithMetadata[]> {
 
 /**
  * Add a record of a user source to the pinset
- * @param asset
  */
-export async function addSource(source: Source) {
+export async function addSource(source: SourceAdd) {
+  if (!source.multiname) throw Error(`Source has no multiname`);
   const hash = await ipfs.add(source.multiname);
   return await pinAdd(hash, {
     name: source.multiname,
@@ -398,28 +413,29 @@ export async function addSource(source: Source) {
   });
 }
 
-// export async function removeSource(source: SourceWithMetadata) {
-//   return await pinRm(source.hash);
-// }
-
-export async function getSources(): Promise<SourceWithMetadata[]> {
-  const pinset = await getPinset();
-  return parseSourcesFromPinset(pinset);
+/**
+ * Remove a record of a user source from the pinset
+ */
+export async function removeSource(source: Source) {
+  if (!source.hash) throw Error(`Source has no hash`);
+  return await pinRm(source.hash);
 }
 
 export async function getSourcesWithMetadata(): Promise<SourceWithMetadata[]> {
   const pinset = await getPinset();
-  return parseSourcesFromPinset(pinset);
+  return parseSourcesWithMetadataFromPinset(pinset);
 }
 
 export async function getAssetsAndSources(): Promise<{
   assets: Asset[];
   sources: Source[];
+  sourcesWithMetadata: SourceWithMetadata[];
 }> {
   const pinset = await getPinset();
   return {
     assets: parseAssetsFromPinset(pinset),
-    sources: parseSourcesFromPinset(pinset)
+    sources: parseSourcesFromPinset(pinset),
+    sourcesWithMetadata: parseSourcesWithMetadataFromPinset(pinset)
   };
 }
 

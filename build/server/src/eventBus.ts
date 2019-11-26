@@ -58,12 +58,12 @@ const busFactoryNoArgAsync = (event: string) => ({
   }
 });
 /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
-const busFactoryNoArg = (event: string) => ({
-  on: (listener: () => void): void => eventBusOnSafe(event, listener),
-  emit: (): void => {
-    eventBus.emit(event);
-  }
-});
+// const busFactoryNoArg = (event: string) => ({
+//   on: (listener: () => void): void => eventBusOnSafe(event, listener),
+//   emit: (): void => {
+//     eventBus.emit(event);
+//   }
+// });
 const busFactoryAsync = <T>(event: string) => ({
   on: (listener: (arg: T) => Promise<void>) =>
     eventBusOnSafeAsync<T>(event, listener),
@@ -80,6 +80,6 @@ const busFactoryAsync = <T>(event: string) => ({
 // });
 
 export const pollSources = busFactoryAsync<Source[]>("POLL_SOURCES");
-export const sourcesChanged = busFactoryNoArg("SOURCES_CHANGED");
+export const sourcesChanged = busFactoryNoArgAsync("SOURCES_CHANGED");
 export const assetsChanged = busFactoryNoArgAsync("ASSETS_CHANGED");
 export const emitPeers = busFactoryNoArgAsync("EMIT_PEERS");

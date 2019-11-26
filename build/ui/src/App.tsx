@@ -11,7 +11,13 @@ import Assets, { assetsPath } from "./Assets";
 import Sources, { sourcesPath } from "./Sources";
 import Peers, { peersPath } from "./Peers";
 // Api
-import socket, { refresh, pingCluster } from "./socket";
+import socket, {
+  refresh,
+  pingCluster,
+  onSources,
+  onAssets,
+  onPeers
+} from "./socket";
 import { AssetWithMetadata, SourceWithMetadata, ClusterPeer } from "./types";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -40,9 +46,9 @@ const App: React.FC = () => {
   const [clusterError, setClusterError] = useState("");
 
   useEffect(() => {
-    socket.on("assets", setAssets);
-    socket.on("sources", setSources);
-    socket.on("peers", setPeers);
+    onSources(setSources);
+    onAssets(setAssets);
+    onPeers(setPeers);
     // Successful connection or reconnection
     socket.on("connect", () => setPinnerError(""));
     // Disconnection initiated by the server

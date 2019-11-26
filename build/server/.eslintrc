@@ -19,6 +19,8 @@
     // ##### typescript does not understand hoisting
     "@typescript-eslint/no-use-before-define": "off",
     // ##### API typings require camel case
-    "@typescript-eslint/camelcase": "off"
+    "@typescript-eslint/camelcase": "off",
+    // ########## TODO!! Fix
+    "@typescript-eslint/explicit-function-return-type": "off"
   }
 }

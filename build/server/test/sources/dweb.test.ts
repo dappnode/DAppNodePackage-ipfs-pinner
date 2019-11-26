@@ -50,7 +50,8 @@ describe("Source > dweb", () => {
   describe("poll function", () => {
     it("Deal with empty case", async () => {
       const source: SourceOwn = {
-        multiname: dwebMultiname
+        multiname: dwebMultiname,
+        hash: mockHash
       };
 
       const hash = mockHash;
@@ -74,7 +75,8 @@ describe("Source > dweb", () => {
 
     it("Should change its assets if the hash has changed", async () => {
       const source: SourceOwn = {
-        multiname: dwebMultiname
+        multiname: dwebMultiname,
+        hash: mockHash
       };
 
       const hash = mockHash;
@@ -105,7 +107,8 @@ describe("Source > dweb", () => {
 
     it("Should NOT change its assets if the hash has changed but the block is not higher", async () => {
       const source: SourceOwn = {
-        multiname: dwebMultiname
+        multiname: dwebMultiname,
+        hash: mockHash
       };
 
       const hash = mockHash;

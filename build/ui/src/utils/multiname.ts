@@ -1,18 +1,24 @@
 const separator = "/";
 
 function getDisplayName(type: string, parts: string[]) {
-  if (type === "hash") {
-    const [hash, label] = parts;
-    return label || hash;
+  switch (type) {
+    case "hash":
+      const [hash, label] = parts;
+      return label || hash;
+
+    case "apm-repo-release-content":
+      const [name, version, filename] = parts;
+      return `${name} - ${version} ${
+        filename === "directory" ? "" : `(${filename})`
+      }`;
+
+    case "dweb-content":
+      const [domain] = parts;
+      return domain;
+
+    default:
+      return parts.join(" ");
   }
-  if (type === "apm-repo-release-content") {
-    const [name, version, filename] = parts;
-    return `${name} - ${version} ${
-      filename === "directory" ? "" : `(${filename})`
-    }`;
-  }
-  // Fallback
-  return parts.join(" ");
 }
 
 const separatorSearch = new RegExp(separator, "g");

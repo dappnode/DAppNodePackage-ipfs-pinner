@@ -1,17 +1,142 @@
 import mapKeys from "lodash/mapKeys";
 import concat from "lodash/concat";
 import uniqBy from "lodash/uniqBy";
+import differenceBy from "lodash/differenceBy";
 import { Source, Asset, StateChange, State } from "../types";
+import { parseType } from "../utils/multiname";
 
-interface Basic {
+/**
+ * MUST return a unique string for EVERY asset
+ */
+const assetId = ({ multiname }: { multiname: string }) => multiname;
+/**
+ * MUST return a unique string for EVERY source
+ */
+const sourceId = ({ multiname }: { multiname: string }) => multiname;
+/**
+ * If a source if from a user input or not
+ */
+const isUserSource = ({ from = "" }) => parseType(from) === "user";
+
+/**
+ * - Remove child sources and child assets
+ * - Compute the upstream state change if any and drop
+ *   stateChange that are related to that change
+ */
+export function processStateChange({
+  stateChange,
+  prevState,
+  nextState
+}: {
+  stateChange: StateChange;
+  prevState: State;
+  nextState: State;
+}): StateChange {
+  const stateChangeUpstream = addChildNodesToRemove(
+    computeStateChange(prevState, nextState),
+    prevState
+  );
+
+  const stateChangeIntent = addChildNodesToRemove(stateChange, prevState);
+
+  return addChildNodesToRemove(stateChange, prevState);
+}
+
+interface BasicItem {
+  from: string;
   multiname: string;
-  from?: string;
+}
+
+/**
+ * Only keep items if
+ *
+ * sourcesToAdd:
+ *  - If parent is still there
+ *  - If it is not being removed
+ * sourcesToRemove:
+ *  - If parent is still there
+ *  - If it is not being added
+ * assetsToAdd:
+ *  - If parent is still there
+ *  - If it is not being removed
+ * assetsToRemove:
+ *  - If parent is still there
+ *  - If it is not being added
+ */
+function reconcileChangesWithUpstream(
+  {
+    sourcesToAdd,
+    sourcesToRemove,
+    assetsToAdd,
+    assetsToRemove,
+    ...other
+  }: StateChange,
+  nextState: State
+): StateChange {
+  const byHasUserParent = (item: BasicItem) => getUserParent(item, nextState);
+  return {
+    ...other,
+    sourcesToAdd: sourcesToAdd.filter(byHasUserParent),
+    sourcesToRemove: sourcesToRemove.filter(byHasUserParent),
+    assetsToAdd: assetsToAdd.filter(byHasUserParent),
+    assetsToRemove: assetsToRemove.filter(byHasUserParent)
+  };
+}
+
+export function getUserParent(
+  item: BasicItem | undefined,
+  state: State
+): string | undefined {
+  if (!item || !item.from) return;
+  if (isUserSource(item)) return item.from;
+  return getUserParent(
+    state.sources.find(source => source.multiname === item.from),
+    state
+  );
+}
+
+/**
+ * lodash.difference reference / demo
+ * returns the elements that are no longer in the first argument
+ * _.difference([1,2], [2,3]) = [1]
+ * _.difference([2,3], [1,2]) = [3]
+ */
+
+/**
+ * Computes assets changed from state 1 to 2
+ */
+export function computeAssetsChange(s1: State, s2: State): Asset[] {
+  return differenceBy(s1.assets, s2.assets, assetId);
+}
+
+/**
+ * Computes sources changed from state 1 to 2
+ * [NOTE]: "multiname" property MUST be unique
+ */
+export function computeSourcesChange(s1: State, s2: State): Source[] {
+  return differenceBy(s1.sources, s2.sources, sourceId);
+}
+
+/**
+ * Computes state change from two states
+ */
+export function computeStateChange(
+  prevState: State,
+  nextState: State
+): StateChange {
+  return {
+    sourcesToAdd: computeSourcesChange(nextState, prevState),
+    sourcesToRemove: computeSourcesChange(prevState, nextState),
+    assetsToAdd: computeAssetsChange(nextState, prevState),
+    assetsToRemove: computeAssetsChange(prevState, nextState),
+    cacheChange: {}
+  };
 }
 
 /**
  * [UTIL] Recursively add all child sources and assets to remove
  */
-export function addChildSourcesAndAssetsToRemove(
+export function addChildNodesToRemove(
   { sourcesToRemove, assetsToRemove, assetsToAdd, sourcesToAdd }: StateChange,
   { sources, assets }: State
 ): StateChange {
@@ -26,10 +151,10 @@ export function addChildSourcesAndAssetsToRemove(
   // Make sure there are no duplicated sources or assets, they can be added
   // in ovelapping fetches or in the recursive getChilds function
   return {
-    assetsToAdd: uniqByMultiname(assetsToAdd),
-    sourcesToAdd: uniqByMultiname(sourcesToAdd),
-    sourcesToRemove: uniqByMultiname(sourcesToRemove),
-    assetsToRemove: uniqByMultiname(assetsToRemove),
+    sourcesToAdd: uniqBy(sourcesToAdd, sourceId),
+    sourcesToRemove: uniqBy(sourcesToRemove, sourceId),
+    assetsToAdd: uniqBy(assetsToAdd, assetId),
+    assetsToRemove: uniqBy(assetsToRemove, assetId),
     cacheChange: {}
   };
 }
@@ -56,12 +181,4 @@ function getChildSources(
 function getChildAssets(sourcesToRemove: Source[], assets: Asset[]): Asset[] {
   const parentNames = mapKeys(sourcesToRemove, source => source.multiname);
   return assets.filter(({ from }) => parentNames[from]);
-}
-
-/**
- * [UTIL] Return a copy of unique elements of an array of objects
- * by the propery "name"
- */
-export function uniqByMultiname<T extends Basic>(arr: T[]) {
-  return uniqBy(arr, e => e.multiname);
 }

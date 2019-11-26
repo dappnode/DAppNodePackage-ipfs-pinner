@@ -41,8 +41,8 @@ export default function setupSocketIo(io: SocketIO.Server) {
   }
 
   // Pipe changed events to all sockets
-  eventBus.sourcesChanged.on(() => {
-    io.emit(sourcesRoute, getSources());
+  eventBus.sourcesChanged.on(async () => {
+    io.emit(sourcesRoute, await getSources());
   });
   eventBus.assetsChanged.on(async () => {
     io.emit(assetsRoute, await getAssets());

@@ -4,8 +4,8 @@ import {
   PollSourceFunction,
   PollSourceFunctionArg,
   AssetOwn,
-  Source,
-  VerifySourceFunction
+  VerifySourceFunction,
+  SourceAdd
 } from "../types";
 import fetchNewApmVersions from "../fetchers/fetchNewApmVersions";
 import fetchDnpIpfsReleaseAssets, {
@@ -52,7 +52,7 @@ export const getMultiname = ({ name }: ApmDnpRepo): string => {
   return joinMultiname([type, name]);
 };
 
-export const verify: VerifySourceFunction = async function(source: Source) {
+export const verify: VerifySourceFunction = async function(source: SourceAdd) {
   const { name } = parseMultiname(source.multiname);
   // Resolve name first to separate errors
   const address = await resolveEnsDomain(name);

@@ -1,13 +1,15 @@
 import omit from "lodash/omit";
 import {
   PollSourceFunction,
-  Source,
   SourceOwn,
   Asset,
   AssetOwn,
   CacheState,
   StateChange,
-  State
+  State,
+  Source,
+  SourceAdd,
+  SourceOwnAdd
 } from "../types";
 import { parseType } from "../utils/multiname";
 import logs from "../logs";
@@ -29,7 +31,7 @@ export async function pollSourcesReturnStateChange(
   { sources: currentSources, assets: currentAssets, cache: currentCache }: State
 ): Promise<StateChange> {
   const cacheChange: CacheState = {};
-  const sourcesToAdd: Source[] = [];
+  const sourcesToAdd: SourceAdd[] = [];
   const sourcesToRemove: Source[] = [];
   const assetsToAdd: Asset[] = [];
   const assetsToRemove: Asset[] = [];
@@ -49,12 +51,17 @@ export async function pollSourcesReturnStateChange(
           .filter(({ from }) => from === multiname)
           .map(e => omit(e, "from"));
       }
+      function markOwnSourceAdd(source: SourceOwnAdd): SourceAdd {
+        return { ...source, from: multiname };
+      }
       function markOwnSource(source: SourceOwn): Source {
         return { ...source, from: multiname };
       }
       function markOwnAsset(source: AssetOwn): Asset {
         return { ...source, from: multiname };
       }
+
+      let updateUiInfoDynamicallyToHaveFeedbackOfWhatsPolling;
 
       try {
         const {
@@ -73,7 +80,7 @@ export async function pollSourcesReturnStateChange(
         logs.debug("Successfully polled", { multiname });
 
         cacheChange[multiname] = internalState;
-        sourcesToAdd.push(...ownSourcesToAdd.map(markOwnSource));
+        sourcesToAdd.push(...ownSourcesToAdd.map(markOwnSourceAdd));
         sourcesToRemove.push(...ownSourcesToRemove.map(markOwnSource));
         assetsToAdd.push(...ownAssetsToAdd.map(markOwnAsset));
         assetsToRemove.push(...ownAssetsToRemove.map(markOwnAsset));
@@ -91,7 +98,7 @@ export async function pollSourcesReturnStateChange(
     assetsToRemove
   };
 
-  logs.debug("Finished polling all sources", stateChange);
+  logs.debug("Finished polling all sources", { stateChange });
 
   return stateChange;
 }

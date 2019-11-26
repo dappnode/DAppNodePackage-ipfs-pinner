@@ -53,7 +53,7 @@ const logger = createLogger({
       const othersFormated = Object.entries(others)
         .map(([key, value]) => [key, stringify(value, null, 2)].join(": "))
         .join(" - ");
-      return `${info.level.padEnd(5)} ${stack || message} ${othersFormated}`;
+      return `${level.padEnd(5)} ${stack || message} ${othersFormated}`;
     })
   ),
   transports: [new transports.Console()]

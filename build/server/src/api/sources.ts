@@ -1,6 +1,11 @@
 import * as ipfsCluster from "../ipfsCluster";
 import { verifyFunctions, getMultinameFunctions } from "../sources";
-import { SourceTypeAndInputs, State } from "../types";
+import {
+  SourceTypeAndInputs,
+  State,
+  SourceWithMetadata,
+  SourceAdd
+} from "../types";
 import { modifyState } from "../state";
 
 /**
@@ -23,7 +28,7 @@ export async function addSource(
   const sourceMultiname = getMultinameFunctions[type](inputs);
 
   // Add an ID referencing the user
-  const source = { multiname: sourceMultiname, from: `user/userId` };
+  const source: SourceAdd = { multiname: sourceMultiname, from: `user/userId` };
 
   await verifyFunctions[type](source);
 
@@ -60,6 +65,6 @@ export async function deleteSource(sourceMultiname: string): Promise<void> {
   });
 }
 
-export function getSources() {
-  return ipfsCluster.getSourcesWithMetadata();
+export async function getSources(): Promise<SourceWithMetadata[]> {
+  return await ipfsCluster.getSourcesWithMetadata();
 }

@@ -1,28 +1,35 @@
 import * as ipfsCluster from "../ipfsCluster";
 import * as cacheDb from "../cacheDb";
 import * as eventBus from "../eventBus";
-import { StateChange, Source, State } from "../types";
-import { addChildSourcesAndAssetsToRemove } from "./utils";
+import { StateChange, State } from "../types";
+import { processStateChange } from "./utils";
 import stringify from "json-stringify-safe";
 import logs from "../logs";
 
 export async function modifyState(
   stateModifierFn: (state: State) => Promise<StateChange>
 ) {
-  const state: State = {
-    sources: await ipfsCluster.getSources(),
-    assets: await ipfsCluster.getAssets(),
-    cache: cacheDb.getInternalCache()
-  };
+  const prevState = await getState();
 
-  const stateChange = await stateModifierFn(state);
+  const stateChangeIntent = await stateModifierFn(prevState);
 
-  const stateChangeWithChild = addChildSourcesAndAssetsToRemove(
-    stateChange,
-    state
-  );
+  /**
+   * - Remove child sources and child assets
+   * - Compute the upstream state change if any and drop
+   *   stateChange that are related to that change
+   *
+   * [MAYBE]: Make sure the state has not changed before updating
+   * Or don't commit this state changes
+   */
+  const stateChange = processStateChange({
+    stateChange: stateChangeIntent,
+    prevState,
+    nextState: await getState()
+  });
 
-  await applyStateChange(stateChangeWithChild);
+  // Make sure the sources to remove have a hash
+  logs.debug("Applying state change", { stateChange });
+  await applyStateChange(stateChange);
 
   /**
    * When new sources are added, poll them through an eventBus.
@@ -30,21 +37,30 @@ export async function modifyState(
    * Consider passing an array of sources to poll so not every is re-polled multiple
    * times in recursive iterations
    */
-  if (stateChangeWithChild.sourcesToAdd.length) eventBus.pollSources.emit([]);
+  if (stateChange.sourcesToAdd.length) eventBus.pollSources.emit([]);
 
-  if (
-    stateChangeWithChild.sourcesToAdd.length ||
-    stateChangeWithChild.sourcesToRemove.length
-  )
+  if (stateChange.sourcesToAdd.length || stateChange.sourcesToRemove.length)
     eventBus.sourcesChanged.emit();
 
   if (
-    stateChangeWithChild.sourcesToAdd.length ||
-    stateChangeWithChild.sourcesToRemove.length ||
-    stateChangeWithChild.assetsToAdd.length ||
-    stateChangeWithChild.assetsToRemove.length
+    stateChange.sourcesToAdd.length ||
+    stateChange.sourcesToRemove.length ||
+    stateChange.assetsToAdd.length ||
+    stateChange.assetsToRemove.length
   )
     eventBus.assetsChanged.emit();
+}
+
+async function getState(): Promise<State> {
+  const {
+    sourcesWithMetadata,
+    assets
+  } = await ipfsCluster.getAssetsAndSources();
+  return {
+    sources: sourcesWithMetadata,
+    assets,
+    cache: cacheDb.getInternalCache()
+  };
 }
 
 async function applyStateChange({
@@ -54,8 +70,8 @@ async function applyStateChange({
   assetsToRemove,
   cacheChange
 }: StateChange) {
-  await iterate(sourcesToAdd, cacheDb.addSource, "add source");
-  await iterate(sourcesToRemove, cacheDb.removeSource, "remove source");
+  await iterate(sourcesToAdd, ipfsCluster.addSource, "add source");
+  await iterate(sourcesToRemove, ipfsCluster.removeSource, "remove source");
   await iterate(assetsToAdd, ipfsCluster.addAsset, "pin asset");
   await iterate(assetsToRemove, ipfsCluster.removeAsset, "unpin asset");
   cacheDb.mergeInternalCache(cacheChange);
@@ -64,7 +80,7 @@ async function applyStateChange({
 /**
  * DRY, abstract the logging and looping away
  */
-async function iterate<T extends Source, R>(
+async function iterate<T extends { multiname: string }, R>(
   items: T[],
   fn: (item: T) => Promise<R> | R,
   label: string

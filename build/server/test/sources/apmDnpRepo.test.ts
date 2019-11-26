@@ -68,7 +68,8 @@ describe("Source > apmRepo", () => {
     it("Should return no results for an empty case", async () => {
       const name = "bitcoin.dnp.dappnode.eth";
       const source: SourceOwn = {
-        multiname: apmRepo.getMultiname({ name })
+        multiname: apmRepo.getMultiname({ name }),
+        hash: mockHash
       };
 
       const versions: Version[] = [];
@@ -95,7 +96,8 @@ describe("Source > apmRepo", () => {
     it("Should return new assets if new versions are found", async () => {
       const bitcoinName = "bitcoin.dnp.dappnode.eth";
       const source: SourceOwn = {
-        multiname: apmRepo.getMultiname({ name: bitcoinName })
+        multiname: apmRepo.getMultiname({ name: bitcoinName }),
+        hash: mockHash
       };
 
       const versions: Version[] = [{ version: "0.2.0", contentUri }];
@@ -125,7 +127,8 @@ describe("Source > apmRepo", () => {
 
     it("Should deal with multiple version and clean old versions", async () => {
       const source: SourceOwn = {
-        multiname: apmRepo.getMultiname({ name })
+        multiname: apmRepo.getMultiname({ name }),
+        hash: mockHash
       };
 
       const versions: Version[] = [
@@ -174,7 +177,8 @@ describe("Source > apmRepo", () => {
 
     it("Should deal with multiple versions and current version that are ahead", async () => {
       const source: SourceOwn = {
-        multiname: apmRepo.getMultiname({ name })
+        multiname: apmRepo.getMultiname({ name }),
+        hash: mockHash
       };
 
       const versions: Version[] = [
@@ -223,7 +227,8 @@ describe("Source > apmRepo", () => {
 
     it("Should ignore new versions if there are too many", async () => {
       const source: SourceOwn = {
-        multiname: apmRepo.getMultiname({ name })
+        multiname: apmRepo.getMultiname({ name }),
+        hash: mockHash
       };
 
       const versions: Version[] = [

@@ -1,8 +1,9 @@
-import { PollSourceFunction, VerifySourceFunction, Source } from "../types";
+import { PollSourceFunction, VerifySourceFunction, SourceAdd } from "../types";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import fetchDweb from "../fetchers/fetchDweb";
 import * as dwebContent from "../assets/dwebContent";
 import fetchBlockNumber from "../fetchers/fetchBlockNumber";
+import { normalizeIpfsHash } from "../utils/isIpfsHash";
 
 /**
  * DWeb
@@ -34,7 +35,7 @@ export const getMultiname = ({ domain }: Dweb): string => {
   return joinMultiname([type, domain]);
 };
 
-export const verify: VerifySourceFunction = async function(source: Source) {
+export const verify: VerifySourceFunction = async function(source: SourceAdd) {
   const { domain } = parseMultiname(source.multiname);
   await fetchDweb(domain);
 };
@@ -48,7 +49,7 @@ export const poll: PollSourceFunction = async function({
 
   const prevAsset = currentOwnAssets[0];
 
-  if (hash && (!prevAsset || hash !== prevAsset.hash)) {
+  if (hash && (!prevAsset || !isHashEqual(hash, prevAsset.hash))) {
     // Now, check which hash is more recent comparing the blockNumber
     const currentBlockNumber = await fetchBlockNumber();
     const prevBlockNumber = prevAsset
@@ -74,3 +75,11 @@ export const poll: PollSourceFunction = async function({
     assetsToRemove: []
   };
 };
+
+/**
+ * [UTIL]
+ * Checks if IPFS hashes are equal in a more resilient way
+ */
+function isHashEqual(hash1: string, hash2: string): boolean {
+  return normalizeIpfsHash(hash1) === normalizeIpfsHash(hash2);
+}

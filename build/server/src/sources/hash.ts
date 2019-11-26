@@ -1,4 +1,4 @@
-import { PollSourceFunction, VerifySourceFunction, Source } from "../types";
+import { PollSourceFunction, VerifySourceFunction, SourceAdd } from "../types";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
 import isIpfsHash, { normalizeIpfsHash } from "../utils/isIpfsHash";
 import * as regularHash from "../assets/regularHash";
@@ -39,7 +39,7 @@ export const getMultiname = ({ hash, label }: HashSource): string => {
   return joinMultiname([type, hash, label]);
 };
 
-export const verify: VerifySourceFunction = async function(source: Source) {
+export const verify: VerifySourceFunction = async function(source: SourceAdd) {
   const { hash } = parseMultiname(source.multiname);
   if (!isIpfsHash(hash)) throw Error(`Invalid IPFS hash: ${hash}`);
 };
@@ -52,7 +52,12 @@ export const poll: PollSourceFunction = async function({
     const { hash: multihash, label } = parseMultiname(source.multiname);
     const hash = normalizeIpfsHash(multihash);
     return {
-      assetsToAdd: [{ multiname: regularHash.getMultiname({ label }), hash }]
+      assetsToAdd: [
+        {
+          multiname: regularHash.getMultiname({ label }),
+          hash
+        }
+      ]
     };
   } else {
     return {};

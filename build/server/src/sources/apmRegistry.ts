@@ -3,7 +3,7 @@ import {
   PollSourceFunction,
   PollSourceFunctionArg,
   VerifySourceFunction,
-  Source
+  SourceAdd
 } from "../types";
 import fetchNewApmRepos from "../fetchers/fetchNewApmRepos";
 import { splitMultiname, joinMultiname } from "../utils/multiname";
@@ -48,7 +48,7 @@ export const getMultiname = ({ name }: ApmRegistry): string => {
   return joinMultiname([type, name]);
 };
 
-export const verify: VerifySourceFunction = async function(source: Source) {
+export const verify: VerifySourceFunction = async function(source: SourceAdd) {
   const { name } = parseMultiname(source.multiname);
   // Resolve name first to separate errors
   const address = await resolveEnsDomain(name);

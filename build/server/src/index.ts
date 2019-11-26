@@ -33,6 +33,8 @@ app.get("*", (_0, res) => res.sendFile(path.resolve(filesPath, "index.html"))); 
 
 server.listen(port, () => logs.info(`Webserver on ${port}, ${filesPath}`));
 
+let throttlePollSources; // MUST run only once at a time, REALLY important
+
 /**
  * CRON job to poll pin sources
  */

@@ -4,7 +4,7 @@ import rewiremock from "rewiremock";
 
 import * as apmRegistry from "../../src/sources/apmRegistry";
 import { PollSourceFunctionReturn, AssetOwn, SourceOwn } from "../../src/types";
-import { mockAddress } from "../testUtils";
+import { mockAddress, mockHash } from "../testUtils";
 import { ApmRegistryRepo } from "../../src/fetchers/fetchNewApmRepos";
 
 describe("Source > apmRegistry", () => {
@@ -54,7 +54,8 @@ describe("Source > apmRegistry", () => {
   describe("poll function", () => {
     it("Should return no results for an empty case", async () => {
       const source: SourceOwn = {
-        multiname: registryMultiname
+        multiname: registryMultiname,
+        hash: mockHash
       };
 
       const repos: ApmRegistryRepo[] = [];
@@ -79,7 +80,8 @@ describe("Source > apmRegistry", () => {
 
     it("Should return new assets if new versions are found", async () => {
       const source: SourceOwn = {
-        multiname: registryMultiname
+        multiname: registryMultiname,
+        hash: mockHash
       };
 
       const repos: ApmRegistryRepo[] = [{ shortname: "bitcoin", address }];
@@ -104,7 +106,8 @@ describe("Source > apmRegistry", () => {
 
     it("Should deal with multiple repos and ignore already added", async () => {
       const source: SourceOwn = {
-        multiname: registryMultiname
+        multiname: registryMultiname,
+        hash: mockHash
       };
 
       const bitcoin = {
@@ -122,7 +125,9 @@ describe("Source > apmRegistry", () => {
       ].map(repo => ({ ...repo, address }));
       const blockNumber = 0;
 
-      const currentOwnSources: SourceOwn[] = [{ multiname: bitcoin.multiname }];
+      const currentOwnSources: SourceOwn[] = [
+        { multiname: bitcoin.multiname, hash: mockHash }
+      ];
       const currentOwnAssets: AssetOwn[] = [];
       const expectedResult: PollSourceFunctionReturn = {
         sourcesToAdd: [{ multiname: geth.multiname }],
