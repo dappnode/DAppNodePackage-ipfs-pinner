@@ -5,7 +5,7 @@ const blockToTest = 7000000;
  * [NOTE] only valid if the underlying web3 library is `ethjs`
  */
 const ethjsErrorMessage = "Ancient block sync is still in progress";
-const errorMessage = `Ancient block are not synced.
+const errorMessage = `Ancient blocks are not synced.
 
 This IPFS pinner will not be able to aggregate new repo versions
 Please,

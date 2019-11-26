@@ -12,6 +12,7 @@ import * as apmRepo from "./apmRepo";
 import resolveEnsDomain from "../fetchers/fetchEnsAddress";
 import { checkIfContractIsRegistry } from "../web3/checkIfContractIsRegistry";
 import logs from "../logs";
+import ensureAncientBlocks from "../web3/ensureAncientBlocks";
 
 const repoBlacklist: { [name: string]: true } = {
   "testing.dnp.dappnode.eth": true,
@@ -55,8 +56,17 @@ export const verify: VerifySourceFunction = async function(source: SourceAdd) {
   try {
     await checkIfContractIsRegistry(address);
   } catch (e) {
-    logs.debug(`${name} is not an APM registry: `, e);
-    throw Error(`${name} is not an APM registry (${e.message})`);
+    logs.info(`${name} is not an APM registry: `, e);
+    throw Error(`${name} is not an APM registry`);
+  }
+
+  try {
+    await ensureAncientBlocks();
+  } catch (e) {
+    logs.info(`Can't add registry ${name}, no ancient blocks: `, e);
+    throw Error(
+      "Ancient blocks are not synced. APM registries rely on them to fetch new repos"
+    );
   }
 };
 
