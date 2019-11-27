@@ -1,3 +1,5 @@
+import { prettyRepoEns } from "./format";
+
 const separator = "/";
 
 function getDisplayName(type: string, parts: string[]) {
@@ -8,7 +10,7 @@ function getDisplayName(type: string, parts: string[]) {
 
     case "apm-repo-release-content":
       const [name, version, filename] = parts;
-      return `${name} - ${version} ${
+      return `${prettyRepoEns(name)} - ${version} ${
         filename === "directory" ? "" : `(${filename})`
       }`;
 
