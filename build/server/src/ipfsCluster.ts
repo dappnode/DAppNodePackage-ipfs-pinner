@@ -364,6 +364,11 @@ function parseSourcesFromPinset(pinset: ClusterPinItem[]): Source[] {
  * High level methods
  */
 
+export async function getPeerId(): Promise<string> {
+  const { id } = await idRaw();
+  return id;
+}
+
 export async function ping() {
   await idRaw();
 }

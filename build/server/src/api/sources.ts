@@ -7,6 +7,26 @@ import {
   SourceAdd
 } from "../types";
 import { modifyState } from "../state";
+import { splitMultiname, joinMultiname } from "../utils/multiname";
+
+const userSourceType = "user";
+interface UserSource {
+  peerId: string;
+}
+
+export const userSource = {
+  parseMultiname: (multiname: string): UserSource => {
+    const [_type, peerId] = splitMultiname(multiname);
+    if (_type !== userSourceType)
+      throw Error(`multiname must be of type: ${userSourceType}`);
+    if (!peerId) throw Error(`No "peerId" in multiname: ${multiname}`);
+    return { peerId };
+  },
+  getMultiname: ({ peerId }: UserSource): string => {
+    if (!peerId) throw Error(`Arg "peerId" missing`);
+    return joinMultiname([userSourceType, peerId]);
+  }
+};
 
 /**
  * @param type "apm-registry"
@@ -28,7 +48,11 @@ export async function addSource(
   const sourceMultiname = getMultinameFunctions[type](inputs);
 
   // Add an ID referencing the user
-  const source: SourceAdd = { multiname: sourceMultiname, from: `user/userId` };
+  const peerId = await ipfsCluster.getPeerId();
+  const source: SourceAdd = {
+    multiname: sourceMultiname,
+    from: userSource.getMultiname({ peerId })
+  };
 
   await verifyFunctions[type](source);
 

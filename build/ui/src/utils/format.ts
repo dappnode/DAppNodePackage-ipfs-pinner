@@ -29,3 +29,9 @@ export function prettyRepoEns(ensName: string) {
   if (ensName.includes(".public.dappnode.eth"))
     return ensName.split(".dappnode.eth")[0];
 }
+
+export function ellipseText(s: string, n: number): string {
+  if (!s || typeof s !== "string") return s;
+  if (s.length >= n) return s.slice(0, n) + "...";
+  else return s;
+}

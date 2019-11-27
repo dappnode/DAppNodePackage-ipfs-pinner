@@ -4,7 +4,7 @@ import SourcesTable from "./SourcesTable";
 import AddSourceForm from "./AddSourceForm";
 import PollStatusView from "./PollStatusView";
 import { Box, Fade } from "@material-ui/core";
-import { SourceWithMetadata, PollStatus } from "../types";
+import { SourceWithMetadata, PollStatus, ClusterPeer } from "../types";
 
 export const sourcesPath = "/sources";
 
@@ -19,9 +19,11 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Sources({
   sources,
+  peers,
   pollStatus
 }: {
   sources: SourceWithMetadata[];
+  peers: ClusterPeer[];
   pollStatus: PollStatus;
 }) {
   const classes = useStyles();
@@ -36,7 +38,7 @@ export default function Sources({
         </Fade>
       </Box>
 
-      <SourcesTable sources={sources} />
+      <SourcesTable {...{ sources, peers }} />
     </>
   );
 }

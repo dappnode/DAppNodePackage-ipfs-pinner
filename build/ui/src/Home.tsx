@@ -92,8 +92,8 @@ export default function Home({
         <Fade in={showTables}>
           <Grid container spacing={3}>
             {[
-              <AssetsTable assets={assets} summary />,
-              <SourcesTable sources={sources} summary />
+              <AssetsTable {...{ assets }} summary />,
+              <SourcesTable {...{ sources, peers }} summary />
             ].map((SummaryTable, i) => (
               <Grid
                 key={i}

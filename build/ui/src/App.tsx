@@ -113,7 +113,7 @@ const App: React.FC = () => {
       <Container fixed className={classes.mainContainer}>
         <Switch>
           <Route path={sourcesPath}>
-            <Sources {...{ sources, pollStatus }} />
+            <Sources {...{ sources, peers, pollStatus }} />
           </Route>
           <Route path={assetsPath}>
             <Assets {...{ assets }} />
