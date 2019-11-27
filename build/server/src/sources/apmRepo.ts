@@ -18,6 +18,7 @@ import isIpfsHash from "../utils/isIpfsHash";
 import resolveEnsDomain from "../fetchers/fetchEnsAddress";
 import { checkIfContractIsRepo } from "../web3/checkIfContractIsRepo";
 import logs from "../logs";
+import { knownLastBrokenVersions } from "../params";
 
 // Define somewhere else
 const numOfVersions = 3;
@@ -84,8 +85,16 @@ export const poll: PollSourceFunction = async function({
         if (currentAssetsByVersion[version]) return;
 
         // Ignore broken versions
-        if (!isIpfsHash(contentUri)) return;
-        if (brokenVersions[contentUri]) return;
+        if (
+          // Malformed hashes
+          !isIpfsHash(contentUri) ||
+          // Hardcoded, known broken versions
+          (knownLastBrokenVersions[name] &&
+            !semver.gt(version, knownLastBrokenVersions[name])) ||
+          // Dynamically found broken versions
+          brokenVersions[contentUri]
+        )
+          return;
 
         logs.debug(`Found new version ${name} ${version}, resolving...`);
 
