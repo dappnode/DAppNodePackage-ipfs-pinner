@@ -19,7 +19,7 @@
     "url": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner"
   },
   "dependencies": {
-    "ipfs-cluster.dnp.dappnode.eth": "/ipfs/QmXGLEzuVnHwGaWKWytEsnEUawRMgy1Z53iQWrecyWMXqx"
+    "ipfs-cluster.dnp.dappnode.eth": "/ipfs/QmP3SM3wrvEjii9gWir5oekoCVdgVGrmw9g8VfBWujUuTm"
   },
   "bugs": {
     "url": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner/issues"
