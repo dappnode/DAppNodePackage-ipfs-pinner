@@ -35,3 +35,9 @@ a {
     opacity: var(--opacity-from);
   }
 }
+
+/* Override general Material UI style */
+
+.MuiTableCell-root {
+  padding-right: 14px !important;
+}

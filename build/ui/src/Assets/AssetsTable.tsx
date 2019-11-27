@@ -5,7 +5,8 @@ import { tableIcons } from "../MaterialTable";
 import moment from "moment";
 // Components
 import AssetStatusDetail from "./AssetStatusDetail";
-import PinStatusDot from "./PinStatusDot";
+import AssetName from "./AssetName";
+import AssetStatusDot from "./AssetStatusDot";
 import CardHeader from "../components/CardHeader";
 import { assetsPath } from "./index";
 import { AssetWithMetadata } from "../types";
@@ -22,12 +23,18 @@ function AssetsTable({ assets, summary }: AssetsTableProps) {
       <MaterialTable
         title="Assets"
         columns={[
-          { title: "Name", field: "displayName" },
+          {
+            title: "Name",
+            field: "displayName",
+            render: ({ displayName, hash }) => (
+              <AssetName {...{ displayName, hash }} />
+            )
+          },
           { title: "Type", field: "type", hidden: summary },
           {
             title: "Status",
             field: "status",
-            render: ({ status }) => <PinStatusDot status={status} />
+            render: ({ status }) => <AssetStatusDot status={status} />
           },
           {
             title: "Updated",

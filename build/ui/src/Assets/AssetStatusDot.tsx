@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function PinStatusDot({ status }: { status: PinStatus }) {
+export default function AssetStatusDot({ status }: { status: PinStatus }) {
   // Load theme for colors
   const theme: any = useTheme();
   const classes = useStyles();
