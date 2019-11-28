@@ -9,7 +9,7 @@ import CardHeader from "../components/CardHeader";
 import { sourcesPath } from "./index";
 import { parseTypeAndDisplayName } from "../utils/multiname";
 import { SourceWithMetadata, ClusterPeer } from "../types";
-import { ellipseText } from "../utils/format";
+import { ellipseText, prettyType } from "../utils/format";
 
 function SourcesTable({
   sources,
@@ -34,7 +34,11 @@ function SourcesTable({
         title="Sources"
         columns={[
           { title: "Name", field: "displayName" },
-          { title: "Type", field: "type" },
+          {
+            title: "Type",
+            field: "type",
+            render: ({ type }) => prettyType(type)
+          },
           { title: "Added by", field: "fromUser" },
           {
             title: "Added",

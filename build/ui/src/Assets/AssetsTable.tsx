@@ -11,6 +11,7 @@ import CardHeader from "../components/CardHeader";
 import { assetsPath } from "./index";
 import { AssetWithMetadata } from "../types";
 import { parseTypeAndDisplayName } from "../utils/multiname";
+import { prettyType } from "../utils/format";
 
 interface AssetsTableProps {
   assets: AssetWithMetadata[];
@@ -30,7 +31,12 @@ function AssetsTable({ assets, summary }: AssetsTableProps) {
               <AssetName {...{ displayName, hash }} />
             )
           },
-          { title: "Type", field: "type", hidden: summary },
+          {
+            title: "Type",
+            field: "type",
+            hidden: summary,
+            render: ({ type }) => prettyType(type)
+          },
           {
             title: "Status",
             field: "status",

@@ -11,7 +11,7 @@ export const capitalize = (s: string) => {
 
 export function shortNameCapitalized(name: string) {
   if (!name || typeof name !== "string") return name;
-  let _name = shortName(name)
+  const _name = shortName(name)
     // Convert all "-" and "_" to spaces
     .replace(new RegExp("-", "g"), " ")
     .replace(new RegExp("_", "g"), " ")
@@ -24,10 +24,32 @@ export function shortNameCapitalized(name: string) {
 
 export function prettyRepoEns(ensName: string) {
   if (!ensName) return ensName;
-  if (ensName.includes(".dnp.dappnode.eth"))
-    return ensName.split(".dnp.dappnode.eth")[0];
-  if (ensName.includes(".public.dappnode.eth"))
-    return ensName.split(".dappnode.eth")[0];
+  let [shortName, ...registryArr] = ensName.split(".");
+  registryArr = registryArr.filter(s => s !== "eth");
+
+  const prettyShortName = shortNameCapitalized(shortName);
+  return registryArr.length
+    ? `${prettyShortName} (${registryArr
+        .map(shortNameCapitalized)
+        .reverse()
+        .join(" ")})`
+    : prettyShortName;
+}
+
+export function prettyRegistryEns(ensName: string) {
+  if (!ensName) return ensName;
+  let registryArr = ensName.split(".");
+  registryArr = registryArr.filter(s => s !== "eth");
+
+  return registryArr
+    .map(shortNameCapitalized)
+    .reverse()
+    .join(" ");
+}
+
+export function prettyType(type: string) {
+  if (!type || typeof type !== "string") return type;
+  return capitalize(type.replace(new RegExp("-", "g"), " "));
 }
 
 export function ellipseText(s: string, n: number): string {

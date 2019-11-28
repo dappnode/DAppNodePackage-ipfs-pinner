@@ -1,22 +1,37 @@
-import { prettyRepoEns } from "./format";
+import { prettyRepoEns, prettyRegistryEns } from "./format";
 
 const separator = "/";
 
 function getDisplayName(type: string, parts: string[]) {
   switch (type) {
-    case "hash":
+    case "hash": {
       const [hash, label] = parts;
       return label || hash;
+    }
 
-    case "apm-repo-release-content":
+    case "apm-repo-release-content": {
       const [name, version, filename] = parts;
       return `${prettyRepoEns(name)} - ${version} ${
         filename === "directory" ? "" : `(${filename})`
       }`;
+    }
 
-    case "dweb-content":
+    case "dweb-content": {
       const [domain] = parts;
       return domain;
+    }
+
+    // Sources
+
+    case "apm-repo": {
+      const [name] = parts;
+      return prettyRepoEns(name);
+    }
+
+    case "apm-registry": {
+      const [name] = parts;
+      return prettyRegistryEns(name);
+    }
 
     default:
       return parts.join(" ");
