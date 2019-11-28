@@ -64,8 +64,9 @@ const busFactoryNoArgAsync = (event: string) => ({
 //     eventBus.emit(event);
 //   }
 // });
+/* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
 const busFactoryAsync = <T>(event: string) => ({
-  on: (listener: (arg: T) => Promise<void>) =>
+  on: (listener: (arg: T) => Promise<void>): void =>
     eventBusOnSafeAsync<T>(event, listener),
   emit: (arg: T): void => {
     eventBus.emit(event, arg);

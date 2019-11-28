@@ -81,7 +81,7 @@ export const poll: PollSourceFunction = async function({
   const currentLastBlock = await fetchBlockNumber();
 
   // Util to get the repoName full ENS domain
-  const getName = (repo: { shortname: string }) =>
+  const getName = (repo: { shortname: string }): string =>
     [repo.shortname, name].join(".");
 
   if (newRepos.length)

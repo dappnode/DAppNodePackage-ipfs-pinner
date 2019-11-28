@@ -8,7 +8,7 @@ import logs from "../logs";
 
 export async function modifyState(
   stateModifierFn: (state: State) => Promise<StateChange>
-) {
+): Promise<void> {
   const prevState = await getState();
 
   const stateChangeIntent = await stateModifierFn(prevState);
@@ -69,7 +69,7 @@ async function applyStateChange({
   assetsToAdd,
   assetsToRemove,
   cacheChange
-}: StateChange) {
+}: StateChange): Promise<void> {
   await iterate(sourcesToAdd, ipfsCluster.addSource, "add source");
   await iterate(sourcesToRemove, ipfsCluster.removeSource, "remove source");
   await iterate(assetsToAdd, ipfsCluster.addAsset, "pin asset");
@@ -84,7 +84,7 @@ async function iterate<T extends { multiname: string }, R>(
   items: T[],
   fn: (item: T) => Promise<R> | R,
   label: string
-) {
+): Promise<void> {
   await Promise.all(
     items.map(async item => {
       try {

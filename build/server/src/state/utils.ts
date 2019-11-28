@@ -9,15 +9,15 @@ import { pipe } from "../utils/functions";
 /**
  * MUST return a unique string for EVERY asset
  */
-const assetId = ({ multiname }: { multiname: string }) => multiname;
+const assetId = ({ multiname }: { multiname: string }): string => multiname;
 /**
  * MUST return a unique string for EVERY source
  */
-const sourceId = ({ multiname }: { multiname: string }) => multiname;
+const sourceId = ({ multiname }: { multiname: string }): string => multiname;
 /**
  * If a source if from a user input or not
  */
-const isUserSource = ({ from = "" }) => parseType(from) === "user";
+const isUserSource = ({ from = "" }): boolean => parseType(from) === "user";
 
 /**
  * - Remove child sources and child assets
@@ -33,11 +33,6 @@ export function processStateChange({
   prevState: State;
   nextState: State;
 }): StateChange {
-  const stateChangeUpstream = addChildNodesToRemove(
-    computeStateChange(prevState, nextState),
-    prevState
-  );
-
   return pipe(
     (arg: StateChange) => addChildNodesToRemove(arg, prevState),
     (arg: StateChange) => removeAssetsWithoutUserParent(arg, nextState)
@@ -75,7 +70,8 @@ function removeAssetsWithoutUserParent(
   }: StateChange,
   nextState: State
 ): StateChange {
-  const byHasUserParent = (item: BasicItem) => getUserParent(item, nextState);
+  const byHasUserParent = (item: BasicItem): boolean =>
+    Boolean(getUserParent(item, nextState));
   return {
     ...other,
     sourcesToAdd: sourcesToAdd.filter(byHasUserParent),

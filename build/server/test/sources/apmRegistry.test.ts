@@ -8,6 +8,7 @@ import { mockAddress, mockHash } from "../testUtils";
 import { ApmRegistryRepo } from "../../src/fetchers/fetchNewApmRepos";
 
 describe("Source > apmRegistry", () => {
+  /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
   async function getApmRegistry(repos: ApmRegistryRepo[], blockNumber: number) {
     async function fetchNewApmRepos(
       name: string,

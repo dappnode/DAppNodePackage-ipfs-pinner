@@ -19,7 +19,9 @@ const isValidBumpAbi = {
  * [NOTE]: Will throw with "ENS name not configured" if the ENS can't
  * resolve the domain
  */
-export async function checkIfContractIsRepo(addressOrEnsName: string) {
+export async function checkIfContractIsRepo(
+  addressOrEnsName: string
+): Promise<void> {
   const registry = new ethers.Contract(
     addressOrEnsName,
     [isValidBumpAbi],

@@ -32,7 +32,7 @@ export const pollFunctions: {
 /**
  * Never throws
  */
-export async function pollSources() {
+export async function pollSources(): Promise<void> {
   try {
     await modifyState(async (state: State) => {
       return await pollSourcesReturnStateChange(pollFunctions, state);

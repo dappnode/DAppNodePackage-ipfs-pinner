@@ -127,7 +127,7 @@ const defaultOptions = {
  * Prettifies request errors giving as much info as possible
  * @param e
  */
-function handleErrors(e: RequestErrorGeneral) {
+function handleErrors(e: RequestErrorGeneral): void {
   let message: string = e.message;
   let req = "";
 
@@ -369,11 +369,11 @@ export async function getPeerId(): Promise<string> {
   return id;
 }
 
-export async function ping() {
+export async function ping(): Promise<void> {
   await idRaw();
 }
 
-export async function addAsset(asset: Asset) {
+export async function addAsset(asset: Asset): Promise<ClusterPinItem> {
   return await pinAdd(asset.hash, {
     name: asset.multiname,
     metadata: {
@@ -382,7 +382,7 @@ export async function addAsset(asset: Asset) {
   });
 }
 
-export async function removeAsset(asset: Asset) {
+export async function removeAsset(asset: Asset): Promise<ClusterPinItem> {
   return await pinRm(asset.hash);
 }
 
@@ -405,7 +405,7 @@ export async function getAssetsWithStatus(): Promise<AssetWithMetadata[]> {
 /**
  * Add a record of a user source to the pinset
  */
-export async function addSource(source: SourceAdd) {
+export async function addSource(source: SourceAdd): Promise<ClusterPinItem> {
   if (!source.multiname) throw Error(`Source has no multiname`);
   const hash = await ipfs.add(source.multiname);
   return await pinAdd(hash, {
@@ -421,7 +421,7 @@ export async function addSource(source: SourceAdd) {
 /**
  * Remove a record of a user source from the pinset
  */
-export async function removeSource(source: Source) {
+export async function removeSource(source: Source): Promise<ClusterPinItem> {
   if (!source.hash) throw Error(`Source has no hash`);
   return await pinRm(source.hash);
 }

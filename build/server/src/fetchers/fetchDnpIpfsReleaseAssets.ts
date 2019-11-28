@@ -34,7 +34,7 @@ export default async function fetchDnpIpfsReleaseAssets(
   if (!isIpfsHash(hash)) throw Error(`Release must be an IPFS hash ${hash}`);
 
   try {
-    const manifest: ManifestWithImage = await ipfs.catJson(hash);
+    const manifest = await ipfs.catJson<ManifestWithImage>(hash);
     if (typeof manifest !== "object")
       throw new BrokenManifestError("BROKEN: Manifest is not an object");
     if (!manifest.image)

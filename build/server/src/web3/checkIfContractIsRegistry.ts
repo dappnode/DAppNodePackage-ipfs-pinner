@@ -20,7 +20,9 @@ const publicConstantAbi = {
  * [NOTE]: Will throw with "ENS name not configured" if the ENS can't
  * resolve the domain
  */
-export async function checkIfContractIsRegistry(addressOrEnsName: string) {
+export async function checkIfContractIsRegistry(
+  addressOrEnsName: string
+): Promise<void> {
   const registry = new ethers.Contract(
     addressOrEnsName,
     [publicConstantAbi],

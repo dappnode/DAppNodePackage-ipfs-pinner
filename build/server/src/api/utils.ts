@@ -1,12 +1,14 @@
 import SockerIo from "socket.io";
 import logs from "../logs";
 
-interface SocketReturn<T> {
-  data?: T;
+interface SocketReturn<R> {
+  data?: R;
   error?: string;
 }
 
+/* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
 export function SocketRouter(socket: SockerIo.Socket) {
+  /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
   return function route<T, R>(
     routePath: string,
     handler: (arg: T) => Promise<R>
@@ -14,7 +16,7 @@ export function SocketRouter(socket: SockerIo.Socket) {
     socket.on(
       routePath,
       async (arg: T, acknowledgment: (res: SocketReturn<R>) => void) => {
-        let data: any;
+        let data: R | undefined = undefined;
         let error = "";
         try {
           data = await handler(arg);

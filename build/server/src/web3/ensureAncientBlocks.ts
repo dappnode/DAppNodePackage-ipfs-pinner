@@ -14,7 +14,7 @@ Please,
  - or, use an external web3 provider
  `;
 
-export default async function ensureAncientBlocks() {
+export default async function ensureAncientBlocks(): Promise<void> {
   try {
     await provider.getBlock(blockToTest);
   } catch (e) {

@@ -10,6 +10,7 @@ import { ReleaseAsset } from "../../src/fetchers/fetchDnpIpfsReleaseAssets";
 import { mockHash } from "../testUtils";
 
 describe("Source > apmRepo", () => {
+  /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
   async function getApmDnpRepoMock(
     versions: Version[],
     releaseAssets: ReleaseAsset[]

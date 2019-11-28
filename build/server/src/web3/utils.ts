@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-export function hexToUtf8(hexString: string) {
+export function hexToUtf8(hexString: string): string {
   try {
     return ethers.utils.toUtf8String(hexString);
   } catch (e) {
@@ -16,7 +16,7 @@ export function hexToUtf8(hexString: string) {
  * Fallback for UTF8 conversion
  * Credit: https://github.com/miguelmota/hex2ascii
  */
-function hex2ascii(hex: string) {
+function hex2ascii(hex: string): string {
   if (typeof hex !== "number" && typeof hex !== "string") return "";
 
   hex = hex.toString().replace(/\s+/gi, "");

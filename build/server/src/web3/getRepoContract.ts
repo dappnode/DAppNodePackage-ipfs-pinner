@@ -30,6 +30,7 @@ const repositoryAbi = [
  * [NOTE]: Will throw with "ENS name not configured" if the ENS can't
  * resolve the domain
  */
+/* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
 export default function getRepoContract(addressOrEnsName: string) {
   const repo = new ethers.Contract(addressOrEnsName, repositoryAbi, provider);
 

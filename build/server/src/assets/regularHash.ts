@@ -23,6 +23,6 @@ export const parseMultiname = (multiname: string): RegularHash => {
   return { label };
 };
 
-export const getMultiname = ({ label }: RegularHash) => {
+export const getMultiname = ({ label }: RegularHash): string => {
   return joinMultiname([type, label]);
 };

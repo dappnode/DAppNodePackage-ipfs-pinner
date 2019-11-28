@@ -19,12 +19,21 @@ interface IpfsApiError {
   Code: number; // 0,
   Type: string; // 'error'
 }
+interface ErrorArg extends Error {
+  error?: IpfsApiError;
+  response?: {
+    req?: {
+      path: string;
+      method: string;
+    };
+  };
+}
 
 /**
  * Prettifies request errors giving as much info as possible
  * @param e
  */
-function handleErrors(e: any) {
+function handleErrors(e: ErrorArg): void {
   let message: string = e.message;
   let req = "";
 
@@ -112,7 +121,7 @@ export async function add(data: string): Promise<string> {
  * - offset [int64]: Byte offset to begin reading from. Required: no.
  * - length [int64]: Maximum number of bytes to read. Required: no.
  */
-export async function catJson(hash: string): Promise<any> {
+export async function catJson<R>(hash: string): Promise<R> {
   return await request
     .get(`${httpApiUrl}/cat`, {
       qs: {

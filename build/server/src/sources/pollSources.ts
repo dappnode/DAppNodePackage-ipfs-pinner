@@ -53,7 +53,7 @@ export async function pollSourcesReturnStateChange(
     },
     {}
   );
-  const finishedPolling = (multiname: string) => {
+  const finishedPolling = (multiname: string): void => {
     sourcePollStatus[multiname].done = true;
     logPollStatus(sourcePollStatus);
   };
@@ -69,6 +69,7 @@ export async function pollSourcesReturnStateChange(
         return logs.debug("Ignoring source of unknown type", { multiname });
 
       // Aux methods to manipulate the from field
+      /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
       function getOwn<T extends Basic>(arr: T[]) {
         return arr
           .filter(({ from }) => from === multiname)

@@ -52,7 +52,7 @@ const gatewayListFallback = [
 /**
  * @returns {array} gateway list
  */
-export default async function getPublicGateways() {
+export default async function getPublicGateways(): Promise<string[]> {
   // gateways have the format "https://gateway.ipfs.io/ipfs/:hash",
   let gateways: string[] = gatewayListFallback;
   try {

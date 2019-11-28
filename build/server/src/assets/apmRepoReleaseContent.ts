@@ -31,6 +31,6 @@ export const getMultiname = ({
   name,
   version,
   filename
-}: ApmRepoReleaseContent) => {
+}: ApmRepoReleaseContent): string => {
   return joinMultiname([type, name, version, filename]);
 };

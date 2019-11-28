@@ -3,8 +3,6 @@ const fetchFromRegistries = require("./stages/fetchFromRegistries");
 const fetchFromRepos = require("./stages/fetchFromRepos");
 const manageDnpsPinnedData = require("./stages/manageDnpsPinnedData");
 const portMissingAssetsFromGithubToIpfs = require("./stages/portMissingAssetsFromGithubToIpfs");
-// DB
-const db = require("./db");
 // Utils
 const runEvery = require("./utils/runEvery");
 const parseCsv = require("./utils/parseCsv");
@@ -16,12 +14,12 @@ const registriesToAdd = parseCsv(
 
 start();
 
-async function start() {
+async function start(): Promise<void> {
   /**
    * Initialize database entries with CSV passed through ENVs
    * - REGISTRY_CSV="dnp.dappnode.eth, public.dappnode.eth"
    */
-  await registriesToAdd.mapAsyncParallel(async (name: any) => {
+  await registriesToAdd.mapAsyncParallel(async () => {
     // db.addRegistry({ name, address });
   });
 

@@ -5,6 +5,6 @@ import provider from "./provider";
  *
  * @returns {number} blockNumber 7532643
  */
-export default async function getBlockNumber() {
+export default async function getBlockNumber(): Promise<number> {
   return await provider.getBlockNumber();
 }

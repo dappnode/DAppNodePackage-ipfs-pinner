@@ -84,7 +84,7 @@ export default async function resolveEnsContent(name: string): Promise<string> {
 /**
  * Alias for computing the namehash of ensName
  */
-export function namehash(name: string) {
+export function namehash(name: string): string {
   return ethers.utils.namehash(name);
 }
 
@@ -94,7 +94,7 @@ export function namehash(name: string) {
  * @param {string} contenthash
  * @returns {string|null} content
  */
-export function decodeContentHash(contenthash: string) {
+export function decodeContentHash(contenthash: string): string | undefined {
   if (!contenthash || contenthash === "0x") return;
 
   const contentHashEncoded = Buffer.from(contenthash.slice(2), "hex");

@@ -8,6 +8,7 @@ import { PollSourceFunctionReturn, AssetOwn, SourceOwn } from "../../src/types";
 import { mockHash, mockHash2 } from "../testUtils";
 
 describe("Source > dweb", () => {
+  /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
   async function getApmRegistry(hash: string, blockNumber: number) {
     async function fetchDweb(): Promise<string> {
       return hash;

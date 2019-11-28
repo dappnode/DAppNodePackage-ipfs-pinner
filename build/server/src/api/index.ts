@@ -20,7 +20,7 @@ const delSourceRoute = "delSource";
 const refreshRoute = "refresh";
 const pingClusterRoute = "pingCluster";
 
-export default function setupSocketIo(io: SocketIO.Server) {
+export default function setupSocketIo(io: SocketIO.Server): void {
   // Routes
   io.on("connection", socket => {
     logs.info(`Client connected ${socket.id}`);
@@ -36,7 +36,7 @@ export default function setupSocketIo(io: SocketIO.Server) {
     route(pingClusterRoute, pingCluster);
   });
 
-  async function refresh() {
+  async function refresh(): Promise<void> {
     eventBus.sourcesChanged.emit();
     eventBus.assetsChanged.emit();
     eventBus.emitPeers.emit();

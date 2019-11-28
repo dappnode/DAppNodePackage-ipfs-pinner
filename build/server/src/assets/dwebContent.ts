@@ -25,6 +25,6 @@ export const parseMultiname = (multiname: string): DwebContent => {
   return { domain, blockNumber: parseInt(blockNumber) };
 };
 
-export const getMultiname = ({ domain, blockNumber }: DwebContent) => {
+export const getMultiname = ({ domain, blockNumber }: DwebContent): string => {
   return joinMultiname([type, domain, String(blockNumber)]);
 };
