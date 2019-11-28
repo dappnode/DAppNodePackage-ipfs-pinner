@@ -14,9 +14,12 @@ import moment from "moment";
 import AssetStatusDot from "./AssetStatusDot";
 import { AssetWithMetadata } from "../types";
 import { getGatewayLink, getWebuiLink } from "../utils/links";
+import { parseTypeAndDisplayName } from "../utils/multiname";
+import { prettyType } from "../utils/format";
 
 const useStyles = makeStyles(theme => ({
   links: {
+    marginBottom: theme.spacing(1),
     marginLeft: "14px",
     "& *:not(:last-child)": {
       marginRight: "1rem"
@@ -38,6 +41,12 @@ export default function AssetStatusDetail({
   const gatewayLink = getGatewayLink(hash);
   const webuiLink = getWebuiLink(hash);
 
+  const { type, displayName } = parseTypeAndDisplayName(asset.from);
+  const displayType = prettyType(type);
+  const typeSentence = startsWithVowel(displayType)
+    ? `an ${displayType}`
+    : `a ${displayType}`;
+
   return (
     <Card>
       <CardContent>
@@ -53,6 +62,10 @@ export default function AssetStatusDetail({
           <Link href={webuiLink} target="_blank" rel="noopener noreferrer">
             View on WebUI
           </Link>
+        </div>
+
+        <div className={classes.links}>
+          From {displayName}, {typeSentence}
         </div>
 
         <Table>
@@ -82,4 +95,9 @@ export default function AssetStatusDetail({
       </CardContent>
     </Card>
   );
+}
+
+function startsWithVowel(s: string): boolean {
+  const c = s.slice(0, 1);
+  return ["a", "e", "i", "o", "u"].indexOf(c.toLowerCase()) !== -1;
 }
