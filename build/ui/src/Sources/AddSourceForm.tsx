@@ -54,7 +54,7 @@ export default function AddAssetForm() {
       .catch(e => console.error(`Error getting options: ${e.stack}`));
   }, []);
 
-  async function addSource() {
+  async function addSource(): Promise<void> {
     try {
       if (!type) throw Error("Must select a type first");
       validateForm();
@@ -76,7 +76,7 @@ export default function AddAssetForm() {
     }
   }
 
-  function validateForm() {
+  function validateForm(): void {
     for (const field of fields) {
       const value = inputs[field.id];
       if (field.required && !value) throw Error(`${field.label} is required`);

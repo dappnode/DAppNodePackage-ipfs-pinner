@@ -80,7 +80,7 @@ const App: React.FC = () => {
 
   // Use the peers call to check if the cluster is OK
   useEffect(() => {
-    async function triggerPingCluster() {
+    async function triggerPingCluster(): Promise<void> {
       try {
         await pingCluster(undefined);
         setClusterError("");

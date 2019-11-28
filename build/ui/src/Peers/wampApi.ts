@@ -53,7 +53,7 @@ export interface DappnodeParams {
 }
 
 export async function getCurrentIdentity(): Promise<DappnodeParams> {
-  return await wrapCall({
+  return await wrapCall<DappnodeParams>({
     event: "getParams.dappmanager.dnp.dappnode.eth",
     kwargs: {}
   });
@@ -63,7 +63,7 @@ export async function getCurrentClusterSettings(): Promise<
   ClusterDnp | undefined
 > {
   getCurrentIdentity();
-  const dnps: ClusterDnp[] = await wrapCall({
+  const dnps = await wrapCall<ClusterDnp[]>({
     event: "listPackages.dappmanager.dnp.dappnode.eth",
     kwargs: {}
   });
@@ -83,7 +83,7 @@ export async function setClusterEnvs(envs: ClusterEnvs): Promise<void> {
   if (settingEnvs) throw Error(`Already setting cluster ENVs`);
   try {
     settingEnvs = true;
-    await wrapCall({
+    await wrapCall<null>({
       event: "updatePackageEnv.dappmanager.dnp.dappnode.eth",
       kwargs: { id: ipfsClusterName, envs, restart: true }
     });
@@ -95,7 +95,7 @@ export async function setClusterEnvs(envs: ClusterEnvs): Promise<void> {
 }
 
 export async function getClusterLogs(): Promise<string> {
-  return await wrapCall({
+  return await wrapCall<string>({
     event: "logPackage.dappmanager.dnp.dappnode.eth",
     kwargs: { id: ipfsClusterName, options: { tail: 200, timestamp: true } }
   });
@@ -112,7 +112,7 @@ export async function getClusterLogs(): Promise<string> {
  *   - toastMessage: {string} Triggers a pending toast
  *   - toastOnError: {bool} Triggers a toast on error only
  */
-async function wrapCall({
+async function wrapCall<R>({
   event,
   args = [],
   kwargs = {}
@@ -120,7 +120,7 @@ async function wrapCall({
   event: string;
   args?: any[];
   kwargs: any;
-}) {
+}): Promise<R> {
   // Get session
   const session = await getSession();
   // If session is not available, fail gently

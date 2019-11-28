@@ -2,7 +2,7 @@ import { prettyRepoEns, prettyRegistryEns } from "./format";
 
 const separator = "/";
 
-function getDisplayName(type: string, parts: string[]) {
+function getDisplayName(type: string, parts: string[]): string {
   switch (type) {
     case "hash": {
       const [hash, label] = parts;

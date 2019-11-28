@@ -1,15 +1,15 @@
-export function shortName(ens: string) {
+export function shortName(ens: string): string {
   if (!ens || typeof ens !== "string") return ens;
   if (!ens.includes(".")) return ens;
   return ens.split(".")[0];
 }
 
-export const capitalize = (s: string) => {
+export const capitalize = (s: string): string => {
   if (!s || typeof s !== "string") return s;
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
-export function shortNameCapitalized(name: string) {
+export function shortNameCapitalized(name: string): string {
   if (!name || typeof name !== "string") return name;
   const _name = shortName(name)
     // Convert all "-" and "_" to spaces
@@ -22,7 +22,7 @@ export function shortNameCapitalized(name: string) {
   return _name.charAt(0).toUpperCase() + _name.slice(1);
 }
 
-export function prettyRepoEns(ensName: string) {
+export function prettyRepoEns(ensName: string): string {
   if (!ensName) return ensName;
   let [shortName, ...registryArr] = ensName.split(".");
   registryArr = registryArr.filter(s => s !== "eth");
@@ -36,7 +36,7 @@ export function prettyRepoEns(ensName: string) {
     : prettyShortName;
 }
 
-export function prettyRegistryEns(ensName: string) {
+export function prettyRegistryEns(ensName: string): string {
   if (!ensName) return ensName;
   let registryArr = ensName.split(".");
   registryArr = registryArr.filter(s => s !== "eth");
@@ -47,7 +47,7 @@ export function prettyRegistryEns(ensName: string) {
     .join(" ");
 }
 
-export function prettyType(type: string) {
+export function prettyType(type: string): string {
   if (!type || typeof type !== "string") return type;
   return capitalize(type.replace(new RegExp("-", "g"), " "));
 }

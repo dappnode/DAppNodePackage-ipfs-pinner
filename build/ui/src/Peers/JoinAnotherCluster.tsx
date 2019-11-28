@@ -61,7 +61,7 @@ export default function JoinAnotherCluster({
    * subsequent re-connections.
    */
   useEffect(() => {
-    async function joinCluster() {
+    async function joinCluster(): Promise<void> {
       const { secret, multiaddress } = parseUrlToShare(location.search);
       if (!secret || !multiaddress) return;
       if (!yourPeerId) return; // Wait for yourPeer to be able to verify it's not you
@@ -150,7 +150,9 @@ export default function JoinAnotherCluster({
    * a text will alert that it's taking too long to connect.
    */
   useEffect(() => {
-    async function guessIfBoostrapConnectionFailed(toAddPeerId: string) {
+    async function guessIfBoostrapConnectionFailed(
+      toAddPeerId: string
+    ): Promise<void> {
       try {
         const logsString = await getClusterLogs();
         const logsWithPossibleError = logsString

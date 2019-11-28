@@ -20,7 +20,9 @@ function SourcesTable({
   peers: ClusterPeer[];
   summary?: boolean;
 }) {
-  async function deleteSource({ multiname }: SourceWithMetadata) {
+  async function deleteSource({
+    multiname
+  }: SourceWithMetadata): Promise<void> {
     console.log(`deleting source ${multiname}`);
     await socket.delSource(multiname);
     console.log(`Successfully deleted ${multiname}`);

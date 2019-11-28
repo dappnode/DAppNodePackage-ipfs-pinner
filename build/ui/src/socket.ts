@@ -69,7 +69,7 @@ export const onPollStatus = (cb: (pollStatus: PollStatus) => void) => {
  * Validators
  */
 
-function validateSources(sources: SourceWithMetadata[]) {
+function validateSources(sources: SourceWithMetadata[]): void {
   try {
     if (!Array.isArray(sources)) throw Error(`Sources is not an array`);
   } catch (e) {
@@ -77,7 +77,7 @@ function validateSources(sources: SourceWithMetadata[]) {
     throw e;
   }
 }
-function validateAssets(assets: AssetWithMetadata[]) {
+function validateAssets(assets: AssetWithMetadata[]): void {
   try {
     if (!Array.isArray(assets)) throw Error(`Assets is not an array`);
   } catch (e) {
@@ -85,7 +85,7 @@ function validateAssets(assets: AssetWithMetadata[]) {
     throw e;
   }
 }
-function validatePeers(peers: ClusterPeer[]) {
+function validatePeers(peers: ClusterPeer[]): void {
   try {
     if (!Array.isArray(peers)) throw Error(`Peers is not an array`);
   } catch (e) {
@@ -93,7 +93,7 @@ function validatePeers(peers: ClusterPeer[]) {
     throw e;
   }
 }
-function validatePollStatus(pollStatus: PollStatus) {
+function validatePollStatus(pollStatus: PollStatus): void {
   try {
     if (pollStatus && typeof pollStatus !== "object")
       throw Error(`Poll status must be an object`);

@@ -4,7 +4,7 @@ import { peersPath } from "./data";
 const secretParamName = "secret";
 const multiaddressParamName = "multiaddress";
 
-export function getUrlToShare(secret: string, multiaddress: string) {
+export function getUrlToShare(secret: string, multiaddress: string): string {
   const baseUrl = new URL(apiUrl);
   baseUrl.pathname = peersPath;
   baseUrl.searchParams.set(secretParamName, secret);
@@ -12,14 +12,16 @@ export function getUrlToShare(secret: string, multiaddress: string) {
   return baseUrl.toString();
 }
 
-export function parseUrlToShare(urlSearch: string) {
+export function parseUrlToShare(
+  urlSearch: string
+): { secret: string | null; multiaddress: string | null } {
   const queryParams = new URLSearchParams(urlSearch);
   const secret = queryParams.get(secretParamName);
   const multiaddress = queryParams.get(multiaddressParamName);
   return { secret, multiaddress };
 }
 
-export function getRandomHex(bytes: number) {
+export function getRandomHex(bytes: number): string {
   const array = window.crypto.getRandomValues(new Uint8Array(bytes));
   return Array.from(array)
     .map(b => b.toString(16).padStart(2, "0"))
@@ -107,15 +109,15 @@ export function parsePeerIdFromMultiaddress(multiaddress: string): string {
     .slice(-1)[0];
 }
 
-function isAlphanumeric(data: string) {
+function isAlphanumeric(data: string): boolean {
   return /^[a-zA-Z0-9]+$/.test(data);
 }
 
-function isIp4(ip4: string) {
+function isIp4(ip4: string): boolean {
   return /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(ip4);
 }
 
-function isDomain(domain: string) {
+function isDomain(domain: string): boolean {
   return /^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?$/.test(
     domain
   );

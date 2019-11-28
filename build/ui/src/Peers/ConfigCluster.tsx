@@ -28,7 +28,7 @@ export default function ConfigCluster({ peers }: { peers: ClusterPeer[] }) {
     getDappnodeIdentity();
   }, []);
 
-  async function getDappnodeIdentity() {
+  async function getDappnodeIdentity(): Promise<void> {
     try {
       const { domain, staticIp, name } = await wampApi.getCurrentIdentity();
       setYourIden({ domain, staticIp, name });
@@ -37,7 +37,7 @@ export default function ConfigCluster({ peers }: { peers: ClusterPeer[] }) {
     }
   }
 
-  async function getCurrentClusterSettings() {
+  async function getCurrentClusterSettings(): Promise<void> {
     try {
       setLoadingSecret(true);
 
@@ -65,11 +65,14 @@ export default function ConfigCluster({ peers }: { peers: ClusterPeer[] }) {
     }
   }
 
-  async function onJoinClusterSuccess() {
+  async function onJoinClusterSuccess(): Promise<void> {
     getCurrentClusterSettings();
   }
 
-  async function setClusterSettings(secret: string, multiaddress: string) {
+  async function setClusterSettings(
+    secret: string,
+    multiaddress: string
+  ): Promise<void> {
     try {
       await wampApi.setClusterEnvs({
         CLUSTER_SECRET: secret,
@@ -80,7 +83,7 @@ export default function ConfigCluster({ peers }: { peers: ClusterPeer[] }) {
     }
   }
 
-  async function generateSecret() {
+  async function generateSecret(): Promise<void> {
     try {
       setGeneratingSecret(true);
       await wampApi.setClusterEnvs({ CLUSTER_SECRET: getRandomHex(32) });
@@ -92,7 +95,7 @@ export default function ConfigCluster({ peers }: { peers: ClusterPeer[] }) {
     }
   }
 
-  function getMultiaddress() {
+  function getMultiaddress(): string {
     if (!hostPort) throw Error("Cluster 9096 port not exposed");
     if (!yourPeerId) throw Error("Can't get your peer ID");
     if (!yourIdentity) throw Error("Can't get your DAppNode's identity");
