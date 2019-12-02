@@ -2,7 +2,7 @@ version: '3.4'
 services:
   ipfs-pinner.dnp.dappnode.eth:
     build: ./build
-    image: 'ipfs-pinner.dnp.dappnode.eth:0.1.0'
+    image: 'ipfs-pinner.dnp.dappnode.eth:0.1.1'
     restart: always
     volumes:
       - 'data:/usr/src/app/data'
