@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "shortDescription": "Pin anything, and don't worry for persistence",
   "description": "Go to the IPFS pinner UI to start \n\n http://ipfs-pinner.dappnode \n\n",
-  "avatar": "/ipfs/QmfEzmGVku9ZquTYkE6zfpomgekjs6yKNUM24EPXQk5mBr",
   "type": "service",
   "author": "DAppNode Association <admin@dappnode.io> (https://github.com/dappnode)",
   "contributors": [
@@ -19,7 +18,7 @@
     "url": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner"
   },
   "dependencies": {
-    "ipfs-cluster.dnp.dappnode.eth": "/ipfs/QmP3SM3wrvEjii9gWir5oekoCVdgVGrmw9g8VfBWujUuTm"
+    "ipfs-cluster.dnp.dappnode.eth": "latest"
   },
   "bugs": {
     "url": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner/issues"
