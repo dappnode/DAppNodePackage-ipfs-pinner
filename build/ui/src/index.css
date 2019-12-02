@@ -1,0 +1,43 @@
+body {
+  margin: 0;
+  font-family: "Roboto";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  background-color: #f9fafb;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+a {
+  text-decoration: none;
+}
+
+.atention-grab {
+  animation: pulse-opacity 1s infinite ease-in-out;
+  --opacity-from: 0.5;
+  --opacity-to: 1;
+}
+@keyframes pulse-opacity {
+  0% {
+    opacity: var(--opacity-from);
+  }
+  50% {
+    opacity: var(--opacity-to);
+  }
+  100% {
+    opacity: var(--opacity-from);
+  }
+}
+
+/* Override general Material UI style */
+
+.MuiTableCell-root {
+  padding-right: 14px !important;
+}

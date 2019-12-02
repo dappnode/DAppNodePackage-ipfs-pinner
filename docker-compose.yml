@@ -1,37 +1,16 @@
-version: "3.4"
-
+version: '3.4'
 services:
-  replicator:
+  ipfs-pinner.dnp.dappnode.eth:
     build: ./build
-    image: replicator_0.1.0
-    container_name: replicator
+    image: 'ipfs-pinner.dnp.dappnode.eth:0.1.0'
     restart: always
     volumes:
-      - pin-data:/usr/src/app/data
+      - 'data:/usr/src/app/data'
     environment:
-      - IPFS_API_URL=http://ipfs:5001
-      - REGISTRY_CSV=dnp.dappnode.eth
-      - EXTERNAL_IPFS_API_CSV=infura
-    logging:
-      options:
-        max-size: 10m
-        max-file: "3"
-
-  ipfs:
-    image: ipfs/go-ipfs
-    container_name: ipfs
-    restart: always
-    volumes:
-      - "ipfsdnpdappnodeeth_export:/export"
-      - "ipfsdnpdappnodeeth_data:/data/ipfs"
-    ports:
-      - "4001:4001"
-    logging:
-      options:
-        max-size: 10m
-        max-file: "3"
-
+      - IPFS_CLUSTER_HOST=ipfs-cluster.dappnode
+      - IPFS_CLUSTER_PORT=9094
+      - IPFS_API_HOST=ipfs.dappnode
+      - 'WEB3_HOST_URL=http://fullnode.dappnode:8545'
+      - LOG_LEVEL=
 volumes:
-  pin-data: {}
-  ipfsdnpdappnodeeth_export: {}
-  ipfsdnpdappnodeeth_data: {}
+  data: {}
