@@ -11,6 +11,7 @@ services:
       - IPFS_CLUSTER_PORT=9094
       - IPFS_API_HOST=ipfs.dappnode
       - 'WEB3_HOST_URL=http://fullnode.dappnode:8545'
+      - IGNORE_REGISTRY_IF_GETH=true
       - LOG_LEVEL=
 volumes:
   data: {}
