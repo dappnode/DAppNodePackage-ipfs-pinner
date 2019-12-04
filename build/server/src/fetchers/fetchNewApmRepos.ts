@@ -1,6 +1,7 @@
 import getNewReposFromRegistry from "../web3/getNewReposFromRegistry";
 
 const shortNameBlacklist = ["apm-registry", "apm-enssub", "apm-repo"];
+const firstRegistryInMainnet = 5264766;
 
 // For testing
 export interface ApmRegistryRepo {
@@ -28,7 +29,10 @@ export default async function fetchNewApmRepos(
   registryName: string,
   fromBlock: number
 ): Promise<ApmRegistryRepo[]> {
-  const rawEvents = await getNewReposFromRegistry(registryName, fromBlock || 0);
+  const rawEvents = await getNewReposFromRegistry(
+    registryName,
+    fromBlock || firstRegistryInMainnet
+  );
 
   const repos: ApmRepoEvent[] = rawEvents
     .map(event => ({
