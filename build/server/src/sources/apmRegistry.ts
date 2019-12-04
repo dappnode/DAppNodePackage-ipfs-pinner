@@ -13,6 +13,7 @@ import resolveEnsDomain from "../fetchers/fetchEnsAddress";
 import { checkIfContractIsRegistry } from "../web3/checkIfContractIsRegistry";
 import logs from "../logs";
 import ensureAncientBlocks from "../web3/ensureAncientBlocks";
+import fetchIsNodeGeth from "../fetchers/fetchIsNodeGeth";
 
 const repoBlacklist: { [name: string]: true } = {
   "testing.dnp.dappnode.eth": true,
@@ -68,6 +69,10 @@ export const verify: VerifySourceFunction = async function(source: SourceAdd) {
       "Ancient blocks are not synced. APM registries rely on them to fetch new repos"
     );
   }
+
+  // #### TODO / PATCH
+  if (await shouldIgnoreRegistry())
+    throw Error(`APM registries on Geth nodes is not currently supported`);
 };
 
 export const poll: PollSourceFunction = async function({
@@ -75,6 +80,9 @@ export const poll: PollSourceFunction = async function({
   currentOwnSources,
   internalState: lastBlock
 }: PollSourceFunctionArg) {
+  // #### TODO / PATCH
+  if (await shouldIgnoreRegistry()) return {};
+
   const { name } = parseMultiname(source.multiname);
   const fromBlock = parseInt(lastBlock);
   const newRepos = await fetchNewApmRepos(name, fromBlock);
@@ -98,3 +106,19 @@ export const poll: PollSourceFunction = async function({
     internalState: String(currentLastBlock)
   };
 };
+
+/**
+ * #### TODO / PATCH: Geth nodes currently take +2min to resolve getLogs
+ * Disable registries for now until a solution is found
+ */
+async function shouldIgnoreRegistry(): Promise<boolean> {
+  if ((process.env.IGNORE_REGISTRY_IF_GETH || "") !== "true") return false;
+
+  try {
+    return await fetchIsNodeGeth();
+  } catch (e) {
+    // Ignore errors caused by JSON RPC that do not expose the web3_clientVersion endpoint
+    logs.warn(`Error on fetchIsNodeGeth: ${e.stack}`);
+    return false;
+  }
+}

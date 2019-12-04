@@ -1,6 +1,6 @@
 {
   "name": "ipfs-pinner.dnp.dappnode.eth",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "shortDescription": "Pin anything, and don't worry for persistence",
   "description": "Go to the IPFS pinner UI to start \n\n http://ipfs-pinner.dappnode \n\n",
   "type": "service",
@@ -8,7 +8,11 @@
   "contributors": [
     "dappLion <dapplion@dappnode.io> (https://github.com/dapplion)"
   ],
-  "keywords": ["IPFS", "Cluster", "Pinner"],
+  "keywords": [
+    "IPFS",
+    "Cluster",
+    "Pinner"
+  ],
   "links": {
     "homepage": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner#readme",
     "ui": "http://ipfs-pinner.dappnode"
