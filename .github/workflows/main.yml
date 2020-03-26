@@ -1,0 +1,28 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  test-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: "10.15.3"
+        # This is a dockerized application, the node app is in /build/server
+      - run: yarn
+        working-directory: ./build/server
+      - run: yarn test
+        working-directory: ./build/server
+      - run: yarn test:int
+        working-directory: ./build/server
+
+  build-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: docker-compose build
