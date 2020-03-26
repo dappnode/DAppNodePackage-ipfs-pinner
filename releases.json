@@ -5,5 +5,13 @@
     "uploadedTo": {
       "dappnode": "Thu, 28 Nov 2019 02:09:51 GMT"
     }
+  },
+  "0.1.1": {
+    "hash": "/ipfs/QmeEFMLRVgoRByz5VqtsnveAtKjrEq8QLiybJQsPkqM28j",
+    "type": "directory",
+    "uploadedTo": {
+      "dappnode": "Wed, 04 Dec 2019 16:49:53 GMT"
+    },
+    "link": "http://my.dappnode/#/sdk/publish/r=ipfs-pinner.dnp.dappnode.eth&v=0.1.1&h=%2Fipfs%2FQmeEFMLRVgoRByz5VqtsnveAtKjrEq8QLiybJQsPkqM28j"
   }
 }
