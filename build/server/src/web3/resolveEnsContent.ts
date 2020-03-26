@@ -18,7 +18,7 @@ const interfaces = [
   CONTENT_INTERFACE_ID
 ];
 
-const ensAddr = "0x314159265dd8dbb310642f98f50c066173c1259b";
+const ensAddr = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e";
 const ensInterface = [
   "function resolver(bytes32 nodeHash) constant returns (address resolver)"
 ];
