@@ -53,10 +53,18 @@ export interface DappnodeParams {
 }
 
 export async function getCurrentIdentity(): Promise<DappnodeParams> {
-  return await wrapCall<DappnodeParams>({
-    event: "getParams.dappmanager.dnp.dappnode.eth",
-    kwargs: {}
-  });
+  try {
+    return await wrapCall<DappnodeParams>({
+      event: "systemInfoGet.dappmanager.dnp.dappnode.eth",
+      kwargs: {}
+    });
+  } catch (e) {
+    // Compatible with new and old endpoint
+    return await wrapCall<DappnodeParams>({
+      event: "getParams.dappmanager.dnp.dappnode.eth",
+      kwargs: {}
+    });
+  }
 }
 
 export async function getCurrentClusterSettings(): Promise<
