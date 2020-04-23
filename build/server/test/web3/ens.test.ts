@@ -31,9 +31,7 @@ const domainToContent = {
   "decentral.eth": "/ipfs/QmXufxJH2a14QcWdvaHq3PMmFLK8xmCXoD68NVaxchSEVi",
   "mycrypto.dappnode.eth":
     "/ipfs/Qmdojo8KAsZu7XTkETYwSiZMCjdUa58YNZCUKmsZ21i8gV",
-  "eth2dai.eduadiez.eth":
-    "/ipfs/QmZoHo1wi4G9VHX6xLmMBRdFpdHMkHnsqVXqV6Vsng9m8j",
-  "tornadocash.eth": "/ipfs/QmWaLGVeTHwdiu2mZj4NUqeAMRPnfUC6pRcFMjzQMoG2y7"
+  "eth2dai.eduadiez.eth": "/ipfs/QmZoHo1wi4G9VHX6xLmMBRdFpdHMkHnsqVXqV6Vsng9m8j"
 };
 
 const contentHashes = {
