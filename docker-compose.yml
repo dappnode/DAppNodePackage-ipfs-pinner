@@ -1,16 +1,16 @@
-version: '3.4'
+version: "3.4"
 services:
   ipfs-pinner.dnp.dappnode.eth:
     build: ./build
-    image: 'ipfs-pinner.dnp.dappnode.eth:0.1.3'
+    image: "ipfs-pinner.dnp.dappnode.eth:0.1.3"
     restart: always
     volumes:
-      - 'data:/usr/src/app/data'
+      - "data:/usr/src/app/data"
     environment:
       - IPFS_CLUSTER_HOST=ipfs-cluster.dappnode
       - IPFS_CLUSTER_PORT=9094
-      - IPFS_API_HOST=ipfs.dappnode
-      - 'WEB3_HOST_URL=http://fullnode.dappnode:8545'
+      - IPFS_API_URL=http://ipfs.dappnode:5001
+      - WEB3_HOST_URL=http://fullnode.dappnode:8545
       - IGNORE_REGISTRY_IF_GETH=true
       - LOG_LEVEL=
 volumes:
