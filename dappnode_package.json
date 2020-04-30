@@ -1,6 +1,6 @@
 {
   "name": "ipfs-pinner.dnp.dappnode.eth",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "shortDescription": "Pin anything, and don't worry for persistence",
   "description": "Go to the IPFS pinner UI to start \n\n http://ipfs-pinner.dappnode \n\n",
   "type": "service",
