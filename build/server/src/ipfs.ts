@@ -1,15 +1,13 @@
-import request from "request-promise-native";
 import logs from "./logs";
+const Ipfs = require("ipfs-http-client");
 
-const host = process.env.IPFS_API_HOST || "localhost";
-const port = process.env.IPFS_API_PORT || "5001";
-const protocol = process.env.IPFS_API_PROTOCOL || "http";
+const ipfsApiUrl = process.env.IPFS_API_URL || "http://localhost:5001";
 
 const ipfsCatTimeout = 5 * 1000;
 const ipfsAddTimeout = 10 * 1000;
 
-const httpApiUrl = `${protocol}://${host}:${port}/api/v0`;
-logs.info("IPFS HTTP API", { httpApiUrl });
+logs.info("IPFS HTTP API", { ipfsApiUrl });
+const ipfs = Ipfs(ipfsApiUrl);
 
 export const directoryErrorMessage = "dag node is a directory";
 export const timeoutErrorMessage = "Timeout - hash not available";
@@ -47,7 +45,7 @@ function handleErrors(e: ErrorArg): void {
   if (path && method) req = `${method || ""} ${path || "unknown"}`;
 
   if (e.message.includes("ECONNREFUSED"))
-    throw Error(`Can't connect to IPFS API at ${httpApiUrl}`);
+    throw Error(`Can't connect to IPFS API at ${ipfsApiUrl}`);
 
   if (e.message.includes("ESOCKETTIMEDOUT") || e.message.includes("ETIMEDOUT"))
     throw Error(timeoutErrorMessage);
@@ -57,58 +55,19 @@ function handleErrors(e: ErrorArg): void {
 }
 
 /**
- * Streams file from url to IPFS
- * Methodology reference
- *  - `form.append` https://github.com/form-data/form-data#usage
- *
- * @param url "https://raw.githubusercontent.com/danfinlay/ethereum-ens-network-map/master/index.js"
- * @returns res = {
- *   Hash: "QmVqbBsi4jswchAvBK4USLhcUPKQVXN7893PxtFq85xrtH",
- *   Size: 164
- * }
- */
-export const addFromUrl = (
-  url: string
-): Promise<{ Hash: string; Size: number }> =>
-  new Promise((resolve, reject) => {
-    const req = request(`${httpApiUrl}/add`, (err, res, body) => {
-      /**
-       * - If the url does not resolve, request will return this object
-       *   { Message: 'multipart: NextPart: EOF', Code: 0, Type: 'error' }
-       * - If the IPFS API is not available, the promise will reject
-       */
-      if (err) reject(err);
-      else {
-        const bodyJson = JSON.parse(body);
-        if (bodyJson.Hash) resolve(bodyJson.Hash);
-        else if (bodyJson.Type === "error")
-          if ((bodyJson.Message || "").includes("EOF")) reject(Error("404"));
-          else reject(Error(bodyJson.Message));
-        else reject(Error(`Unknown body format: ${body}`));
-      }
-    });
-    const form = req.form();
-    form.append("file", request(url));
-  });
-
-/**
  * Add raw string to IPFS as file
  *
  * @param data "amazing raw content"
  * @returns raw CID "QmVqbBsi4jswchAvBK4USLhcUPKQVXN7893PxtFq85xrtH"
  */
 export async function add(data: string): Promise<string> {
-  return await request
-    .post(`${httpApiUrl}/add`, {
-      qs: { "only-hash": false },
-      json: true,
-      timeout: ipfsAddTimeout,
-      formData: {
-        file: Buffer.from(data)
-      }
-    })
-    .catch(handleErrors)
-    .then((res: { Hash: string; Size: number }) => res.Hash);
+  const content = Ipfs.Buffer.from(data);
+
+  const files = [];
+  for await (const file of ipfs.add(content, { timeout: ipfsAddTimeout })) {
+    files.push(file);
+  }
+  return files[0].cid.toString();
 }
 
 /**
@@ -122,13 +81,17 @@ export async function add(data: string): Promise<string> {
  * - length [int64]: Maximum number of bytes to read. Required: no.
  */
 export async function catJson<R>(hash: string): Promise<R> {
-  return await request
-    .get(`${httpApiUrl}/cat`, {
-      qs: {
-        arg: hash
-      },
-      json: true,
+  try {
+    const chunks = [];
+    for await (const chunk of ipfs.cat(hash, {
       timeout: ipfsCatTimeout
-    })
-    .catch(handleErrors);
+    })) {
+      chunks.push(chunk);
+    }
+    const data = Buffer.concat(chunks);
+    return JSON.parse(data.toString());
+  } catch (e) {
+    handleErrors(e);
+    throw e;
+  }
 }
