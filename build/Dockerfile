@@ -19,6 +19,8 @@ FROM node:10.15.3-alpine as server_build
 WORKDIR /usr/src/app
 COPY server/package.json server/yarn.lock ./
 RUN yarn
+COPY server/patches ./patches
+RUN yarn postinstall
 COPY server .
 RUN yarn build
 # Results in build/index.js
