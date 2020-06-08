@@ -8,6 +8,10 @@ module.exports = {
     path: path.resolve(__dirname, "build"),
     filename: "index.js"
   },
+  optimization: {
+    // Minimizing reduces file size 6MB -> 3MB. Not worth it to lose debuggability
+    minimize: false
+  },
   // externals: [/node_modules/, "bufferutil", "utf-8-validate"],
   resolve: {
     extensions: [".ts", ".js"]
