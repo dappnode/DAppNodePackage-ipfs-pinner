@@ -1,6 +1,6 @@
 import * as eventBus from "../eventBus";
 import { parseType } from "../utils/multiname";
-import logs from "../logs";
+import { logs } from "../logs";
 import omit from "lodash/omit";
 import throttle from "lodash/throttle";
 import {

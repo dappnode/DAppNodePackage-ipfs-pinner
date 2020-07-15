@@ -29,8 +29,26 @@ RUN yarn build
 # Final layer
 ################
 
-FROM alpine
+FROM frolvlad/alpine-glibc
 WORKDIR /usr/src/app
+
+### IPFS Cluster
+ENV GOPATH                 /go
+ENV SRC_PATH               /go/src/github.com/ipfs/ipfs-cluster
+ENV IPFS_CLUSTER_PATH      /data/ipfs-cluster
+ENV IPFS_CLUSTER_CONSENSUS crdt
+RUN mkdir -p $IPFS_CLUSTER_PATH
+
+EXPOSE 9094 
+EXPOSE 9095
+EXPOSE 9096
+
+COPY --from=ipfs/ipfs-cluster /usr/local/bin/ipfs-cluster-service /usr/local/bin/ipfs-cluster-service
+COPY --from=ipfs/ipfs-cluster /usr/local/bin/ipfs-cluster-ctl /usr/local/bin/ipfs-cluster-ctl
+COPY --from=ipfs/ipfs-cluster /usr/local/bin/ipfs-cluster-follow /usr/local/bin/ipfs-cluster-follow
+COPY --from=ipfs/ipfs-cluster /usr/local/bin/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+### NodeJS App
 # Lightest way to have node in alpine
 RUN apk add --update nodejs
 

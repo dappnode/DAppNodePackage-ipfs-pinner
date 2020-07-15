@@ -1,7 +1,7 @@
 import path from "path";
 import * as eventBus from "./eventBus";
-import { dbFactory } from "./dbFactory";
-import logs from "./logs";
+import { dbFactory } from "./utils/dbFactory";
+import { logs } from "./logs";
 import { CacheState, PollStatus } from "./types";
 
 const cacheDbPath = path.join(process.env.DATA_PATH || ".", "cachedb.json");

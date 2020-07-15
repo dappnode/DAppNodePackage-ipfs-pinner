@@ -4,7 +4,7 @@ import omit from "lodash/omit";
 import pick from "lodash/pick";
 import mapKeys from "lodash/mapKeys";
 import mapValues from "lodash/mapValues";
-import logs from "./logs";
+import { logs } from "./logs";
 import {
   PinStatus,
   Asset,

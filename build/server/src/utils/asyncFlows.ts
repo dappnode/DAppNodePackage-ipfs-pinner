@@ -1,5 +1,5 @@
 import async from "async";
-import logs from "../logs";
+import { logs } from "../logs";
 
 /**
  * Makes sure the target async function is running only once at every instant.

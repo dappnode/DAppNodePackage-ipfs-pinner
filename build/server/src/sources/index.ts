@@ -2,7 +2,7 @@ import mapValues from "lodash/mapValues";
 import { PollSourceFunction, VerifySourceFunction, State } from "../types";
 import { modifyState } from "../state";
 import { pollSourcesReturnStateChange } from "./pollSources";
-import logs from "../logs";
+import { logs } from "../logs";
 
 // Aggregate sources
 import * as apmRepo from "./apmRepo";

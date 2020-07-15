@@ -1,5 +1,5 @@
 import SockerIo from "socket.io";
-import logs from "../logs";
+import { logs } from "../logs";
 
 interface SocketReturn<R> {
   data?: R;

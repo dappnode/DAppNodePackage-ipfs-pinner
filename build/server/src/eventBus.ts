@@ -1,5 +1,5 @@
 import EventEmitter from "events";
-import logs from "./logs";
+import { logs } from "./logs";
 import { Source, PollStatus } from "./types";
 
 /** HOW TO:

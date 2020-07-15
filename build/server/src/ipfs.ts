@@ -1,4 +1,4 @@
-import logs from "./logs";
+import { logs } from "./logs";
 const Ipfs = require("ipfs-http-client");
 
 const ipfsApiUrl = process.env.IPFS_API_URL || "http://localhost:5001";

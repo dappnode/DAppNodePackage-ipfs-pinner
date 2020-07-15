@@ -11,7 +11,7 @@ import fetchBlockNumber from "../fetchers/fetchBlockNumber";
 import * as apmRepo from "./apmRepo";
 import resolveEnsDomain from "../fetchers/fetchEnsAddress";
 import { checkIfContractIsRegistry } from "../web3/checkIfContractIsRegistry";
-import logs from "../logs";
+import { logs } from "../logs";
 import ensureAncientBlocks from "../web3/ensureAncientBlocks";
 import fetchIsNodeGeth from "../fetchers/fetchIsNodeGeth";
 

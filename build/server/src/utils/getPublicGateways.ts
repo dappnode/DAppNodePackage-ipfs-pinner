@@ -1,5 +1,5 @@
 import request from "request-promise-native";
-import logs from "../logs";
+import { logs } from "../logs";
 
 const timeout = 15 * 1000;
 

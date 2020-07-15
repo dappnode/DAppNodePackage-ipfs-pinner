@@ -17,7 +17,7 @@ import { timeoutErrorMessage } from "../ipfs";
 import isIpfsHash from "../utils/isIpfsHash";
 import resolveEnsDomain from "../fetchers/fetchEnsAddress";
 import { checkIfContractIsRepo } from "../web3/checkIfContractIsRepo";
-import logs from "../logs";
+import { logs } from "../logs";
 import { knownLastBrokenVersions } from "../params";
 
 // Define somewhere else

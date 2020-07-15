@@ -1,6 +1,6 @@
 import * as eventBus from "../eventBus";
 import * as cacheDb from "../cacheDb";
-import logs from "../logs";
+import { logs } from "../logs";
 
 // Api Methods
 import { getSources, addSource, deleteSource } from "./sources";

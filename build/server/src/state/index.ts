@@ -4,7 +4,7 @@ import * as eventBus from "../eventBus";
 import { StateChange, State } from "../types";
 import { processStateChange } from "./utils";
 import stringify from "json-stringify-safe";
-import logs from "../logs";
+import { logs } from "../logs";
 
 export async function modifyState(
   stateModifierFn: (state: State) => Promise<StateChange>

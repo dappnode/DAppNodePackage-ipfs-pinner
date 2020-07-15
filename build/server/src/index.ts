@@ -8,10 +8,11 @@ import cors from "cors";
 import setupSocketIo from "./api";
 import { pollSources } from "./sources";
 import * as eventBus from "./eventBus";
-import logs from "./logs";
+import { logs } from "./logs";
 import { runOnlyOneSequentially } from "./utils/asyncFlows";
 // Display stack traces with source-maps
 import "source-map-support/register";
+import { initializeCluster } from "./clusterBinary";
 
 const app = express();
 
@@ -45,5 +46,13 @@ setInterval(() => {
 eventBus.pollSources.on(async () => {
   pollSourcesThrottled();
 });
+
+// Initialize ipfs-cluster-service and start the process
+initializeCluster({ peername })
+  .catch(e => {
+    e.message = `Error initializing cluster: ${e.message}`;
+    throw e;
+  })
+  .then(() => logs.info(`Initialized cluster`));
 
 export {}; // Force ES6 module
