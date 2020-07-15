@@ -5,7 +5,8 @@ import {
   AssetWithMetadata,
   SourceWithMetadata,
   ClusterPeer,
-  PollStatus
+  PollStatus,
+  JoinClusterData
 } from "./types";
 
 export const apiUrl =
@@ -24,7 +25,7 @@ const socket = io(apiUrl);
  * @param routePath
  */
 function socketGet<T, R>(routePath: string) {
-  return function(arg: T): Promise<R> {
+  return function (arg: T): Promise<R> {
     return new Promise((resolve, reject) => {
       socket.emit(routePath, arg, (res: { error: string; data: R }) => {
         if (res.error) reject(Error(res.error));
@@ -37,6 +38,8 @@ function socketGet<T, R>(routePath: string) {
 export const getOptions = socketGet<undefined, SourceOption[]>("options");
 export const addSource = socketGet<SourceFormInputs, null>("addSource");
 export const delSource = socketGet<string, null>("delSource");
+export const joinCluster = socketGet<JoinClusterData, null>("joinCluster");
+export const getJoinUrl = socketGet<undefined, string>("getJoinUrl");
 export const pingCluster = socketGet<undefined, null>("pingCluster");
 export const refresh = socketGet<undefined, null>("refresh");
 

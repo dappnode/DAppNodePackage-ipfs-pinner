@@ -3,7 +3,8 @@ import { getPeers } from "../ipfsCluster";
 import {
   clusterBinary,
   readConfig,
-  setNewClusterSettings
+  setNewClusterSettings,
+  readIdentity
 } from "../clusterBinary";
 import { validateBootstrapMultiaddress } from "../utils/configCluster";
 
@@ -23,13 +24,14 @@ export async function joinCluser({
   const multiaddressSafe = validateBootstrapMultiaddress(multiaddress);
 
   // Validate URL params
-  if (multiaddressSafe.includes(yourPeerId))
-    throw Error("You can't add yourself");
+  const ownPeerId = readIdentity().id;
+  if (ownPeerId && multiaddressSafe.includes(ownPeerId))
+    throw Error(`Can't add own peer id ${ownPeerId}`);
 
   // Compare the multiaddress after validation in case some character is different at the end
   const config = readConfig();
   if (config.cluster.secret === secret)
-    throw Error("Already joinned this cluster");
+    throw Error("Already joined this cluster");
 
   setNewClusterSettings({
     secret,
@@ -75,7 +77,7 @@ export async function joinCluser({
           .join(", ");
         if (errors) reject(`Error connecting to bootstrap: ${errors}`);
       }
-      clusterBinary.subscribeToLogs(onClusterLogs);
+      clusterBinary.onData(onClusterLogs);
 
       // Timeout if guess success and guess failure fail
       const timeout = setTimeout(() => {
@@ -84,7 +86,7 @@ export async function joinCluser({
 
       onDone = () => {
         clearInterval(checkPeersInterval);
-        clusterBinary.unsubscribe(onClusterLogs);
+        clusterBinary.offData(onClusterLogs);
         clearTimeout(timeout);
       };
     });

@@ -151,3 +151,8 @@ export interface SourceFormInputs {
 export interface SourceTypeAndInputs extends SourceFormInputs {
   type: string;
 }
+
+export interface JoinClusterData {
+  secret: string;
+  multiaddress: string;
+}

@@ -1,153 +1,56 @@
-import React, { useState } from "react";
-import {
-  TextField,
-  Tooltip,
-  Button,
-  Typography,
-  CircularProgress
-} from "@material-ui/core";
-import copy from "copy-to-clipboard";
+import React, { useState, useEffect } from "react";
+import { Typography, CircularProgress } from "@material-ui/core";
+import { CopyableInput } from "./CopyableInput";
 import { makeStyles } from "@material-ui/core/styles";
-import { getUrlToShare } from "./configClusterUtils";
-import { ClusterStatus } from "./wampApi";
-
-// To keep the three elements at a consistent height
-const height = "40px";
+import * as socket from "../socket";
+import { RequestStatus } from "./data";
 
 const useStyles = makeStyles(theme => ({
   root: {
     marginBottom: theme.spacing(7),
     height: theme.spacing(9.5)
-  },
-  appendedButton: {
-    marginTop: "8px"
-  },
-  input: {
-    marginRight: theme.spacing(2)
-  },
-  inputGroup: {
-    display: "flex"
   }
 }));
 
-function CopyableInput({ text }: { text: string }) {
-  const [showTooltip, setShowTooltip] = useState(false);
+export default function ShareLinkToJoinCluster() {
+  const [getUrlStatus, setGetUrlStatus] = useState({} as RequestStatus);
+  const [joinUrl, setJoinUrl] = useState<string>();
 
-  function onCopy() {
-    copy(text);
-    setShowTooltip(true);
-  }
+  useEffect(() => {
+    async function getJoinUrl(): Promise<void> {
+      try {
+        setGetUrlStatus({ loading: "Getting url to join cluster..." });
+        await socket.getJoinUrl(undefined).then(setJoinUrl);
+        setGetUrlStatus({ success: true });
+      } catch (e) {
+        setGetUrlStatus({ error: e.message });
+        console.error(`Error on getDappnodeIdentity ${e.stack}`);
+      }
+    }
+    getJoinUrl();
+  }, []);
 
   const classes = useStyles();
-
-  return (
-    <Tooltip
-      open={showTooltip}
-      title={"Copied to clipboard!"}
-      leaveDelay={1500}
-      onClose={() => setShowTooltip(false)}
-    >
-      <div className={classes.inputGroup}>
-        <TextField
-          className={classes.input}
-          onClick={onCopy}
-          InputProps={{
-            readOnly: true,
-            disabled: true
-          }}
-          value={text}
-          fullWidth
-          margin="dense"
-          variant="outlined"
-        />
-        <Button
-          className={classes.appendedButton}
-          onClick={onCopy}
-          variant="contained"
-          style={{ height }}
-        >
-          Copy
-        </Button>
-      </div>
-    </Tooltip>
-  );
-}
-
-export default function ShareLinkToJoinCluster({
-  yourMultiaddress,
-  errorMessage,
-  yourSecret,
-  generatingSecret,
-  loadingSecret,
-  clusterStatus,
-  generateSecret
-}: {
-  yourMultiaddress: string;
-  errorMessage: string;
-  yourSecret: string;
-  generatingSecret: boolean;
-  loadingSecret: boolean;
-  clusterStatus: ClusterStatus;
-  generateSecret: () => void;
-}) {
-  const classes = useStyles();
-
-  const isReady = yourSecret && yourMultiaddress;
-  const isLoading = loadingSecret || generatingSecret;
-  const loadingMsg = loadingSecret
-    ? "Loading secret and params..."
-    : generatingSecret
-    ? "Generating secret to start your cluster..."
-    : "";
-  const isReadyToGenerateSecret = yourMultiaddress && !yourSecret;
-  // Parse errors
-  const errorMsgs: string[] = [];
-  if (errorMessage) errorMsgs.push(errorMessage);
-  if (clusterStatus === "not-found")
-    errorMsgs.push("Cluster DNP not found or not installed");
-  if (clusterStatus === "stopped") errorMsgs.push("Cluster DNP is stopped");
-  const isError = errorMsgs.length > 0;
-  const errorMsg = errorMsgs.join(". ");
 
   return (
     <div className={classes.root}>
-      {isReady ? (
+      {joinUrl ? (
         <>
           <Typography color="textSecondary">
             Share this link with a trusted peer to join your cluster
           </Typography>
-          <CopyableInput text={getUrlToShare(yourSecret, yourMultiaddress)} />
+          <CopyableInput text={joinUrl} />
         </>
-      ) : isLoading ? (
+      ) : getUrlStatus.loading ? (
         <>
-          <Typography color="textSecondary">{loadingMsg}</Typography>
+          <Typography color="textSecondary">{getUrlStatus.loading}</Typography>
           <CircularProgress size={24} />
         </>
-      ) : isReadyToGenerateSecret ? (
+      ) : getUrlStatus.error ? (
         <>
-          <Typography color="textSecondary">
-            To be able to invite other peers to your cluster, first generate a
-            cluster secret
-          </Typography>
-          <Button
-            onClick={generateSecret}
-            disabled={generatingSecret}
-            variant="contained"
-            color="primary"
-            style={{ whiteSpace: "nowrap", color: "white" }}
-          >
-            Generate secret
-          </Button>
+          <Typography color="textSecondary">{getUrlStatus.error}</Typography>
         </>
-      ) : isError ? (
-        <>
-          <Typography color="textSecondary">{errorMsg}</Typography>
-        </>
-      ) : (
-        <>
-          <Typography color="textSecondary">Loading...</Typography>
-        </>
-      )}
+      ) : null}
     </div>
   );
 }

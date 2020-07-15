@@ -8,12 +8,15 @@ const dappnodeIpfsNodeMultiaddress = "/dns4/ipfs.dappnode/tcp/5001";
 const localListenMultiaddress = "/ip4/0.0.0.0/tcp/9094";
 const ipfsClusterPath = process.env.IPFS_CLUSTER_PATH || "/data/ipfs-cluster";
 const servicePath = path.join(ipfsClusterPath, "service.json");
+const identityPath = path.join(ipfsClusterPath, "identity.json");
 
 /**
  * ipfs-cluster-service binary instance. Makes sure it is always running
  * and allows to reset it when necessary.
  */
-const clusterBinary = Supervisor("ipfs-cluster-service", [], {
+export const clusterBinary = Supervisor("ipfs-cluster-service", [], {
+  // cluster-service MUST be shutdown with SIGTERM so it persists peers to disk
+  instantKill: false,
   log: data => logs.info("[ipfs-cluster-service]", data)
 });
 
@@ -84,6 +87,13 @@ export function untrustPeer(peerMultiaddress: string): void {
  */
 export function readConfig(): IpfsClusterServiceJson {
   return JSON.parse(fs.readFileSync(servicePath, "utf8"));
+}
+
+/**
+ * Utility function to read the local identity.json file
+ */
+export function readIdentity(): IpfsClusterIdentityJson {
+  return JSON.parse(fs.readFileSync(identityPath, "utf8"));
 }
 
 /**
@@ -225,4 +235,13 @@ interface IpfsClusterServiceJson {
       };
     };
   };
+}
+
+/**
+ * Sample identity.json with default init values
+ * ipfs-cluster-service version 0.13.0-next+gitd2a83e45f1ad5f84a3eae70b46fb9b521b90ab03
+ */
+interface IpfsClusterIdentityJson {
+  id: string; // "12D3KooWHkd7hP5nYLNFM6VAgLwkg4jCdy8U8eHpfbmL4P4LNS1X",
+  private_key: string; // "CAESQGHwJpbblgswW/Is6f5aZqOL/IyJuD1gp4epAMcGPzdwdegSxRLK/6lBnfVnFRcw1lTRSgS2qdUexrrtpr/x4vo="
 }

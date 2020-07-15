@@ -1,4 +1,5 @@
 import { spawn, ChildProcess } from "child_process";
+import { EventEmitter } from "events";
 
 const signalsToPass: NodeJS.Signals[] = [
   "SIGTERM",
@@ -29,6 +30,8 @@ export function Supervisor(
   // State
   let child: ChildProcess | null = null;
   let crashQueued = false;
+  // Events
+  const eventEmitter = new EventEmitter();
 
   // Pass kill signals through to child
   for (const signal of signalsToPass) {
@@ -55,35 +58,52 @@ export function Supervisor(
       `Starting child process with '${command} ${args.join(" ")}' ${child.pid}`
     );
 
-    // Pipe output
+    // Pipe output to process
     if (child.stdout) child.stdout.pipe(process.stdout);
     if (child.stderr) child.stderr.pipe(process.stderr);
+
+    // Log output to internal event emitter
+    const onData = (chunk: Buffer) =>
+      eventEmitter.emit("data", chunk.toString());
+    if (child.stdout) child.stdout.on("data", onData);
+    if (child.stderr) child.stderr.on("data", onData);
 
     child.addListener("exit", function(code) {
       if (!crashQueued) {
         log(`Program ${command} ${args.join(" ")} exited with code ${code}`);
-        child = null;
+        if (child) {
+          if (child.stdout) child.stdout.removeAllListeners();
+          if (child.stderr) child.stderr.removeAllListeners();
+          child = null;
+        }
       }
       setTimeout(startChild, restartWait);
     });
   }
 
-  function restartChild(): void {
-    if (crashQueued) return;
-
-    crashQueued = true;
-    setTimeout(function() {
-      if (!child) return startChild();
-      if (instantKill) {
-        process.kill(child.pid, "SIGKILL");
-      } else {
-        process.kill(child.pid, "SIGTERM");
-      }
-    }, 50);
-  }
-
   return {
-    restart: restartChild,
+    restart(): void {
+      if (crashQueued) return;
+
+      crashQueued = true;
+      setTimeout(function() {
+        if (!child) return startChild();
+        if (instantKill) {
+          process.kill(child.pid, "SIGKILL");
+        } else {
+          process.kill(child.pid, "SIGTERM");
+        }
+      }, 50);
+    },
+
+    onData(cb: (data: string) => void): void {
+      eventEmitter.on("data", cb);
+    },
+
+    offData(cb: (data: string) => void): void {
+      eventEmitter.off("data", cb);
+    },
+
     child
   };
 }
