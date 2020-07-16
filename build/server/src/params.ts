@@ -2,6 +2,7 @@ export const maxApmVersionsToPin = 3;
 
 export const dappmanagerApiUrl = `http://172.33.1.7`;
 export const dappmanagerGlobalEnvsUrl = `${dappmanagerApiUrl}/global-envs`;
+export const CLUSTER_PORT = 9096;
 
 /**
  * Specify the LAST BROKEN version of a specific repo

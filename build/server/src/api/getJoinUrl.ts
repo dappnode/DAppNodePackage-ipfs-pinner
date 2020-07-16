@@ -1,5 +1,7 @@
 import { getBootstrapMultiaddress } from "../utils/configCluster";
 import { readConfig, readIdentity } from "../clusterBinary";
+import { getHostname } from "../utils/getGlobalEnvs";
+import { CLUSTER_PORT } from "../params";
 
 export async function getJoinUrl(): Promise<{
   secret: string;
@@ -11,12 +13,11 @@ export async function getJoinUrl(): Promise<{
   const peerId = readIdentity().id;
   if (!peerId) throw Error("peerId not set in cluster identity");
 
-  const { staticIp, domain } = getDappnodeConfig();
+  const hostname = await getHostname();
 
   const multiaddress = getBootstrapMultiaddress({
-    staticIp,
-    domain,
-    port,
+    hostname,
+    port: CLUSTER_PORT,
     peerId
   });
 

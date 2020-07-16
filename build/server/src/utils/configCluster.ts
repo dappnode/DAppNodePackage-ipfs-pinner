@@ -1,11 +1,11 @@
+import ip from "ip";
+
 export function getBootstrapMultiaddress({
-  staticIp,
-  domain,
+  hostname,
   port,
   peerId
 }: {
-  staticIp?: string;
-  domain?: string;
+  hostname: string;
   port: number;
   peerId: string;
 }): string {
@@ -15,9 +15,9 @@ export function getBootstrapMultiaddress({
   if (!isAlphanumeric(peerId))
     throw Error(`peerId must be alphanumeric: ${peerId}`);
 
-  if (staticIp) return `/ip4/${staticIp}/tcp/${port}/p2p/${peerId}`;
-  if (domain) return `/dns4/${domain}/tcp/${port}/p2p/${peerId}`;
-  throw Error(`staticIp or domain must be defined`);
+  if (ip.isV4Format(hostname))
+    return `/ip4/${hostname}/tcp/${port}/p2p/${peerId}`;
+  else return `/dns4/${hostname}/tcp/${port}/p2p/${peerId}`;
 }
 
 /**
