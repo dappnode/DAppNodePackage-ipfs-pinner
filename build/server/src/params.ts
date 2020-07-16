@@ -1,5 +1,8 @@
 export const maxApmVersionsToPin = 3;
 
+export const dappmanagerApiUrl = `http://172.33.1.7`;
+export const dappmanagerGlobalEnvsUrl = `${dappmanagerApiUrl}/global-envs`;
+
 /**
  * Specify the LAST BROKEN version of a specific repo
  * This app will ignore all versions EQUAL or LESS than the specified semver

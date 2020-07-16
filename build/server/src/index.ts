@@ -13,6 +13,7 @@ import { runOnlyOneSequentially } from "./utils/asyncFlows";
 // Display stack traces with source-maps
 import "source-map-support/register";
 import { initializeCluster } from "./clusterBinary";
+import { getServerName } from "./utils/getGlobalEnvs";
 
 const app = express();
 
@@ -48,11 +49,13 @@ eventBus.pollSources.on(async () => {
 });
 
 // Initialize ipfs-cluster-service and start the process
-initializeCluster({ peername })
+getServerName()
+  .catch(e => logs.error(`Error getting server name`, e))
+  .then(serverName => initializeCluster({ peername: serverName || "DAppNode" }))
+  .then(() => logs.info(`Initialized cluster`))
   .catch(e => {
     e.message = `Error initializing cluster: ${e.message}`;
     throw e;
-  })
-  .then(() => logs.info(`Initialized cluster`));
+  });
 
 export {}; // Force ES6 module
