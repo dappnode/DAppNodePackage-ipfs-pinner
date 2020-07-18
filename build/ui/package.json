@@ -8,7 +8,7 @@
     "apexcharts": "^3.8.6",
     "autobahn": "^19.10.1",
     "copy-to-clipboard": "^3.2.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "material-table": "^1.50.0",
     "moment": "^2.24.0",
     "react": "^16.10.0",
