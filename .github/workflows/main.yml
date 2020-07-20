@@ -1,18 +1,25 @@
-name: Test
-
-on: [push, pull_request]
+name: "Main"
+on:
+  pull_request:
+    paths:
+      - "build/**"
+  push:
+    branches:
+      - "master"
+      - "v[0-9]+.[0-9]+.[0-9]+"
+    paths:
+      - "build/**"
 
 jobs:
-  test-server:
-    runs-on: ubuntu-latest
-
+  test:
+    runs-on: ubuntu-16.04
+    name: Unit tests
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Setup node
         uses: actions/setup-node@v1
         with:
-          node-version: "10.15.3"
-        # This is a dockerized application, the node app is in /build/server
+          node-version: "12.x"
       - run: yarn
         working-directory: ./build/server
       - run: yarn test
@@ -20,9 +27,27 @@ jobs:
       - run: yarn test:int
         working-directory: ./build/server
 
-  build-image:
-    runs-on: ubuntu-latest
+  build-test:
+    runs-on: ubuntu-16.04
+    name: Build test
+    if: github.event_name != 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - run: docker-compose build
 
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [unit-test, integration-test]
+    if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
-      - run: docker-compose build
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "10.x"
+      - name: Publish
+        run: npx @dappnode/dappnodesdk publish patch --dappnode_team_preset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
