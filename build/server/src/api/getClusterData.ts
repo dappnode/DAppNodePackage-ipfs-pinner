@@ -1,12 +1,10 @@
 import { getBootstrapMultiaddress } from "../utils/configCluster";
 import { readConfig, readIdentity } from "../clusterBinary";
 import { getHostname } from "../utils/getGlobalEnvs";
-import { CLUSTER_PORT } from "../params";
+import { CLUSTER_P2P_PORT } from "../params";
+import { JoinClusterData } from "../types";
 
-export async function getJoinUrl(): Promise<{
-  secret: string;
-  multiaddress: string;
-}> {
+export async function getClusterData(): Promise<JoinClusterData> {
   const secret = readConfig().cluster.secret;
   if (!secret) throw Error("secret not set in cluster config");
 
@@ -17,7 +15,7 @@ export async function getJoinUrl(): Promise<{
 
   const multiaddress = getBootstrapMultiaddress({
     hostname,
-    port: CLUSTER_PORT,
+    port: CLUSTER_P2P_PORT,
     peerId
   });
 

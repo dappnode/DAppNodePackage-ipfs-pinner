@@ -14,3 +14,4 @@ services:
       - LOG_LEVEL=
 volumes:
   data: {}
+  cluster-data: {}

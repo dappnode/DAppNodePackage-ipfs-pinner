@@ -14,7 +14,7 @@ const identityPath = path.join(ipfsClusterPath, "identity.json");
  * ipfs-cluster-service binary instance. Makes sure it is always running
  * and allows to reset it when necessary.
  */
-export const clusterBinary = Supervisor("ipfs-cluster-service", [], {
+export const clusterBinary = Supervisor("ipfs-cluster-service", ["daemon"], {
   // cluster-service MUST be shutdown with SIGTERM so it persists peers to disk
   instantKill: false,
   log: data => logs.info("[ipfs-cluster-service]", data)

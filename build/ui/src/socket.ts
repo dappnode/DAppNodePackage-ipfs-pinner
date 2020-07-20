@@ -39,7 +39,9 @@ export const getOptions = socketGet<undefined, SourceOption[]>("options");
 export const addSource = socketGet<SourceFormInputs, null>("addSource");
 export const delSource = socketGet<string, null>("delSource");
 export const joinCluster = socketGet<JoinClusterData, null>("joinCluster");
-export const getJoinUrl = socketGet<undefined, string>("getJoinUrl");
+export const getClusterData = socketGet<undefined, JoinClusterData>(
+  "getClusterData"
+);
 export const pingCluster = socketGet<undefined, null>("pingCluster");
 export const refresh = socketGet<undefined, null>("refresh");
 

@@ -5,7 +5,7 @@ import { logs } from "../logs";
 // Api Methods
 import { getSources, addSource, deleteSource } from "./sources";
 import { joinCluser } from "./joinCluster";
-import { getJoinUrl } from "./getJoinUrl";
+import { getClusterData } from "./getClusterData";
 import { getAssets } from "./assets";
 import { getOptions } from "./options";
 import { getPeers } from "./peers";
@@ -20,7 +20,7 @@ const pollStatusRoute = "pollStatus";
 const addSourceRoute = "addSource";
 const delSourceRoute = "delSource";
 const joinClusterRoute = "joinCluster";
-const getJoinUrlRoute = "getJoinUrl";
+const getClusterDataRoute = "getClusterData";
 const refreshRoute = "refresh";
 const pingClusterRoute = "pingCluster";
 
@@ -37,7 +37,7 @@ export default function setupSocketIo(io: SocketIO.Server): void {
     route(addSourceRoute, addSource);
     route(delSourceRoute, deleteSource);
     route(joinClusterRoute, joinCluser);
-    route(getJoinUrlRoute, getJoinUrl);
+    route(getClusterDataRoute, getClusterData);
     route(refreshRoute, refresh);
     route(pingClusterRoute, pingCluster);
   });

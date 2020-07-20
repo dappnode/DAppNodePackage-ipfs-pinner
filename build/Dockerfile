@@ -2,7 +2,7 @@
 # UI build
 ################
 
-FROM node:10.15.3-alpine as ui_build
+FROM node:12.17.0-alpine as ui_build
 WORKDIR /usr/src/app
 # Copy and install deps first to cache
 COPY ui/package.json ui/yarn.lock ./
@@ -15,7 +15,7 @@ RUN yarn build
 # Server build
 ################
 
-FROM node:10.15.3-alpine as server_build
+FROM node:12.17.0-alpine as server_build
 WORKDIR /usr/src/app
 COPY server/package.json server/yarn.lock ./
 RUN yarn
@@ -48,7 +48,7 @@ COPY --from=ipfs/ipfs-cluster /usr/local/bin/ipfs-cluster-ctl /usr/local/bin/ipf
 COPY --from=ipfs/ipfs-cluster /usr/local/bin/ipfs-cluster-follow /usr/local/bin/ipfs-cluster-follow
 
 ### NodeJS App
-# Lightest way to have node in alpine
+# Lightest way to have node in alpine, Should install v12.17.0
 RUN apk add --update nodejs
 
 ENV SERVER_PORT=80 \

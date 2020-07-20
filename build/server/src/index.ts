@@ -5,11 +5,11 @@ import compression from "compression";
 import path from "path";
 import logger from "morgan";
 import cors from "cors";
+import memoize from "memoizee";
 import setupSocketIo from "./api";
 import { pollSources } from "./sources";
 import * as eventBus from "./eventBus";
 import { logs } from "./logs";
-import { runOnlyOneSequentially } from "./utils/asyncFlows";
 // Display stack traces with source-maps
 import "source-map-support/register";
 import { initializeCluster } from "./clusterBinary";
@@ -37,15 +37,15 @@ app.get("*", (_0, res) => res.sendFile(path.resolve(filesPath, "index.html"))); 
 server.listen(port, () => logs.info(`Webserver on ${port}, ${filesPath}`));
 
 // MUST run only once at a time
-const pollSourcesThrottled = runOnlyOneSequentially(pollSources);
+const pollSourcesMem = memoize(pollSources, { promise: true, maxAge: 1000 });
 
 // Cron job to poll pin sources
 setInterval(() => {
-  pollSourcesThrottled();
+  pollSourcesMem();
 }, 5 * 60 * 1000);
 
 eventBus.pollSources.on(async () => {
-  pollSourcesThrottled();
+  pollSourcesMem();
 });
 
 // Initialize ipfs-cluster-service and start the process
