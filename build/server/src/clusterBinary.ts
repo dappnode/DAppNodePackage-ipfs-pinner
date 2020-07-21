@@ -34,18 +34,20 @@ export const clusterBinary = Supervisor(
 );
 
 export async function initializeCluster({ peername }: { peername: string }) {
-  await shellArgs("ipfs-cluster-service init", {
-    force: true,
-    consensus: "crdt"
-  });
+  if (!fs.existsSync(identityPath) || !fs.existsSync(servicePath)) {
+    await shellArgs("ipfs-cluster-service init", {
+      force: true,
+      consensus: "crdt"
+    });
 
-  editConfig(service => {
-    service.cluster.peername = peername;
-    service.consensus.crdt.trusted_peers = [];
-    service.ipfs_connector.ipfshttp.node_multiaddress = dappnodeIpfsNodeMultiaddress;
-    service.api.restapi.http_listen_multiaddress = localListenMultiaddress;
-    return service;
-  });
+    editConfig(service => {
+      service.cluster.peername = peername;
+      service.consensus.crdt.trusted_peers = ["*"];
+      service.ipfs_connector.ipfshttp.node_multiaddress = dappnodeIpfsNodeMultiaddress;
+      service.api.restapi.http_listen_multiaddress = localListenMultiaddress;
+      return service;
+    });
+  }
 
   clusterBinary.restart();
 }
