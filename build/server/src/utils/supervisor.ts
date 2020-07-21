@@ -7,6 +7,7 @@ const signalsToPass: NodeJS.Signals[] = [
   "SIGHUP",
   "SIGQUIT"
 ];
+const dataEvent = "data";
 
 /**
  * Restarts a child process when it crashes
@@ -53,18 +54,16 @@ export function Supervisor(
 
   function startChild(): void {
     crashQueued = false;
-    child = spawn(command, args, { stdio: "inherit" });
+    child = spawn(command, args);
     log(
       `Starting child process with '${command} ${args.join(" ")}' ${child.pid}`
     );
 
-    // Pipe output to process
-    if (child.stdout) child.stdout.pipe(process.stdout);
-    if (child.stderr) child.stderr.pipe(process.stderr);
-
     // Log output to internal event emitter
-    const onData = (chunk: Buffer) =>
-      eventEmitter.emit("data", chunk.toString());
+    const onData = (chunk: Buffer) => {
+      eventEmitter.emit(dataEvent, chunk.toString());
+      log(chunk.toString());
+    };
     if (child.stdout) child.stdout.on("data", onData);
     if (child.stderr) child.stderr.on("data", onData);
 
@@ -97,11 +96,11 @@ export function Supervisor(
     },
 
     onData(cb: (data: string) => void): void {
-      eventEmitter.on("data", cb);
+      eventEmitter.on(dataEvent, cb);
     },
 
     offData(cb: (data: string) => void): void {
-      eventEmitter.off("data", cb);
+      eventEmitter.off(dataEvent, cb);
     },
 
     child
