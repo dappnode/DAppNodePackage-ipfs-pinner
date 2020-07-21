@@ -8,8 +8,7 @@ import {
 } from "../clusterBinary";
 import { validateBootstrapMultiaddress } from "../utils/configCluster";
 
-const takingToLongError =
-  "Taking longer than expected, check the IPFS cluster logs to know if there was a connection problem.";
+const takingToLongError = "timeout, taking longer than expected.";
 
 export async function joinCluser({
   secret,

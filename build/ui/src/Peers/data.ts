@@ -1,6 +1,6 @@
 export const peersPath = "/peers";
-export const ipfsClusterLogs =
-  "http://my.dappnode/#/packages/ipfs-cluster.dnp.dappnode.eth/logs";
+export const ipfsPinnerLogs =
+  "http://my.dappnode/#/packages/ipfs-pinner.dnp.dappnode.eth/logs";
 
 export interface RequestStatus {
   loading?: string;

@@ -6,7 +6,7 @@ import { parseUrlToShare } from "./configClusterUtils";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import ErrorIcon from "@material-ui/icons/Error";
 import * as socket from "../socket";
-import { RequestStatus, ipfsClusterLogs } from "./data";
+import { RequestStatus, ipfsPinnerLogs } from "./data";
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -93,28 +93,29 @@ export default function JoinAnotherCluster() {
         </span>
       </Typography>
       <Typography component="p" color="textSecondary">
-        {loading
-          ? `${loading || "loading"}...`
-          : success
-          ? "Check the peers table to verify that your cluster was able to connect to the cluster bootstrap"
-          : error}
+        {loading ? (
+          `${loading || "loading"}...`
+        ) : success ? (
+          "Check the peers table to verify that your cluster was able to connect to the cluster bootstrap"
+        ) : error ? (
+          error.includes("longer than expected") ||
+          error.includes("timeout") ? (
+            <Typography component="p" color="textSecondary">
+              {error}. check the{" "}
+              <Link
+                href={ipfsPinnerLogs}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                IPFS pinner logs
+              </Link>{" "}
+              to know if there was a connection problem.
+            </Typography>
+          ) : (
+            error
+          )
+        ) : null}
       </Typography>
-
-      {error &&
-        (error.includes("longer than expected") ||
-          error.includes("timeout")) && (
-          <Typography component="p" color="textSecondary">
-            Taking longer than expected, check the{" "}
-            <Link
-              href={ipfsClusterLogs}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              IPFS cluster logs
-            </Link>{" "}
-            to know if there was a connection problem.
-          </Typography>
-        )}
     </div>
   );
 }
