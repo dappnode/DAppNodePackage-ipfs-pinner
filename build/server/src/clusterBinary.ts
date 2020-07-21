@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import { Supervisor } from "./utils/supervisor";
-import { logs } from "./logs";
 import { shellArgs } from "./utils/shell";
 
 const dappnodeIpfsNodeMultiaddress = "/dns4/ipfs.dappnode/tcp/5001";
@@ -14,11 +13,19 @@ const identityPath = path.join(ipfsClusterPath, "identity.json");
  * ipfs-cluster-service binary instance. Makes sure it is always running
  * and allows to reset it when necessary.
  */
-export const clusterBinary = Supervisor("ipfs-cluster-service", ["daemon"], {
-  // cluster-service MUST be shutdown with SIGTERM so it persists peers to disk
-  instantKill: false,
-  log: data => logs.info("[ipfs-cluster-service]", data)
-});
+export const clusterBinary = Supervisor(
+  "ipfs-cluster-service",
+  [
+    // Hide all INFO messages produced by the API requests
+    "--loglevel restapilog:error",
+    "daemon"
+  ],
+  {
+    // cluster-service MUST be shutdown with SIGTERM so it persists peers to disk
+    instantKill: false,
+    log: data => console.log("[ipfs-cluster] " + data)
+  }
+);
 
 export async function initializeCluster({ peername }: { peername: string }) {
   await shellArgs("ipfs-cluster-service init", {
