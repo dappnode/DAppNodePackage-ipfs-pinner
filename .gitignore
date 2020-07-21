@@ -33,6 +33,7 @@ typings/
 # DBs
 build/*db.json
 build/server/*db.json
+build/server/data
 
 # Build
 build/ui/build
