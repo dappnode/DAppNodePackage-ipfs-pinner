@@ -7,6 +7,8 @@ export const dappmanagerGlobalEnvsUrl = `${dappmanagerApiUrl}/global-envs`;
 export const CLUSTER_P2P_PORT = 9096;
 export const CLUSTER_API_PORT = 9094;
 export const CLUSTER_API_URL = `http://localhost:${CLUSTER_API_PORT}`;
+export const IPFS_CLUSTER_PATH =
+  process.env.IPFS_CLUSTER_PATH || "data/ipfs-cluster";
 
 /**
  * Specify the LAST BROKEN version of a specific repo

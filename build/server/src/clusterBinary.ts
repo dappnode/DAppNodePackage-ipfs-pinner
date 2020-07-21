@@ -1,7 +1,10 @@
 import fs from "fs";
 import path from "path";
+import dargs from "dargs";
 import { Supervisor } from "./utils/supervisor";
 import { shellArgs } from "./utils/shell";
+import { parsePeerIdFromMultiaddress } from "./utils/configCluster";
+import { IPFS_CLUSTER_PATH } from "./params";
 
 const dappnodeIpfsNodeMultiaddress = "/dns4/ipfs.dappnode/tcp/5001";
 const localListenMultiaddress = "/ip4/0.0.0.0/tcp/9094";
@@ -16,8 +19,11 @@ const identityPath = path.join(ipfsClusterPath, "identity.json");
 export const clusterBinary = Supervisor(
   "ipfs-cluster-service",
   [
-    // Hide all INFO messages produced by the API requests
-    "--loglevel restapilog:error",
+    ...dargs({
+      config: IPFS_CLUSTER_PATH,
+      // Hide all INFO messages produced by the API requests
+      loglevel: "restapilog:error"
+    }),
     "daemon"
   ],
   {
@@ -45,7 +51,8 @@ export async function initializeCluster({ peername }: { peername: string }) {
 }
 
 /**
- * Join an external cluster and restart and list of peers
+ * Set new secret and bootstrapPeers in the local config.json
+ * Restart the binary to apply changes
  */
 export function setNewClusterSettings({
   secret,
@@ -56,15 +63,25 @@ export function setNewClusterSettings({
 }): void {
   editConfig(service => {
     service.cluster.secret = secret;
+    /**
+     * peer_addresses = ["/ip4/172.19.0.2/tcp/9096/p2p/12D3KooWK3tVkERcMXqqikhaZhSNoXdSs4M5w6bMEtJomav3VFHX"]
+     */
     service.cluster.peer_addresses = bootstrapPeers;
-    service.consensus.crdt.trusted_peers = bootstrapPeers;
+    /**
+     * trusted_peers = ["12D3KooWK3tVkERcMXqqikhaZhSNoXdSs4M5w6bMEtJomav3VFHX"]
+     */
+    service.consensus.crdt.trusted_peers = bootstrapPeers.map(
+      parsePeerIdFromMultiaddress
+    );
     return service;
   });
+
+  clusterBinary.restart();
 }
 
 /**
  * Add a cluster peer to the trusted_peers list
- * @param peerMultiaddress "/dns4/cluster1.domain/tcp/9096/ipfs/QmcQ5XvrSQ4DouNkQyQtEoLczbMr6D9bSenGy6WQUCQUBt"
+ * @param peerMultiaddress "12D3KooWK3tVkERcMXqqikhaZhSNoXdSs4M5w6bMEtJomav3VFHX"
  */
 export function trustPeer(peerMultiaddress: string): void {
   editConfig(service => {
@@ -78,7 +95,7 @@ export function trustPeer(peerMultiaddress: string): void {
 
 /**
  * Remove a cluster peer from the trusted_peers list
- * @param peerMultiaddress "/dns4/cluster1.domain/tcp/9096/ipfs/QmcQ5XvrSQ4DouNkQyQtEoLczbMr6D9bSenGy6WQUCQUBt"
+ * @param peerMultiaddress "12D3KooWK3tVkERcMXqqikhaZhSNoXdSs4M5w6bMEtJomav3VFHX"
  */
 export function untrustPeer(peerMultiaddress: string): void {
   editConfig(service => {
