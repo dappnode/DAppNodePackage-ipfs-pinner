@@ -44,8 +44,6 @@ EXPOSE 9095
 EXPOSE 9096
 
 COPY --from=ipfs/ipfs-cluster /usr/local/bin/ipfs-cluster-service /usr/local/bin/ipfs-cluster-service
-COPY --from=ipfs/ipfs-cluster /usr/local/bin/ipfs-cluster-ctl /usr/local/bin/ipfs-cluster-ctl
-COPY --from=ipfs/ipfs-cluster /usr/local/bin/ipfs-cluster-follow /usr/local/bin/ipfs-cluster-follow
 
 ### NodeJS App
 # Lightest way to have node in alpine, Should install v12.17.0
