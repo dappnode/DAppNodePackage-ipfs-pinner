@@ -21,9 +21,6 @@
     "type": "git",
     "url": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner"
   },
-  "dependencies": {
-    "ipfs-cluster.dnp.dappnode.eth": "latest"
-  },
   "bugs": {
     "url": "https://github.com/dappnode/DAppNodePackage-ipfs-pinner/issues"
   },
