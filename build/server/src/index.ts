@@ -54,8 +54,8 @@ getServerName()
   .then(serverName => initializeCluster({ peername: serverName || "DAppNode" }))
   .then(() => logs.info(`Initialized cluster`))
   .catch(e => {
-    e.message = `Error initializing cluster: ${e.message}`;
-    throw e;
+    logs.error(`Error initializing cluster: ${e.message}`);
+    process.exit(1);
   });
 
 export {}; // Force ES6 module
