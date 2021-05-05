@@ -15,8 +15,7 @@ export const splitMultiname = (multiname: string): string[] =>
     .replace(/^\/+|\/+$/g, "")
     .split(separator)
     .filter(p => p)
-    .map(decodeURIComponent)
-    .map(s => s.trim());
+    .map(s => decodeURIComponent(s).trim());
 
 export const parseType = (multiname: string): string =>
   splitMultiname(multiname)[0];
