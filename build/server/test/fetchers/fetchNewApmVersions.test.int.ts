@@ -44,17 +44,16 @@ describe("fetcher > fetchNewVersionsFromRepo", () => {
 
     it(`Should return all versions for ${repo.name}`, async () => {
       const versions = await fetchNewApmVersions(repoName, 10);
-
-      const expectedVersion210 = {
-        version: "2.1.0",
-        contentUri: "ipfs:QmQmv6Sx2XGDKtncqZPYz3skQjJtxCbcfuPyyDh8iHx2P3"
+      console.log("versions: ", versions);
+      const expectedVersion212 = {
+        version: "2.1.2",
+        contentUri: "ipfs:QmWyueP8dtXwuojHX4ThZJpggxxpyQYaGvDoHJa7dcPUrh"
       };
 
-      const version210 = versions.find(
-        ({ version }) => version === expectedVersion210.version
+      const version212 = versions.find(
+        ({ version }) => version === expectedVersion212.version
       );
-
-      expect(version210).to.deep.equal(expectedVersion210);
+      expect(version212).to.deep.equal(expectedVersion212);
     }).timeout(30 * 1000);
   });
 });
