@@ -7,6 +7,7 @@ build/bundle.js
 
 # DNP data
 build_*/
+build
 
 # Logs
 logs
