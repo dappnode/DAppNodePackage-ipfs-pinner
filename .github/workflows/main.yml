@@ -12,13 +12,13 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "10.15.3"
-        # This is a dockerized application, the node app is in /build/server
+        # This is a dockerized application, the node app is in /src/server
       - run: yarn
-        working-directory: ./build/server
+        working-directory: ./src/server
       - run: yarn test
-        working-directory: ./build/server
+        working-directory: ./src/server
       - run: yarn test:int
-        working-directory: ./build/server
+        working-directory: ./src/server
 
   build-image:
     runs-on: ubuntu-latest

@@ -1,9 +1,9 @@
 # db 
-build/data/
-build/data/pin-data-db.json
+src/data/
+src/data/pin-data-db.json
 **/pin-data-db.json
-build/node_modules/
-build/bundle.js
+src/node_modules/
+src/bundle.js
 
 # DNP data
 build_*/
@@ -32,11 +32,11 @@ typings/
 
 
 # DBs
-build/*db.json
-build/server/*db.json
+src/*db.json
+src/server/*db.json
 
 # Build
-build/ui/build
-build/server/build
-build/server/dist
-build/server/stats.json
+src/ui/build
+src/server/build
+src/server/dist
+src/server/stats.json
