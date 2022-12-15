@@ -34,7 +34,7 @@
     "cors": "^2.8.5",
     "ethers": "^4.0.39",
     "ethers-ens": "1.0.0-beta.1",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "ipfs-http-client": "^44.1.1",
     "is-ipfs": "^0.6.1",
     "json-stringify-safe": "^5.0.1",
